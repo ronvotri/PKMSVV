@@ -240,7 +240,7 @@ patch('js/ui/settings-ui.js',
   "        + toggle('gamepad', 'Usar mando', 'Moverte, activar habilidades especiales y manejar los menús con el mando.')");
 patch('js/ui/settings-ui.js',
   '             <div><span class="padkey">LB</span> / <span class="padkey">RB</span></div><span>ataque anterior / siguiente</span>',
-  '             <div><span class="padkey">X</span></div><span>activar movimiento especial (si lo has aprendido)</span>');
+  '             <div><span class="padkey">X (Xbox) / □ (PlayStation)</span></div><span>activar movimiento especial (si lo has aprendido)</span>');
 patch('js/ui/settings-ui.js',
   'Toca un ataque de abajo para cambiarlo y el botón de arriba a la derecha para pausar.',
   'Todos los ataques se lanzan automáticamente; el botón especial aparece si aprendes una embestida. Pulsa el botón de arriba a la derecha para pausar.');

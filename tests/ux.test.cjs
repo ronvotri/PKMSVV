@@ -47,4 +47,6 @@ test('manual dash touch button and controller hints replace old attack cycling',
  assert.match(hud,/G\.Touch\.addButton\(x, y, size, size, \(\) => G\.Combat\.manualDash\(pl\)/);
  assert.match(settings,/activar movimiento especial/);
  assert.doesNotMatch(settings,/ataque anterior \/ siguiente/);
+ assert.match(settings,/X \(Xbox\) \/ □ \(PlayStation\)/);
+ assert.match(settings,/<kbd>F<\/kbd>/);
 });

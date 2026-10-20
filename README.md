@@ -137,3 +137,22 @@ File đầu ra: android/app/build/outputs/apk/debug/app-debug.apk.
 - **4 chiêu lao vào mục tiêu** (nhóm `dash`): chỉ kích hoạt thủ công bằng **F trên PC / X trên tay cầm / nút kỹ năng ở cạnh phải màn hình cảm ứng**. Nếu học nhiều hơn một chiêu lao tới, mỗi lần bấm sẽ kích hoạt một chiêu sẵn sàng theo vòng luân phiên. Không thể kích hoạt khi đang hồi chiêu hoặc game tạm dừng.
 - Màn hình **tiến hóa Pokémon** được đưa vào hệ thống chọn bằng tay cầm. D-pad/analog chọn, **A** xác nhận, **B** giữ nguyên dạng hiện tại.
 - Bản vá này là bản kiểm thử mới. Cần xác nhận trực tiếp với các tay cầm Xbox, PlayStation hoặc Switch vì ánh xạ nút thực tế có thể khác trên từng thiết bị.
+
+## Sao lưu và chia sẻ save Windows (.exe portable)
+
+Bản `.exe` **không chứa save đang chơi**. PKMSVV Electron đặt dữ liệu ứng dụng và tiến trình offline tại **`%APPDATA%\PKMSVV-Offline`** trên Windows; lưu riêng khỏi EXE nên có thể di chuyển/đổi tên file EXE mà không mất tiến trình.
+
+1. Thoát hẳn PKMSVV ở cả hai máy (kể cả cửa sổ chạy nền).
+2. Máy nguồn: **Win + R** → nhập `%APPDATA%\PKMSVV-Offline` → mở thư mục và nén **toàn bộ thư mục PKMSVV-Offline** thành ZIP. Không chỉ chép một file `Local Storage` lẻ.
+3. Máy nhận: chạy bản PKMSVV tương thích ít nhất một lần rồi thoát. Mở `%APPDATA%` và **đổi tên** thư mục `PKMSVV-Offline` hiện có thành `PKMSVV-Offline-backup` để giữ save cũ.
+4. Giải nén thư mục `PKMSVV-Offline` máy nguồn vào `%APPDATA%` ở máy nhận; sau đó khởi động lại game.
+5. Nếu có lỗi, đóng game, xóa thư mục vừa sao chép và đổi `PKMSVV-Offline-backup` về tên ban đầu.
+
+**Lưu ý:** đây là cách sao chép **toàn bộ dữ liệu cấu hình Electron** (bao gồm Local Storage và dữ liệu trình duyệt), không chỉ save Pokémon. Chỉ nhập ZIP từ người tin cậy, không trộn các file riêng lẻ, không ghi đè khi ứng dụng đang mở. Dữ liệu Android/APK ở bộ nhớ riêng và chưa có chức năng đồng bộ/xuất nhập với PC.
+
+### Điều khiển chiêu chủ động (hướng dẫn trong Cài đặt → Điều khiển)
+
+- PC: **F**.
+- Tay cầm Xbox: **X** (phím mặt ở bên trái). Tay cầm PlayStation: **□ Square**, nếu tay cầm dùng bố cục Gamepad chuẩn.
+- Android: nút kỹ năng **hiện khi học chiêu lao tới**.
+- Các chiêu không phải nhóm lao tới vẫn tự sử dụng khi hết hồi chiêu; chỉ những chiêu lao tới cần nhấn thủ công.
