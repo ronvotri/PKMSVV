@@ -59,7 +59,8 @@ test('Eevee branches use weather-independent stones or friendship + time',()=>{
  assert.equal(rule(133,134).item,'water-stone');
  assert.equal(evo.eligible(p,0,rule(133,196)),false);
  p.level=25;
- assert.equal(evo.eligible(p,240,rule(133,197)),false);
+ assert.equal(evo.eligible(p,0,rule(133,197)),false);
+ assert.equal(evo.eligible(p,240,rule(133,197)),true);
  assert.equal(evo.eligible(p,960,rule(133,196)),true);
 });
 test('Inkay requires level 30 and Haunter trade requires a link shard',()=>{
