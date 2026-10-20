@@ -44,7 +44,7 @@ test('evolution selection can be navigated and accepted with controller',()=>{
 });
 test('manual dash touch button and controller hints replace old attack cycling',()=>{
  const hud=file('js/ui/hud.js'),settings=file('js/ui/settings-ui.js');
- assert.match(hud,/G\.Touch\.addButton\(x, y, size, size, \(\) => G\.Combat\.manualDash\(pl\)/);
+ assert.match(hud,/G\.Touch\.addButton\(x,\s*y,\s*size,\s*size,\s*\(\)\s*=>\s*G\.Combat\.manualDash\(pl\)/);
  assert.match(settings,/activar movimiento especial/);
  assert.doesNotMatch(settings,/ataque anterior \/ siguiente/);
  assert.match(settings,/X \(Xbox\) \/ □ \(PlayStation\)/);
