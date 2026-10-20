@@ -133,7 +133,7 @@ fs.writeFileSync(path.join(game, 'js', 'core', 'pkmsvv-vi-font.js'),
   "  if (!fd || !fd.set || !fd.get) return;\n" +
   "  Object.defineProperty(P, 'font', { configurable: true, enumerable: fd.enumerable,\n" +
   "    get() { return fd.get.call(this); },\n" +
-  "    set(v) { const value = typeof v === 'string' ? v.replace(/\\\\bPixelify\\\\b/g, '\\\"Segoe UI\\\"') : v;\n" +
+  "    set(v) { const value = typeof v === 'string' ? v.replace(/\\bPixelify\\b/g, '\"Segoe UI\"') : v;\n" +
   "      return fd.set.call(this, value); } });\n" +
   "})();\n", 'utf8');
 patch('dev.html', '<script defer src="js/core/i18n.js"></script>',
