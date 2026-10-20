@@ -185,27 +185,14 @@ patch('js/systems/combat.js',
   "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }",
   "    if (m.kind === 'dash') { m.t = Math.max(0, (m.t || 0) - dt); return; }\n" +
   "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }");
-patch('js/systems/combat.js',
+patch("js/systems/combat.js",
   "  return { tick, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,",
-  "  let manualDashIndex = 0;\n" +
-  "  function manualDash(pl) {\n" +
-  "    if (!pl || pl.dead || G.Game.state !== 'playing') return false;\n" +
-  "    const choices = pl.moves.filter(m => m.kind === 'dash');\n" +
-  "    if (!choices.length) return false;\n" +
-  "    for (let k = 0; k < choices.length; k++) {\n" +
-  "      const i = (manualDashIndex + k) % choices.length, m = choices[i];\n" +
-  "      if (m.t > 0) continue;\n" +
-  "      manualDashIndex = (i + 1) % choices.length;\n" +
-  "      m.t = G.PKMSVVBalance.effectiveCooldown(pl, m);\n" +
-  "      pl.cast(m);\n" +
-  "      if (G.Coop.active) G.Coop.cast(pl, m);\n" +
-  "      m.castAt = performance.now();\n" +
-  "      run(pl, m);\n" +
-  "      return true;\n" +
-  "    }\n" +
-  "    return false;\n" +
-  "  }\n" +
-  "  return { tick, manualDash, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,");
+  "  function manualDash(pl) {\n    if (!pl || pl.dead || G.Game.state !== 'playing') return false;\n    const pick = G.PKMSVVDash.preview(pl);\n    if (!pick || !pick.ready) return false;\n    G.PKMSVVDash.consume(pl,pick);\n    const m=pick.move;\n    m.t = G.PKMSVVBalance.effectiveCooldown(pl,m);\n    pl.cast(m);\n    if (G.Coop.active) G.Coop.cast(pl,m);\n    m.castAt = performance.now();\n    run(pl,m);\n    return true;\n  }\n  return { tick, manualDash, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,");
+const dashQueueSrc=fs.readFileSync(path.join(project,'src','pkmsvv-dash-queue.js'),'utf8');
+fs.writeFileSync(path.join(game,'js','systems','pkmsvv-dash-queue.js'),dashQueueSrc,'utf8');
+patch("dev.html",
+  "<script defer src=\"js/systems/combat.js\"></script>",
+  "<script defer src=\"js/systems/pkmsvv-dash-queue.js\"></script>\n<script defer src=\"js/systems/combat.js\"></script>");
 patch('js/game.js',
   "    if (state !== 'playing' || !pl) return;\n    // PKMSVV: all learned abilities autocast, with no manual switching.",
   "    if (state !== 'playing' || !pl) return;\n" +
@@ -219,22 +206,21 @@ patch('js/core/gamepad.js',
   "      if (hit(BT.RB) || hit(BT.RT)) G.Input.virtual('keye');",
   "      // PKMSVV: X activates a learned dash. LB/RB no longer cycle attacks.\n" +
   "      if (hit(BT.X)) G.Input.virtual('keyf');");
-patch('js/ui/hud.js',
+patch("js/ui/hud.js",
   "    // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------",
-  "    // PKMSVV: one fixed active-skill button, only visible after learning a dash.\n" +
-  "    if (pl.moves.some(m => m.kind === 'dash')) {\n" +
-  "      const x = w - 90 - sa.right, y = h - 174 - sa.bottom, size = 64;\n" +
-  "      const dash = pl.moves.filter(m => m.kind === 'dash');\n" +
-  "      const next = dash.reduce((min, m) => Math.min(min, Math.max(0, m.t || 0)), Infinity);\n" +
-  "      roundRect(ctx, x, y, size, size, 14);\n" +
-  "      ctx.fillStyle = next <= 0 ? '#1b6590' : 'rgba(13,29,54,.87)'; ctx.fill();\n" +
-  "      ctx.lineWidth = 2; ctx.strokeStyle = next <= 0 ? '#53e1ff' : '#59718f'; ctx.stroke();\n" +
-  "      G.Icons.draw(ctx, 'move:' + dash[0].id, x + 14, y + 8, 36);\n" +
-  "      ctx.textAlign = 'center'; ctx.font = F(800, 11); ctx.fillStyle = '#fff';\n" +
-  "      ctx.fillText(next > 0 ? next.toFixed(1) + 's' : 'F / X', x + size / 2, y + 57);\n" +
-  "      if (touch) G.Touch.addButton(x, y, size, size, () => G.Combat.manualDash(pl), 4);\n" +
-  "    }\n" +
-  "    // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------");
+  "    // PKMSVV manual skill: preview uses the SAME queue as the F/X activation.\n    const manual = G.PKMSVVDash.preview(pl);\n    if (manual) {\n      const x = w - 90 - sa.right, y = h - 174 - sa.bottom, size = 64;\n      const m = manual.move, ready = manual.ready;\n      roundRect(ctx, x, y, size, size, 14);\n      ctx.fillStyle = ready ? '#1b6590' : 'rgba(13,29,54,.87)'; ctx.fill();\n      ctx.lineWidth = 2; ctx.strokeStyle = ready ? '#53e1ff' : '#59718f'; ctx.stroke();\n      G.Icons.draw(ctx, 'move:' + m.id, x + 14, y + 7, 36);\n      ctx.textAlign = 'center'; ctx.fillStyle = '#fff';\n      ctx.font = F(700, 10);\n      const moveName=G.T(m.name, 'move');\n      ctx.fillText(moveName.length > 12 ? moveName.slice(0, 11) + '…' : moveName,x + size / 2,y - 7);\n      ctx.font = F(800, 10);\n      ctx.fillText(ready ? 'F / X' : manual.remaining.toFixed(1)+'s',x+size/2,y+57);\n      if (manual.total > 1) {\n        ctx.font=F(700, 10);ctx.fillStyle='#a8eefe';\n        ctx.fillText((manual.index+1)+'/'+manual.total,x+size/2,y+size+13);\n      }\n      if(touch) G.Touch.addButton(x,y,size,size,()=>G.Combat.manualDash(pl),4);\n    }\n    // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------");
+patch("js/ui/hud.js",
+  "      if (m.kind === 'buff') ctx.fillText(m.lvl >= m.def.maxLvl ? 'MAX' : 'BUFF', x + 3, y + 10);",
+  "      if (m.kind === 'dash') { ctx.font = F(800, 7); ctx.fillText(G.T('Activa'), x + 3, y + 10); }\n      else if (m.kind === 'buff') ctx.fillText(m.lvl >= m.def.maxLvl ? 'MAX' : 'BUFF', x + 3, y + 10);");
+patch("js/ui/hud.js",
+  "ctx.strokeStyle = fused ? BOND : m && m.evolved ? '#ffd23f' : on ? col : 'rgba(140,170,210,.22)';",
+  "ctx.strokeStyle = m && m.kind === 'dash' ? '#53e1ff' : fused ? BOND : m && m.evolved ? '#ffd23f' : on ? col : 'rgba(140,170,210,.22)';");
+patch("js/systems/levelup.js",
+  "tag: G.U.TYPE_NAME[d.type] + (d.cat ? ' · ' + G.Stats.NAME[d.cat] : ''),",
+  "tag: G.U.TYPE_NAME[d.type] + ' · ' + (d.kind === 'dash' ? G.T('Habilidad activa') + ' (F/X)' : d.kind === 'buff' ? G.T('Potenciador automático') : G.T('Habilidad automática')) + (d.cat ? ' · ' + G.Stats.NAME[d.cat] : ''),");
+patch("js/ui/run-ui.js",
+  "const cat = m.cat ? `<span class=\"tag-chip\" style=\"background:${col}\">${G.Stats.NAME[m.cat]}</span>` : '<span class=\"sub\">Mejora</span>';",
+  "const cat = `<span class=\"tag-chip\" style=\"background:${m.kind === 'dash' ? '#168bc0' : col}\">${G.T(m.kind === 'dash' ? 'Habilidad activa' : m.kind === 'buff' ? 'Potenciador automático' : 'Habilidad automática')}</span>`;");
 patch('js/ui/settings-ui.js',
   "        + toggle('gamepad', 'Usar mando', 'Moverte, cambiar de ataque y manejar los menús con el mando.')",
   "        + toggle('gamepad', 'Usar mando', 'Moverte, activar habilidades especiales y manejar los menús con el mando.')");
@@ -389,6 +375,10 @@ patch('dev.html',
 // Newly added gamepad hints are bilingual as well. Keep upstream Spanish
 // source keys for i18n's text-node scanning, without introducing mixed UI.
 const freshLabels = [
+  ['Habilidad activa','Active skill','Kỹ năng chủ động'],
+  ['Habilidad automática','Automatic skill','Kỹ năng tự động'],
+  ['Potenciador automático','Automatic buff','Buff tự động'],
+  ['Activa','MANUAL','CHỦ ĐỘNG'],
   ['Moverte, activar habilidades especiales y manejar los menús con el mando.',
    'Move, activate special skills and navigate menus with the controller.',
    'Di chuyển, kích hoạt kỹ năng chủ động và điều khiển menu bằng tay cầm.'],
