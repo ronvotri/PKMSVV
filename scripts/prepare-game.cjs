@@ -298,6 +298,17 @@ patch('js/game.js', '    G.Weather.update(dt, time, pl);\n    G.FX.update(dt);',
 patch('js/game.js', '    if (!coop || G.Coop.isHost) maybeLevelUp();',
   '    if (!coop && pendingLevels === 0 && !G.Judgment.active && G.PKMSVVEvo.tryOpen(pl, time, () => { state = "playing"; })) state = "choice";\n    if (!coop || G.Coop.isHost) maybeLevelUp();');
 
+// Noncommercial derivative attribution; keep original JPTER78 and SpriteCollab credits.
+const pkmsvvCredit = 'Việt hóa và Mod điều chỉnh bởi Votri Valley';
+patch('dev.html',
+  '      <div class="t2">Mundo Misterioso</div>',
+  '      <div class="t2">Mundo Misterioso</div>\n' +
+  '      <div class="pkmsvv-attribution" translate="no" lang="vi">' + pkmsvvCredit + '</div>');
+patch('dev.html',
+  '    <p class="boot-ld">Cargando…</p>',
+  '    <p class="pkmsvv-boot-credit" translate="no" lang="vi">' + pkmsvvCredit + '</p>\n' +
+  '    <p class="boot-ld">Cargando…</p>');
+
 // The sign-out button is part of the original UI, but this build has one
 // passwordless persistent local profile. Keep the element so upstream init
 // bindings remain valid while hiding the obsolete affordance.
@@ -412,6 +423,8 @@ if (!html.includes('</head>')) throw new Error('index.html không có thẻ head
 html = html.replace(/<title>[^<]*<\/title>/, '<title>PKMSVV — Pokémon Sinh Tồn (Việt hóa)</title>');
 html = html.replace('</head>', '<style>\n' +
   'body,button,input,select{font-family:"Segoe UI",Tahoma,Arial,sans-serif!important;}\n' +
+  '.pkmsvv-attribution{font-family:"Segoe UI",Tahoma,sans-serif;color:#ffe3a0;font-size:clamp(11px,1.25vw,14px);line-height:1.45;margin:8px auto 0;text-align:center;max-width:min(420px,90vw);text-shadow:0 1px 3px #111c37;}\n' +
+  '.pkmsvv-boot-credit{font-family:"Segoe UI",Tahoma,sans-serif;color:#ffe3a0;font-size:14px;margin:12px auto 0;text-align:center;}\n' +
   '#scr-menu [data-go="friends"], #scr-menu [data-go="rank"], #btn-google, #btn-logout, #set-tabs [data-t="acc"], #btn-support { display: none !important; }\n' +
   '.pkmsvv-evo{position:fixed;inset:0;z-index:9999;background:rgba(5,9,24,.88);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}\n' +
   '.pkmsvv-evo-panel{background:#172645;border:2px solid #f5d16a;border-radius:14px;padding:20px;width:min(570px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 18px 70px #000}\n' +

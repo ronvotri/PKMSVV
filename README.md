@@ -156,3 +156,11 @@ Bản `.exe` **không chứa save đang chơi**. PKMSVV Electron đặt dữ li�
 - Tay cầm Xbox: **X** (phím mặt ở bên trái). Tay cầm PlayStation: **□ Square**, nếu tay cầm dùng bố cục Gamepad chuẩn.
 - Android: nút kỹ năng **hiện khi học chiêu lao tới**.
 - Các chiêu không phải nhóm lao tới vẫn tự sử dụng khi hết hồi chiêu; chỉ những chiêu lao tới cần nhấn thủ công.
+
+## Ghi công bản Việt hóa và mod
+
+Trên màn hình khởi động và dưới logo menu chính: **Việt hóa và Mod điều chỉnh bởi Votri Valley**. Ghi công tác giả gốc JPTER78, SpriteCollab và những người đóng góp vẫn được giữ.
+
+## Cảnh báo SmartScreen khi tải EXE
+
+Bản Windows portable chưa ký số Authenticode. Thay icon và chữ trong menu sẽ không làm mất cảnh báo Unknown publisher. Xem [docs/WINDOWS_SMARTSCREEN.md](docs/WINDOWS_SMARTSCREEN.md).

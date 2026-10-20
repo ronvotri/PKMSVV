@@ -1,9 +1,9 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "description": "Unofficial noncommercial offline Windows and Android edition of PokéSurvivor",
-  "author": "PKMSVV contributors (desktop customizations); original game by JPTER78",
+  "author": "Votri Valley (Vietnamese translation/gameplay mods); original PokéSurvivor by JPTER78",
   "main": "desktop/main.cjs",
   "scripts": {
     "prepare:game": "node scripts/prepare-game.cjs",
