@@ -34,7 +34,7 @@ const gacha = num(cfg.shiny.gachaDenominator, 1, 10000, 'shiny.gachaDenominator'
 
 function patch(rel, before, after) {
   const file = path.join(game, rel);
-  const original = fs.readFileSync(file, 'utf8');
+  const original = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   const parts = original.split(before);
   if (parts.length !== 2) throw new Error('Không tìm thấy chính xác một vị trí cần chỉnh trong ' + rel + ': ' + before);
   fs.writeFileSync(file, parts.join(after), 'utf8');
