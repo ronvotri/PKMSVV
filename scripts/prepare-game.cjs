@@ -331,9 +331,7 @@ const moveMap = Object.fromEntries([...spanishMoveNames].filter(k=>dictionary[k]
 if(Object.keys(moveMap).length < 90) throw new Error('Missing source English skill names: '+Object.keys(moveMap).length);
 fs.writeFileSync(path.join(game,'js','data','pkmsvv-move-names.js'),
   'G.I18n.add('+JSON.stringify(moveMap)+',"vi","move");\n','utf8');
-patch('dev.html',
-  '<script defer src="js/data/lang-vi.js"></script>',
-  '<script defer src="js/data/lang-vi.js"></script>\n<script defer src="js/data/pkmsvv-move-names.js"></script>');
+
 
 
 fs.writeFileSync(path.join(game, 'js', 'data', 'lang-vi.js'),
@@ -343,10 +341,10 @@ console.log('[VI] '+ Object.keys(viDict).length +' mục, còn '+equal.length+' 
 
 // Do not request a missing js/lang/vi.js: vi translations are packaged inline.
 patch('js/core/locales.js', "['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],",
-  "['vi', 'Tiếng Việt', 'vi-VN'],");
+  "['vi', 'Tiếng Việt', 'vi-VN'], ['en', 'English', 'en-GB'],");
 patch('js/core/locales.js',
   "const lang = normalize(saved) || (/\\/en(\\/|$)/.test(location.pathname) ? 'en' : null)",
-  "const lang = 'vi'");
+  "const lang = normalize(saved) || 'vi'");
 patch('js/core/locales.js',
   "if (lang !== 'es' && lang !== 'en') {",
   "if (lang !== 'es' && lang !== 'en' && lang !== 'vi') {");
@@ -368,6 +366,9 @@ patch('dev.html', '<script defer src="js/core/i18n.js"></script>',
 // Include Vietnamese after English fallback, before game systems execute.
 patch('dev.html', '<script defer src="js/data/lang-en.js"></script>',
   '<script defer src="js/data/lang-en.js"></script>\n<script defer src="js/data/lang-vi.js"></script>');
+patch('dev.html',
+  '<script defer src="js/data/lang-vi.js"></script>',
+  '<script defer src="js/data/lang-vi.js"></script>\n<script defer src="js/data/pkmsvv-move-names.js"></script>');
 
 patch('dev.html', '<script defer src="js/data/pokedex.js"></script>',
   '<script defer src="js/data/pokedex.js"></script>\n<script defer src="js/data/pkmsvv-evolution-data.js"></script>');
