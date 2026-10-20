@@ -22,9 +22,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
-      - name: Install Android SDK 36
-        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+      - name: Use preinstalled Android SDK and install platform 36
+        shell: bash
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME}"
+          export PATH="${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
+          sdkmanager --version
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
       - name: Fetch exact upstream source
         shell: bash
         run: |
