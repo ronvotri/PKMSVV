@@ -207,10 +207,13 @@ patch('js/systems/combat.js',
   "  }\n" +
   "  return { tick, manualDash, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,");
 patch('js/game.js',
-  "    if (state !== 'playing' || !pl) return;\n    for (let i = 0; i < 4; i++) {",
+  "    if (state !== 'playing' || !pl) return;\n    // PKMSVV: all learned abilities autocast, with no manual switching.",
   "    if (state !== 'playing' || !pl) return;\n" +
   "    if (G.Input.tap('keyf')) G.Combat.manualDash(pl);\n" +
-  "    for (let i = 0; i < 4; i++) {");
+  "    // PKMSVV: all learned abilities autocast, with no manual switching.");
+patch('js/core/gamepad.js',
+  "  return {\n    poll, rumble,",
+  "  return {\n    poll, rumble,\n    focusFirst() { const opts = candidates(); if (opts.length) setFocus(firstOf(opts)); },");
 patch('js/core/gamepad.js',
   "      if (hit(BT.LB) || hit(BT.LT)) G.Input.virtual('keyq');\n" +
   "      if (hit(BT.RB) || hit(BT.RT)) G.Input.virtual('keye');",
