@@ -9,8 +9,8 @@ function translate(english) {
  if(typeof english !== 'string' || !english) return english;
  if(Object.prototype.hasOwnProperty.call(exact,english)) return exact[english];
  let s=english;
- for(const [en,vi] of phraseList) s=s.replace(new RegExp('(?<![A-Za-z])'+esc(en)+'(?![A-Za-z])','gi'),vi);
- s=s.replace(/[A-Za-z]+(?:'[A-Za-z]+)?/g,w=>Object.prototype.hasOwnProperty.call(words,w.toLowerCase())?words[w.toLowerCase()]:w);
+ for(const [en,vi] of phraseList) s=s.replace(new RegExp('(?<![\\p{L}])'+esc(en)+'(?![\\p{L}])','giu'),vi);
+ s=s.replace(/(?<![\\p{L}])[A-Za-z]+(?:'[A-Za-z]+)?(?![\\p{L}])/gu,w=>Object.prototype.hasOwnProperty.call(words,w.toLowerCase())?words[w.toLowerCase()]:w);
  return s.replace(/ {2,}/g,' ').trim();
 }
 module.exports={translate,exact,phrases,words};
