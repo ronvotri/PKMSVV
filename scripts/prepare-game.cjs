@@ -373,6 +373,29 @@ patch('dev.html',
   '<script defer src="js/data/lang-vi.js"></script>',
   '<script defer src="js/data/lang-vi.js"></script>\n<script defer src="js/data/pkmsvv-move-names.js"></script>');
 
+// Newly added gamepad hints are bilingual as well. Keep upstream Spanish
+// source keys for i18n's text-node scanning, without introducing mixed UI.
+const freshLabels = [
+  ['Moverte, activar habilidades especiales y manejar los menús con el mando.',
+   'Move, activate special skills and navigate menus with the controller.',
+   'Di chuyển, kích hoạt kỹ năng chủ động và điều khiển menu bằng tay cầm.'],
+  ['activar movimiento especial (si lo has aprendido)',
+   'use special skill (if learned)',
+   'kích hoạt kỹ năng chủ động (nếu đã học)'],
+  ['Todos los ataques se lanzan automáticamente; el botón especial aparece si aprendes una embestida. Pulsa el botón de arriba a la derecha para pausar.',
+   'All moves attack automatically. The special button appears when you learn a dash. Tap the upper-right button to pause.',
+   'Mọi chiêu thức tự tấn công. Nút kỹ năng đặc biệt xuất hiện khi bạn học chiêu lao tới. Nhấn nút góc trên phải để tạm dừng.']
+];
+const extraEn = Object.fromEntries(freshLabels.map(([es,en])=>[es,en]));
+const extraVi = Object.fromEntries(freshLabels.map(([es,en,vi])=>[es,vi]));
+fs.writeFileSync(path.join(game,'js','data','pkmsvv-ux-languages.js'),
+  'G.I18n.add('+JSON.stringify(extraEn)+',"en");\n' +
+  'G.I18n.add('+JSON.stringify(extraVi)+',"vi");\n', 'utf8');
+patch('dev.html',
+  '<script defer src="js/data/pkmsvv-move-names.js"></script>',
+  '<script defer src="js/data/pkmsvv-move-names.js"></script>\n<script defer src="js/data/pkmsvv-ux-languages.js"></script>');
+
+
 patch('dev.html', '<script defer src="js/data/pokedex.js"></script>',
   '<script defer src="js/data/pokedex.js"></script>\n<script defer src="js/data/pkmsvv-evolution-data.js"></script>');
 patch('dev.html', '<script defer src="js/game.js"></script>',
