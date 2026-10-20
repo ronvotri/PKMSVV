@@ -1,0 +1,47 @@
+name: Build Windows Offline (noncommercial)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Build Windows portable EXE
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch pinned original game source (JPTER78)
+        shell: bash
+        run: |
+          git init vendor/pokesurvivor
+          git -C vendor/pokesurvivor remote add origin https://github.com/JPTER78/pokesurvivor.git
+          git -C vendor/pokesurvivor fetch --depth 1 origin 11fe868c640b62ac37beacc222e056bc4d9ec892
+          git -C vendor/pokesurvivor checkout --detach FETCH_HEAD
+      - name: Install Windows build dependencies
+        run: npm install --no-audit --no-fund
+      - name: Apply offline patches and compile game assets
+        run: npm run prepare:game
+      - name: Produce portable Windows x64 EXE
+        run: npm run build:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Verify built executable
+        shell: bash
+        run: |
+          ls -lh dist/*.exe
+          test -n "$(find dist -maxdepth 1 -name '*.exe' -print -quit)"
+      - name: Upload temporary noncommercial test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKMSVV-Windows-Offline-x64
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 14
