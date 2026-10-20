@@ -78,7 +78,7 @@ patch('js/systems/rift.js',
 patch('js/data/items.js',
   "desc: '+40% de daño, pero no puedes cambiar de movimiento.',\n" +
   "      on: p => { p.atkMul *= 1.4; }, off: p => { p.atkMul /= 1.4; }",
-  "desc: '+25% de daño, pero -15% de velocidad de movimiento.',\n" +
+  "desc: '+25% sát thương, -15% tốc độ di chuyển.',\n" +
   "      on: p => { p.atkMul *= 1.25; p.spdMul *= 0.85; },\n" +
   "      off: p => { p.atkMul /= 1.25; p.spdMul /= 0.85; }");
 
