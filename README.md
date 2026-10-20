@@ -56,13 +56,13 @@ The workflow publishes a **temporary GitHub Actions artifact**, not a public Git
 
 ## Tiến hóa Pokémon trong trận — v0.2.0
 
-- Bảng [456 nhánh tiến hóa Pokédex](data/evolution-rules.json), đi kèm [checklist toàn bộ Pokémon](docs/EVOLUTION_CHECKLIST.md) và [bảng CSV](docs/EVOLUTION_CHECKLIST.csv). Dữ liệu lấy từ PokeAPI, chỉ xét các loài hiện có trong PokéSurvivor; cần sprite đích mới có thể tiến hóa.
+- Bảng [455 nhánh tiến hóa Pokédex](data/evolution-rules.json), đi kèm [checklist toàn bộ Pokémon](docs/EVOLUTION_CHECKLIST.md) và [bảng CSV](docs/EVOLUTION_CHECKLIST.csv). Dữ liệu lấy từ PokeAPI, chỉ xét các loài hiện có trong PokéSurvivor; cần sprite đích mới có thể tiến hóa.
 - **Lên cấp:** tiến hóa đúng mốc cấp của Pokédex (Charmander Lv16 → Charmeleon; Charmeleon Lv36 → Charizard). Giữ chiêu thức, cấp, HP theo tỷ lệ, các buff đang có; chỉ đổi dạng, chỉ số cơ bản, hệ và sprite.
 - **Tiến hóa bằng vật phẩm/trao đổi:** thắng boss để nhận 1 **Mảnh Tiến Hóa** mỗi boss, tiêu một mảnh để kích hoạt đúng đá/vật phẩm hoặc Dây Liên Kết; không cần mạng.
 - **Điều kiện đặc biệt:** tính thân thiết dựa trên cấp và thời gian sinh tồn; luân phiên ngày/đêm theo chu kỳ 4 phút trong trận; di chuyển, chịu sát thương, dùng chiêu, thời tiết, địa hình và thắng boss cho các yêu cầu được chuyển thể.
 - **Nhiều nhánh:** menu hiện các dạng thỏa điều kiện để tự chọn; có nút hoãn đến lần lên cấp tiếp theo.
 - **Ngoại lệ:** Meltan → Melmetal sau 4 boss; Gimmighoul → Gholdengo bằng cách tiêu 999 Pokécoins local; Bisharp → Kingambit sau 3 boss (đều là quy đổi từ điều kiện gốc).
-- **Giới hạn:** không hỗ trợ phát sinh thêm Shedinja như đồng đội; không tạo các dạng regional/giới tính riêng khi Pokédex gốc không có sprite tương ứng; biến thể hình thái và nhiều điều kiện ngoại lệ được **quy đổi**, không cam kết giống tuyệt đối game chính thức. Chưa kiểm thử thủ công tất cả 456 nhánh.
+- **Giới hạn:** không hỗ trợ phát sinh thêm Shedinja như đồng đội; không tạo các dạng regional/giới tính riêng khi Pokédex gốc không có sprite tương ứng; biến thể hình thái và nhiều điều kiện ngoại lệ được **quy đổi**, không cam kết giống tuyệt đối game chính thức. Chưa kiểm thử thủ công tất cả 455 nhánh.
 - **Sưu tầm:** tiến hóa trong run không tự mở khóa Pokémon mới trong bộ sưu tập; vẫn cần gacha/thu thập như cũ. Trong game chỉ phát triển một Pokémon đang điều khiển; không phải đội 6 Pokémon.
 
 Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` để kiểm tra tự động.

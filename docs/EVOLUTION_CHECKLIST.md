@@ -1,10 +1,10 @@
 # PKMSVV — Checklist tiến hóa Pokémon (9 thế hệ)
 
-Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) (`pokemon_species.csv`, `pokemon_evolution.csv`). Chỉ liệt kê các loài **có trong Pokédex 966 Pokémon**. Game kiểm tra sprite đích trước khi tiến hóa. Hai nhánh Meltan và Gimmighoul được bổ sung thủ công vì CSV PokéAPI chưa ghi nhận đầy đủ.
+Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) (`pokemon_species.csv`, `pokemon_evolution.csv`). Chỉ liệt kê các loài **có trong Pokédex 966 Pokémon**. Game kiểm tra sprite đích trước khi tiến hóa. Nhánh Gimmighoul được bổ sung thủ công, còn điều kiện 400 kẹo của Meltan được chuyển thể riêng.
 
 **Phân biệt:** mốc Lv. là cấp tiến hóa nguyên bản; các điều kiện ghi **(quy đổi)** là cơ chế thay thế cho bản solo offline, không được xem là quy tắc của game Pokémon chính thức. Tích ô khi bạn đã thử thành công trong PKMSVV. Bản này chưa hỗ trợ các dạng hình thái (ví dụ Alola/Galar) dưới dạng loài Dex riêng; bản checklist chọn nhánh loài chuẩn.
 
-**Danh mục:** tổng 966 Pokémon; 456 nhánh tiến hóa áp dụng được xét theo số Pokédex. Phân loại: Theo cấp 326 · Đá / vật phẩm 57 · Tình bạn 19 · Đặc biệt 28 · Trao đổi 24.
+**Danh mục:** tổng 966 Pokémon; 455 nhánh tiến hóa áp dụng được xét theo số Pokédex. Phân loại: Theo cấp 326 · Đá / vật phẩm 57 · Tình bạn 19 · Đặc biệt 28 · Trao đổi 24 · Gimmighoul bổ sung 1.
 
 ## Các tiến hóa kiểm thử
 
@@ -415,7 +415,6 @@ Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pok
 - [ ] **#0790 Cosmoem → #0791 Solgaleo** — Lv. 53
 - [ ] **#0790 Cosmoem → #0792 Lunala** — Lv. 53
 - [ ] **#0803 Poipole → #0804 Naganadel** — Học Dragon Pulse (kỹ năng tương đương nếu chưa có)
-- [ ] **#0808 Meltan → #0809 Melmetal** — Thử thách đặc biệt
 
 ### Thế hệ 8
 
