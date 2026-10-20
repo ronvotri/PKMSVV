@@ -48,6 +48,31 @@ patch('js/systems/spawner.js', 'const SHINY_RATE = 1 / 4096;', 'const SHINY_RATE
 patch('js/systems/gacha.js', 'const SHINY_RATE = 1 / 100;', 'const SHINY_RATE = 1 / ' + gacha + ';');
 patch('js/core/db.js', 'const START_COINS = 500;', 'const START_COINS = ' + coins + ';');
 
+// Loginless PC profile: keep a currently restored local save; if none exists,
+// generate a dedicated offline profile (NOT a guest, so G.DB.commit works).
+// Existing ps.accounts and ps.save.* are never replaced or deleted.
+patch('js/core/db.js', "if (mode === 'local') { setSync('local'); return restoreLocal(); }",
+  "if (mode === 'local') {\n" +
+  "        setSync('local');\n" +
+  "        if (restoreLocal()) return true;\n" +
+  "        const k = 'pkmsvv_offline';\n" +
+  "        const accounts = read(K_ACC) || {};\n" +
+  "        if (!accounts[k]) accounts[k] = { name: 'Người chơi', created: Date.now(), localOnly: true };\n" +
+  "        if (!write(K_ACC, accounts)) throw new Error('Không thể tạo hồ sơ offline: bộ nhớ không ghi được');\n" +
+  "        beginLocal(k, accounts[k].name);\n" +
+  "        if (!commit()) throw new Error('Không thể lưu hồ sơ offline');\n" +
+  "        return true;\n" +
+  "      }");
+
+// Never route back to the login form after initialization.
+patch('js/game.js',
+  'setTimeout(() => this.tapToStart(() => { if (restored) this.afterLogin(); else this.toLogin(); }), 0);',
+  'setTimeout(() => this.tapToStart(() => this.afterLogin()), 0);');
+patch('js/game.js',
+  "toLogin() { G.Audio.music('village'); G.LoginUI.open(); },",
+  "toLogin() { this.afterLogin(); },");
+
+
 // Evolution: data are versioned with PKMSVV rather than fetched during play.
 const evolution = JSON.parse(fs.readFileSync(path.join(project, 'data', 'evolution-rules.json'), 'utf8'));
 if (!Array.isArray(evolution.rules) || evolution.rules.length < 400) throw new Error('Thiếu dữ liệu tiến hóa Pokédex');
@@ -67,6 +92,12 @@ patch('js/game.js', '    G.Weather.update(dt, time, pl);\n    G.FX.update(dt);',
   '    G.Weather.update(dt, time, pl);\n    if (!coop) G.PKMSVVEvo.tick(pl, time);\n    G.FX.update(dt);');
 patch('js/game.js', '    if (!coop || G.Coop.isHost) maybeLevelUp();',
   '    if (!coop && pendingLevels === 0 && !G.Judgment.active && G.PKMSVVEvo.tryOpen(pl, time, () => { state = "playing"; })) state = "choice";\n    if (!coop || G.Coop.isHost) maybeLevelUp();');
+
+// The sign-out button is part of the original UI, but this build has one
+// passwordless persistent local profile. Keep the element so upstream init
+// bindings remain valid while hiding the obsolete affordance.
+patch('dev.html', '<button id="btn-logout" class="btn small ghost">Salir</button>',
+  '<button id="btn-logout" class="btn small ghost hidden" aria-hidden="true" tabindex="-1">Salir</button>');
 
 // Insert before source game.js, after all dependencies are loaded.
 patch('dev.html', '<script defer src="js/data/pokedex.js"></script>',
