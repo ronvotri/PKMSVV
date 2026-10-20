@@ -47,6 +47,99 @@ patch('js/systems/spawner.js', 'const DENSITY = 0.24, DMG_K = 2.4, XP_K = 5.6;',
 patch('js/systems/spawner.js', 'const SHINY_RATE = 1 / 4096;', 'const SHINY_RATE = 1 / ' + wild + ';');
 patch('js/systems/gacha.js', 'const SHINY_RATE = 1 / 100;', 'const SHINY_RATE = 1 / ' + gacha + ';');
 patch('js/core/db.js', 'const START_COINS = 500;', 'const START_COINS = ' + coins + ';');
+// All learned attacks now tick together, each keeping its independent cooldown.
+patch('js/systems/combat.js',
+  'for (const m of pl.activeGroup()) tickMove(dt, pl, m, now);',
+  'for (const m of pl.moves) tickMove(dt, pl, m, now);');
+patch('js/entities/player.js', 'this.maxMoves = 4;         // huecos',
+  'this.maxMoves = 6;         // PKMSVV: all six skills automatically fire');
+patch('js/game.js',
+  "    for (let i = 0; i < 4; i++) {\n" +
+  "      if (G.Input.tap('digit' + (i + 1)) || G.Input.tap('numpad' + (i + 1))) pl.setActive(i);\n" +
+  "    }\n" +
+  "    if (G.Input.tap('keyq')) pl.cycle(-1);\n" +
+  "    if (G.Input.tap('keye') || G.Input.tap('tab')) pl.cycle(1);",
+  '    // PKMSVV: all learned abilities autocast, with no manual switching.');
+patch('js/ui/hud.js', 'const on = i === pl.active;', 'const on = Boolean(m);');
+patch('js/ui/hud.js',
+  "if (m) G.Touch.addButton(x, y, S, S, () => { if (G.Game.state === 'playing' && pl.active !== i) { pl.setActive(i); G.Audio.sfx('click'); } }, GAP / 2 + 3);",
+  '// PKMSVV: all ability icons are passive cooldown indicators.');
+patch('js/ui/hud.js', 'ctx.fillText(String(i + 1), x + 3, y + 10);',
+  "ctx.fillText('AUTO', x + 3, y + 10);");
+patch('js/ui/hud.js', '      if (on) {\n        ctx.font = F(700, 10);',
+  '      if (on && i === 0) {\n        ctx.font = F(700, 10);');
+// Legendary rifts expand capacity to eight skills and improve attack speed.
+patch('js/systems/rift.js',
+  "      pl.bonds++;\n      G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, '¡Vínculo!', '#ff8ad8', true);",
+  "      pl.maxMoves = Math.min(8, pl.maxMoves + 1);\n" +
+  "      pl.cdMul *= 0.96;\n" +
+  "      G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, 'Thêm ô kỹ năng! -4% hồi chiêu', '#ff8ad8', true);");
+// Choice Band's old no-switch penalty no longer applies; rebalance.
+patch('js/data/items.js',
+  "desc: '+40% de daño, pero no puedes cambiar de movimiento.',\n" +
+  "      on: p => { p.atkMul *= 1.4; }, off: p => { p.atkMul /= 1.4; }",
+  "desc: '+25% de daño, pero -15% de velocidad de movimiento.',\n" +
+  "      on: p => { p.atkMul *= 1.25; p.spdMul *= 0.85; },\n" +
+  "      off: p => { p.atkMul /= 1.25; p.spdMul /= 0.85; }");
+
+// Seven optional licensed songs, otherwise keep the composer's synthesized score.
+const musicNames = ['village','forest','cave','volcano','boss','rift','judgment'];
+const musicFiles = {};
+const outMusic = path.join(game, 'assets', 'music-custom');
+for (const name of musicNames) {
+  for (const ext of ['.mp3', '.ogg', '.wav']) {
+    const src = path.join(project, 'custom-music', name + ext);
+    if (!fs.existsSync(src)) continue;
+    fs.mkdirSync(outMusic, { recursive: true });
+    fs.copyFileSync(src, path.join(outMusic, name + ext));
+    musicFiles[name] = name + ext;
+    break;
+  }
+}
+patch('js/core/audio.js',
+  "let settings = { music: 0.55, sfx: 0.7, muted: false };",
+  "let settings = { music: 0.55, sfx: 0.7, muted: false };\n" +
+  "  const PKMSVV_CUSTOM_MUSIC = " + JSON.stringify(musicFiles) + ";\n" +
+  "  let customAudio = null;");
+patch('js/core/audio.js',
+  "    if (wanted && !current) startSong(wanted);",
+  "    if (wanted && !current && !customAudio) {\n" +
+  "      if (PKMSVV_CUSTOM_MUSIC[wanted]) startCustomMusic(wanted);\n" +
+  "      else startSong(wanted);\n" +
+  "    }");
+patch('js/core/audio.js',
+  "  function applyVolumes() {\n    if (!ctx) return;",
+  "  function applyVolumes() {\n" +
+  "    if (customAudio) customAudio.volume = settings.muted ? 0 : Math.min(1, settings.music * 0.7);\n" +
+  "    if (!ctx) return;");
+patch('js/core/audio.js',
+  "  /** Cambia de tema (con fundido). null = silencio. */\n  function music(name) {",
+  "  function stopCustomMusic() {\n" +
+  "    if (!customAudio) return;\n" +
+  "    customAudio.pause(); customAudio.removeAttribute('src'); customAudio.load();\n" +
+  "    customAudio = null;\n" +
+  "  }\n" +
+  "  function startCustomMusic(name) {\n" +
+  "    const el = new Audio('assets/music-custom/' + PKMSVV_CUSTOM_MUSIC[name]);\n" +
+  "    el.loop = true; el.preload = 'auto'; el.pkmsvvName = name;\n" +
+  "    el.volume = settings.muted ? 0 : Math.min(1, settings.music * 0.7);\n" +
+  "    customAudio = el;\n" +
+  "    el.addEventListener('error', () => {\n" +
+  "      if (customAudio === el) { stopCustomMusic(); if (wanted === name) startSong(name); }\n" +
+  "    }, { once: true });\n" +
+  "    el.play().catch(() => {\n" +
+  "      if (customAudio === el) { stopCustomMusic(); if (wanted === name && ctx && ctx.state === 'running') startSong(name); }\n" +
+  "    });\n" +
+  "  }\n" +
+  "  /** Cambia de tema (con fundido). null = silencio. */\n  function music(name) {");
+patch('js/core/audio.js',
+  "    stopCurrent();\n    if (name) startSong(name);",
+  "    stopCurrent(); stopCustomMusic();\n" +
+  "    if (name) { if (PKMSVV_CUSTOM_MUSIC[name]) startCustomMusic(name); else startSong(name); }");
+patch('js/core/audio.js',
+  "get track() { return current && current.name; }",
+  "get track() { return customAudio ? customAudio.pkmsvvName : current && current.name; }");
+
 
 // Loginless PC profile: keep a currently restored local save; if none exists,
 // generate a dedicated offline profile (NOT a guest, so G.DB.commit works).
