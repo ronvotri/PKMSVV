@@ -68,7 +68,7 @@ G.PKMSVVEvo = (() => {
     if (r.friendship) a.push('Thân thiết ' + r.friendship);
     if (r.beauty || r.affection) a.push('gắn bó đặc biệt');
     if (r.time) a.push(r.time === 'night' ? 'ban đêm' : r.time === 'day' ? 'ban ngày' : r.time);
-    if (r.knownType) a.push('học chiêu hệ ' + nice(r.knownType));
+    if (r.knownType) a.push('chiêu hệ ' + nice(r.knownType) + ' hoặc 30 đòn nếu không học được');
     if (r.knownMove) a.push('học ' + nice(r.knownMove) + ' / 20 đòn thay thế');
     if (r.usedMove) a.push('dùng ' + nice(r.usedMove) + ' ' + (r.moveCount || 20) + ' lần / đòn thay thế');
     if (r.steps) a.push('di chuyển ' + r.steps + ' bước');
@@ -94,7 +94,13 @@ G.PKMSVVEvo = (() => {
     if (r.friendship && friendship(pl, t) < r.friendship) return false;
     if ((r.beauty || r.affection) && friendship(pl, t) < 185) return false;
     if (r.time && r.time !== daytime(t) && !(r.time === 'dusk' && Math.floor(t) % DAY_SPAN < 30 && daytime(t) === 'night')) return false;
-    if (r.knownType && !pl.moves.some(m => m.type === r.knownType)) return false;
+    if (r.knownType && !pl.moves.some(m => m.type === r.knownType)) {
+      // Some Pokedex evolutions require a move type the source game cannot teach.
+      // Only those impossible pools have a reproducible 30-cast solo alternative.
+      const pool = G.Moves.poolFor ? G.Moves.poolFor(pl.mon) : [];
+      const exists = pool.some(id => G.Moves.BY_ID[id] && G.Moves.BY_ID[id].type === r.knownType);
+      if (exists || (pl.pkmEvoCasts || 0) < 30) return false;
+    }
     if (r.knownMove && !(pl.hasMove && pl.hasMove(r.knownMove)) && (pl.pkmEvoCasts || 0) < 20) return false;
     if (r.usedMove) {
       const actual = G.Moves.BY_ID[r.usedMove];

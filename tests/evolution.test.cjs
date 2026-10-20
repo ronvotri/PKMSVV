@@ -101,3 +101,11 @@ test('Bisharp requires three bosses',()=>{
  assert.equal(evo.eligible(p,100,rule(625,983)),false);
  p.bosses=3;assert.equal(evo.eligible(p,100,rule(625,983)),true);
 });
+
+test('Sylveon fallback unlocks when Fairy moves are unavailable in source',()=>{
+ const p=pl(133,25),r=rule(133,700);
+ p.pkmEvoCasts=29;
+ assert.equal(evo.eligible(p,960,r),false);
+ p.pkmEvoCasts=30;
+ assert.equal(evo.eligible(p,960,r),true);
+});
