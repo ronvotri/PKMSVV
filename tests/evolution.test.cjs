@@ -55,7 +55,7 @@ test('Evolution stones require boss-earned shards and consume one',()=>{
  assert.equal(p.pkmEvoShards,0);
 });
 test('Eevee branches use weather-independent stones or friendship + time',()=>{
- const p=pl(133,24);
+ const p=pl(133,10);
  assert.equal(rule(133,134).item,'water-stone');
  assert.equal(evo.eligible(p,0,rule(133,196)),false);
  p.level=25;
