@@ -141,6 +141,44 @@ patch('js/core/audio.js',
   "get track() { return customAudio ? customAudio.pkmsvvName : current && current.name; }");
 
 
+// Rebalance all 103 simultaneous attacks AFTER source moves define G.Moves,
+// before any run starts.  Buff duration/cooldown is upgraded explicitly.
+const combatBalance = fs.readFileSync(path.join(project, 'src', 'pkmsvv-skill-balance.js'), 'utf8');
+fs.writeFileSync(path.join(game, 'js','data','pkmsvv-skill-balance.js'), combatBalance, 'utf8');
+patch('dev.html', '<script defer src="js/data/moves.js"></script>',
+  '<script defer src="js/data/moves.js"></script>\n<script defer src="js/data/pkmsvv-skill-balance.js"></script>');
+patch('js/systems/combat.js',
+  "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }",
+  "    if (m.kind === 'buff' && m.lvl >= m.def.maxLvl) {\n" +
+  "      G.PKMSVVBalance.refreshBuff(pl, m);\n" +
+  "      return;\n" +
+  "    }\n" +
+  "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }");
+patch('js/systems/combat.js',
+  'm.t = Math.max(0.05, m.cd * pl.cdMul);',
+  'm.t = G.PKMSVVBalance.effectiveCooldown(pl, m);');
+patch('js/entities/player.js',
+  'b.n = Math.min(maxStacks, b.n + 1);',
+  'b.n = 1; // PKMSVV: refreshed effect, never accumulated by auto-casting');
+patch('js/systems/levelup.js',
+  'apply: () => G.Moves.levelUp(m)',
+  "apply: p => { G.Moves.levelUp(m); if (m.kind === 'buff') G.PKMSVVBalance.refreshBuff(p, m); }");
+patch('js/ui/hud.js',
+  "const cdOf = m => m.kind === 'orbit' ? 0 : G.U.clamp(m.t / (m.cd * pl.cdMul), 0, 1);",
+  "const cdOf = m => m.kind === 'orbit' || (m.kind === 'buff' && m.lvl >= m.def.maxLvl) ? 0 :\n" +
+  "      G.U.clamp(m.t / G.PKMSVVBalance.effectiveCooldown(pl, m), 0, 1);");
+patch('js/ui/hud.js',
+  "ctx.fillText('AUTO', x + 3, y + 10);",
+  "if (m.kind === 'buff') ctx.fillText(m.lvl >= m.def.maxLvl ? 'MAX' : 'BUFF', x + 3, y + 10);\n" +
+  "      else ctx.fillText('AUTO', x + 3, y + 10);\n" +
+  "      if (m.kind === 'buff' && m.lvl < m.def.maxLvl) {\n" +
+  "        const active = pl.buffs[m.stat] && pl.buffs[m.stat].n > 0;\n" +
+  "        const seconds = active ? pl.buffs[m.stat].t : m.t;\n" +
+  "        ctx.font = F(700, 8); ctx.textAlign = 'center';\n" +
+  "        ctx.fillStyle = active ? '#a9ffbc' : '#ffce8a';\n" +
+  "        ctx.fillText((active ? 'ON ' : 'OFF ') + Math.ceil(Math.max(0, seconds)) + 's', x + S / 2, y + S - 15);\n" +
+  "      }");
+
 // Loginless PC profile: keep a currently restored local save; if none exists,
 // generate a dedicated offline profile (NOT a guest, so G.DB.commit works).
 // Existing ps.accounts and ps.save.* are never replaced or deleted.
