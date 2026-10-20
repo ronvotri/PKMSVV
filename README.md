@@ -171,3 +171,21 @@ Bản Windows portable chưa ký số Authenticode. Thay icon và chữ trong me
 - Có **4 kỹ năng lao tới**: Quick Attack, Aerial Ace, Flame Charge, U-turn. Chúng chỉ lao tới khi bạn nhấn **F (bàn phím), X (tay cầm Xbox), □ (PlayStation), nút riêng Android**.
 - Khi sở hữu **2 hoặc nhiều chiêu lao tới**, một nút tiếp tục dùng chung: kích hoạt từng chiêu sẵn sàng theo vòng; chiêu đang hồi được tự bỏ qua, và mỗi chiêu hồi độc lập. Nút chủ động hiển thị **đúng biểu tượng và tên chiêu tiếp theo**, chỉ số `1/2`, `2/2`, và số giây nếu chưa có chiêu nào sẵn sàng.
 - Nếu tất cả đều đang hồi, bấm nút không sử dụng chiêu và không làm mất lượt. Danh sách luân phiên được đặt lại với Pokémon mới khi bắt đầu một trận mới.
+
+## Switch Lite / Switch Atmosphère — thử nghiệm v0.7.0
+
+PKMSVV dùng công nghệ **HTML5/JavaScript/Canvas 2D**, không phải game Switch native. Để chơi trực tiếp trên Switch/Switch Lite đã hack bằng Atmosphère, bản thử nghiệm v0.7.0 được gói cho **Brewser Runtime** (homebrew hỗ trợ JavaScript, Canvas và Gamepad).
+
+**Tải bản đóng gói:** vào [GitHub Actions → Build Switch Lite Brewser Offline Test](https://github.com/ronvotri/PKMSVV/actions/workflows/build-switch.yml), chọn lượt build *Success*, tải artifact **PKMSVV-Switch-Brewser-Offline-Test**. ZIP chứa sẵn thư mục `switch/brewser/apps/com.votrivalley.pkmsvv/` để ghép vào gốc thẻ nhớ.
+
+1. Cài `brewser.nro` chính thức từ [Brewser Releases](https://github.com/natureglass/Brewser/releases) vào `sd:/switch/brewser.nro`.
+2. Khởi động Brewser một lần trong **application/full-memory mode** (giữ R khi chạy game để mở hbmenu). Thoát Brewser.
+3. Giải nén gói PKMSVV Switch ZIP vào **gốc thẻ microSD**, để gộp thư mục `switch/`. KHÔNG xóa thư mục Brewser cũ; không xóa save hoặc cấu hình.
+4. Mở Brewser và nhập địa chỉ nội bộ: **`brewser://apps/com.votrivalley.pkmsvv/index.html`** (nếu bản Brewser hiện hành cho phép điều hướng trực tiếp tới ứng dụng sideload).
+5. Nếu mở được, thử: A xác nhận, B trở lại, analog trái/D-pad di chuyển, **X dùng Dash chủ động**, **+ tạm dừng**, **- thoát**. Kiểm tra thêm âm thanh và lưu/mở lại.
+
+**Giới hạn và lưu ý:** Đây là bản Brewser phụ thuộc `brewser.nro`, **không phải EXE, APK, NSP hay NRO game độc lập**. Chưa chạy trên Switch Lite thật; API của Brewser đang được hoàn thiện (đặc biệt Web Audio). Có thể cần điều chỉnh bổ sung nếu game không chạy hoặc không hiện đúng trong Brewser. Không nên cập nhật firmware hoặc can thiệp dữ liệu save chỉ để chạy bản thử nghiệm. Bản này giữ điều khoản **PolyForm Noncommercial** và ghi công trò chơi gốc JPTER78.
+
+Để đóng gói thử trên PC: `npm run prepare:game && npm run prepare:icons && npm run prepare:android && npm run prepare:switch && npm run test:switch` (cần tải mã nguồn gốc theo workflow trước). File ZIP được GitHub Actions tạo từ `dist/switch-package/`.
+
+**Về dạng icon Homebrew Menu:** Brewser có chức năng tạo shortcut `.nro` cho những ứng dụng đã đăng ký/cài đặt theo catalogue; việc chép app thủ công chưa bảo đảm Brewser sẽ hiển thị nó trong danh sách catalogue hoặc cung cấp nút tạo shortcut. Trước mắt sử dụng URL nội bộ để test; chỉ tạo shortcut khi trò chơi được Brewser nhận là app đã cài.

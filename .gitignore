@@ -7,3 +7,6 @@ vendor/
 
 android/
 mobile/www/
+
+# Switch Brewser generated SD install bundle
+dist/switch-package/
