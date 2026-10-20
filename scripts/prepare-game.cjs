@@ -67,7 +67,7 @@ patch('js/core/db.js', "if (mode === 'local') { setSync('local'); return restore
 // Never route back to the login form after initialization.
 patch('js/game.js',
   'setTimeout(() => this.tapToStart(() => { if (restored) this.afterLogin(); else this.toLogin(); }), 0);',
-  'setTimeout(() => this.tapToStart(() => this.afterLogin()), 0);');
+  'setTimeout(() => this.afterLogin(), 0);');
 patch('js/game.js',
   "toLogin() { G.Audio.music('village'); G.LoginUI.open(); },",
   "toLogin() { this.afterLogin(); },");
@@ -100,6 +100,34 @@ patch('dev.html', '<button id="btn-logout" class="btn small ghost">Salir</button
   '<button id="btn-logout" class="btn small ghost hidden" aria-hidden="true" tabindex="-1">Salir</button>');
 
 // Insert before source game.js, after all dependencies are loaded.
+// Translate the original Spanish strings before JS minification. The game's
+// own i18n engine updates DOM, HUD canvas, dynamically created buttons and
+// popups without altering the original combat/UI logic.
+const vietnamese = require(path.join(project, 'src', 'vi-translations.cjs'));
+const enSource = fs.readFileSync(path.join(game, 'js', 'data', 'lang-en.js'), 'utf8');
+const dictionary = {};
+const vm = require('node:vm');
+vm.runInNewContext(enSource, { G: { I18n: { add(d) { Object.assign(dictionary, d); } } } }, { timeout: 3000 });
+if (Object.keys(dictionary).length < 1200) throw new Error('Từ điển nguồn không đầy đủ');
+const viDict = Object.fromEntries(Object.entries(dictionary).map(([es, en]) => [es, vietnamese.translate(en)]));
+fs.writeFileSync(path.join(game, 'js', 'data', 'lang-vi.js'),
+  '/* PKMSVV: Vietnamese dictionary (built from pinned original) */\nG.I18n.add(' + JSON.stringify(viDict) + ', "vi");\n', 'utf8');
+const equal = Object.entries(dictionary).filter(([es,en]) => viDict[es] === en && /[A-Za-z]{4}/.test(en));
+console.log('[VI] '+ Object.keys(viDict).length +' mục, còn '+equal.length+' mục trùng bản tiếng Anh cần QA.');
+
+// Do not request a missing js/lang/vi.js: vi translations are packaged inline.
+patch('js/core/locales.js', "['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],",
+  "['vi', 'Tiếng Việt', 'vi-VN'], ['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],");
+patch('js/core/locales.js',
+  "const lang = normalize(saved) || (/\\/en(\\/|$)/.test(location.pathname) ? 'en' : null)",
+  "const lang = 'vi' || normalize(saved) || (/\\/en(\\/|$)/.test(location.pathname) ? 'en' : null)");
+patch('js/core/locales.js',
+  "if (lang !== 'es' && lang !== 'en') {",
+  "if (lang !== 'es' && lang !== 'en' && lang !== 'vi') {");
+// Include Vietnamese after English fallback, before game systems execute.
+patch('dev.html', '<script defer src="js/data/lang-en.js"></script>',
+  '<script defer src="js/data/lang-en.js"></script>\n<script defer src="js/data/lang-vi.js"></script>');
+
 patch('dev.html', '<script defer src="js/data/pokedex.js"></script>',
   '<script defer src="js/data/pokedex.js"></script>\n<script defer src="js/data/pkmsvv-evolution-data.js"></script>');
 patch('dev.html', '<script defer src="js/game.js"></script>',
@@ -113,9 +141,10 @@ execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo
 const indexPath = path.join(game, 'index.html');
 let html = fs.readFileSync(indexPath, 'utf8');
 if (!html.includes('</head>')) throw new Error('index.html không có thẻ head');
-html = html.replace(/<title>[^<]*<\/title>/, '<title>PKMSVV — PokéSurvivor Offline</title>');
+html = html.replace(/<title>[^<]*<\/title>/, '<title>PKMSVV — Pokémon Sinh Tồn (Việt hóa)</title>');
 html = html.replace('</head>', '<style>\n' +
-  '#scr-menu [data-go="friends"], #scr-menu [data-go="rank"], #btn-google { display: none !important; }\n' +
+  'body,button,input,select{font-family:"Segoe UI",Tahoma,Arial,sans-serif!important;}\n' +
+  '#scr-menu [data-go="friends"], #scr-menu [data-go="rank"], #btn-google, #btn-logout, #set-tabs [data-t="acc"], #btn-support { display: none !important; }\n' +
   '.pkmsvv-evo{position:fixed;inset:0;z-index:9999;background:rgba(5,9,24,.88);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}\n' +
   '.pkmsvv-evo-panel{background:#172645;border:2px solid #f5d16a;border-radius:14px;padding:20px;width:min(570px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 18px 70px #000}\n' +
   '.pkmsvv-evo-panel h2{color:#ffde72;text-align:center;margin:0 0 12px;font-size:25px}\n' +

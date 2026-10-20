@@ -28,7 +28,7 @@ jobs:
       - name: Install Windows build dependencies
         run: npm install --no-audit --no-fund
       - name: Test local Pokédex evolution module
-        run: npm run test:evolution
+        run: npm run test:evolution && npm run test:i18n
       - name: Apply offline patches and compile game assets
         run: npm run prepare:game
       - name: Produce portable Windows x64 EXE

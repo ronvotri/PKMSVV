@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC Offline (v0.2.0)
+# PKMSVV — PokéSurvivor PC Offline (v0.3.0)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -16,11 +16,11 @@ This repository is a **reproducible desktop build/customization layer**, not an 
 ## Chức năng
 
 - **PC offline:** đầy đủ client game và sprites nằm trong .exe, không dùng website live.
-- **Local saves:** tạo tài khoản tại máy, lưu tiến trình qua `localStorage` trong dữ liệu ứng dụng Electron. **Chế độ Guest/Invitado không lưu tiến trình**, đúng cách game gốc vận hành.
+- **Local saves không cần đăng nhập:** tự mở hồ sơ cục bộ, nếu có phiên đăng nhập local đang lưu thì khôi phục trước; không chuyển sang guest. Tiến trình lưu bền qua `localStorage` trong dữ liệu Electron.
 - **Điều khiển:** WASD/phím mũi tên, phím 1–4, Q/E, Esc/P; F11 để bật/tắt toàn màn hình.
 - **RVT Balanced:** gameplay dựa trên bản gốc, tùy chỉnh được lượng quái, sức mạnh, Shiny, gacha và tiền khởi đầu bằng [config/gameplay.json](config/gameplay.json). Muốn giữ cân bằng tác giả, xem preset trong tài liệu.
 - **Offline-only:** tắt Firebase, ẩn các mục bạn bè/ranking online và chặn truy cập mạng từ game client.
-- **Ngôn ngữ:** dùng các ngôn ngữ sẵn có trong mã gốc; **chưa có bản dịch tiếng Việt đầy đủ**.
+- **Ngôn ngữ:** mặc định tiếng Việt (có dấu); từ điển sinh từ 1.374 mục tiếng Anh của nguồn, ưu tiên dịch thủ công và quy tắc thay thế. **Chưa được QA hoàn chỉnh từng câu**, có thể còn câu pha tiếng Anh hoặc thuật ngữ cần chỉnh.
 
 ## Mã nguồn / Git gốc
 
@@ -73,3 +73,9 @@ Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` �
 - Menu cấu hình gameplay ngay trong game, thay vì chỉnh JSON rồi build lại.
 - Export/import saves an toàn và phục hồi sau cài lại Windows.
 - Kiểm tra gamepad, fullscreen và tối ưu dung lượng.
+
+## Khởi động không đăng nhập và Việt hóa
+
+- Lần đầu mở game: tự tạo hồ sơ **Người chơi** trên máy, vào bài kiểm tra Pokémon ban đầu nếu chưa chọn starter. Các lần sau vào menu trực tiếp; không cần user/password/Guest. **Nếu máy đang có phiên lưu local từ bản trước, sẽ khôi phục phiên đó**. Các file save khác được giữ nguyên, không tự ý hợp nhất hoặc xóa.
+- Từ điển tiếng Việt: [src/vi-translations.cjs](src/vi-translations.cjs), tích hợp với hệ thống i18n của game. Bản này ưu tiên giao diện, HUD, nhiệm vụ, vật phẩm và tên chiêu thức; nguồn có nhiều nội dung phát sinh theo ngữ cảnh nên vẫn cần báo lỗi màn hình để rà soát.
+- Giữ nguyên hành vi ghi localStorage của game. Không đưa lại Firebase hay màn hình cloud/login; các mục online và đăng xuất được ẩn. Thử nghiệm xuất/nhập save là hạng mục riêng.
