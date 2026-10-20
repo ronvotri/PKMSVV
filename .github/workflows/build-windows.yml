@@ -31,6 +31,8 @@ jobs:
         run: npm run test:evolution && npm run test:i18n
       - name: Apply offline patches and compile game assets
         run: npm run prepare:game
+      - name: Test auto-cast and music integration
+        run: npm run test:autocast
       - name: Produce portable Windows x64 EXE
         run: npm run build:win
         env:

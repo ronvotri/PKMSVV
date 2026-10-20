@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC Offline (v0.3.0)
+# PKMSVV — PokéSurvivor PC Offline (v0.4.0)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -79,3 +79,11 @@ Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` �
 - Lần đầu mở game: tự tạo hồ sơ **Người chơi** trên máy, vào bài kiểm tra Pokémon ban đầu nếu chưa chọn starter. Các lần sau vào menu trực tiếp; không cần user/password/Guest. **Nếu máy đang có phiên lưu local từ bản trước, sẽ khôi phục phiên đó**. Các file save khác được giữ nguyên, không tự ý hợp nhất hoặc xóa.
 - Từ điển tiếng Việt: [src/vi-translations.cjs](src/vi-translations.cjs), tích hợp với hệ thống i18n của game. Bản này ưu tiên giao diện, HUD, nhiệm vụ, vật phẩm và tên chiêu thức; nguồn có nhiều nội dung phát sinh theo ngữ cảnh nên vẫn cần báo lỗi màn hình để rà soát.
 - Giữ nguyên hành vi ghi localStorage của game. Không đưa lại Firebase hay màn hình cloud/login; các mục online và đăng xuất được ẩn. Thử nghiệm xuất/nhập save là hạng mục riêng.
+
+## PKMSVV v0.4.0 — kỹ năng tự động và nhạc tùy chỉnh
+
+- Mỗi chiêu học được tự đánh cùng lúc theo **hồi chiêu riêng**. Không cần chuyển qua lại bằng 1–4, Q/E; những phím số vẫn dùng để chọn thẻ lên cấp.
+- Bắt đầu tối đa **6 kỹ năng**; mỗi lần hạ boss huyền thoại trong khe nứt mở thêm **1 ô** (tối đa 8 ô) và rút ngắn **4% hồi chiêu**. Vì mọi chiêu đã tự đánh nên không còn cần ghép Liên Kết để kích hoạt nhiều chiêu.
+- HUD hiển thị AUTO cho tất cả ô kỹ năng, kèm bộ đếm hồi chiêu. Tiến hóa Pokémon, tiến hóa chiêu thức và lưu offline vẫn hoạt động như phiên trước.
+- Băng Lựa Chọn đổi thành **+25% sát thương, -15% tốc chạy** do hình phạt không được chuyển chiêu đã không còn ý nghĩa.
+- Hỗ trợ thay nhạc theo [7 vị trí đã đặt tên](custom-music/README.md). Thêm bài MP3/OGG/WAV đã có quyền sử dụng vào repo rồi build lại. Nếu không thêm bài nào, vẫn phát nhạc gốc do máy tổng hợp; không có nhạc Pokémon chính thức được phân phối kèm.
