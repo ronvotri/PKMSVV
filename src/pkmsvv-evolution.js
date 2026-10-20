@@ -159,7 +159,7 @@ G.PKMSVVEvo = (() => {
   }
   function show(pl, routes, done) {
     const modal = document.createElement('div');
-    modal.className = 'pkmsvv-evo';
+    modal.className = 'scr pkmsvv-evo'; // Register as highest modal in G.Pad.topScreen()
     const panel = document.createElement('div');
     panel.className = 'pkmsvv-evo-panel';
     modal.appendChild(panel);
@@ -181,10 +181,12 @@ G.PKMSVVEvo = (() => {
     }
     const skip = document.createElement('button');
     skip.className = 'pkmsvv-evo-skip';
+    skip.setAttribute('data-back', ''); // B button skips evolution safely
     skip.textContent = 'Giữ nguyên dạng hiện tại (hỏi lại ở cấp sau)';
     skip.addEventListener('click', () => { pl.pkmEvoSkipLevel = pl.level; exit(); });
     panel.appendChild(skip);
     document.body.appendChild(modal);
+    if (G.Pad && G.Pad.name && G.Pad.focusFirst) G.Pad.focusFirst();
   }
   function tryOpen(pl, t, done) {
     if (!pl || pl.dead || pl.pkmEvoSkipLevel === pl.level) return false;
