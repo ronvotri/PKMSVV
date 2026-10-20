@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC Offline (v0.4.0)
+# PKMSVV — PokéSurvivor PC Offline (v0.4.1)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -87,3 +87,30 @@ Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` �
 - HUD hiển thị AUTO cho tất cả ô kỹ năng, kèm bộ đếm hồi chiêu. Tiến hóa Pokémon, tiến hóa chiêu thức và lưu offline vẫn hoạt động như phiên trước.
 - Băng Lựa Chọn đổi thành **+25% sát thương, -15% tốc chạy** do hình phạt không được chuyển chiêu đã không còn ý nghĩa.
 - Hỗ trợ thay nhạc theo [7 vị trí đã đặt tên](custom-music/README.md). Thêm bài MP3/OGG/WAV đã có quyền sử dụng vào repo rồi build lại. Nếu không thêm bài nào, vẫn phát nhạc gốc do máy tổng hợp; không có nhạc Pokémon chính thức được phân phối kèm.
+
+## Android APK — v0.4.1 (thử nghiệm)
+
+- Android 7.0+ (API 24), WebView/Chrome hiện đại; yêu cầu chơi màn hình ngang. Game và tài nguyên nằm trong APK, không cần truy cập website để chơi.
+- Đóng gói bằng Capacitor 8; giữ các bản vá hiện tại: tự động đăng nhập offline, tiếng Việt, tiến hóa Pokémon và tự thi triển các kỹ năng.
+- Mở GitHub Actions, chọn workflow Build Android APK Offline; tải artifact PKMSVV-Android-APK-debug sau khi hoàn tất Success; giải nén ZIP và cài APK.
+- APK debug không dành cho Google Play; Android có thể cảnh báo vì cài ứng dụng ngoài cửa hàng.
+- Save Android hoàn toàn riêng Windows. Khóa ký debug do máy build tạo có thể thay đổi mỗi lần; nếu phải gỡ app để cài lại thì dữ liệu trong máy có thể mất. Chưa có chức năng sao lưu save, nên đừng dùng bản thử nghiệm để lưu tiến trình quan trọng.
+- APK sẽ mang đầy đủ nhạc custom-music đã được phép phân phối nếu có; phần chưa được thay sử dụng nhạc game gốc.
+- Chưa thử trực tiếp trên máy Android; cần kiểm tra cảm ứng, font dấu, lưu game, nhạc và hiệu suất 6–8 chiêu đồng thời.
+
+### Build APK tại máy
+
+Yêu cầu Node.js 22, Java 21 và Android SDK 36. Sau khi đã clone đúng revision upstream như README Windows:
+
+```bash
+npm install
+npm run prepare:game
+npm run prepare:android
+npx cap add android
+npx cap sync android
+node scripts/configure-android.cjs
+cd android
+./gradlew assembleDebug
+```
+
+File đầu ra: android/app/build/outputs/apk/debug/app-debug.apk.

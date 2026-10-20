@@ -1,8 +1,8 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
-  "description": "Unendorsed noncommercial offline Windows edition of PokéSurvivor",
+  "description": "Unofficial noncommercial offline Windows and Android edition of PokéSurvivor",
   "author": "PKMSVV contributors (desktop customizations); original game by JPTER78",
   "main": "desktop/main.cjs",
   "scripts": {
@@ -10,12 +10,15 @@
     "test:evolution": "node --test tests/evolution.test.cjs",
     "build:win": "electron-builder --win portable --x64 --publish never",
     "test:i18n": "node --test tests/i18n.test.cjs",
-    "test:autocast": "node --test tests/autocast.test.cjs"
+    "test:autocast": "node --test tests/autocast.test.cjs",
+    "prepare:android": "node scripts/prepare-android.cjs",
+    "test:android": "node --test tests/android.test.cjs"
   },
   "devDependencies": {
     "electron": "^38.0.0",
     "electron-builder": "^26.0.12",
-    "terser": "^5.39.0"
+    "terser": "^5.39.0",
+    "@capacitor/cli": "8.0.0"
   },
   "build": {
     "appId": "com.ronvotri.pkmsvv",
@@ -47,5 +50,9 @@
       "artifactName": "PKMSVV-${version}-Windows-x64.${ext}"
     },
     "compression": "normal"
+  },
+  "dependencies": {
+    "@capacitor/core": "8.0.0",
+    "@capacitor/android": "8.0.0"
   }
 }
