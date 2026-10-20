@@ -2753,6 +2753,12 @@
    "level": 54
   },
   {
+   "from": 999,
+   "to": 1000,
+   "trigger": "pkmsvv-coins",
+   "coins": 999
+  },
+  {
    "from": 1011,
    "to": 1019,
    "trigger": "1",

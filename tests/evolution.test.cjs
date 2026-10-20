@@ -14,6 +14,7 @@ const sandbox = {
   PKMSVV_EVOLUTION_DATA:data,DEX_BY:dex,SPRITE_META:sprite,
   Sprites:{hasShiny:()=>true,playerScale:()=>1,playerRadius:()=>16,bodyHeight:()=>32,Animator:class{constructor(){this.dir=0;}},preload:()=>{}},
   Moves:{BY_ID:{}},
+  DB:{save:{coins:2000},commit(){}},
   World:{biome:0},
   Weather:{current:null},
   FX:{ring(){},burst(){}},Audio:{sfx(){}},Spawner:{say(){}}
@@ -80,4 +81,23 @@ test('Finizen solo replacement requires level 38 and boss',()=>{
 test('Shedinja is not a replacement evolution for Nincada',()=>{
  const p=pl(290,20);p.bosses=2;
  assert.equal(evo.eligible(p,180,rule(290,292)),false);
+});
+
+test('Gimmighoul consumes 999 coins, Meltan needs four bosses',()=>{
+ const p=pl(999,40),r=rule(999,1000);
+ assert.ok(r);
+ sandbox.G.DB.save.coins=998;
+ assert.equal(evo.eligible(p,100,r),false);
+ sandbox.G.DB.save.coins=1000;
+ assert.equal(evo.eligible(p,100,r),true);
+ assert.equal(evo.evolve(p,r),true);
+ assert.equal(sandbox.G.DB.save.coins,1);
+ const m=pl(808,20);m.bosses=3;
+ assert.equal(evo.eligible(m,100,rule(808,809)),false);
+ m.bosses=4;assert.equal(evo.eligible(m,100,rule(808,809)),true);
+});
+test('Bisharp requires three bosses',()=>{
+ const p=pl(625,45);p.bosses=1;
+ assert.equal(evo.eligible(p,100,rule(625,983)),false);
+ p.bosses=3;assert.equal(evo.eligible(p,100,rule(625,983)),true);
 });

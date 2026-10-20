@@ -1,10 +1,10 @@
 # PKMSVV — Checklist tiến hóa Pokémon (9 thế hệ)
 
-Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) (`pokemon_species.csv`, `pokemon_evolution.csv`). Chỉ liệt kê các loài **có trong Pokédex 966 Pokémon và cả hai dạng có sprite trong dữ liệu gốc**. Khi build, game còn kiểm tra sprite trước khi kích hoạt tiến hóa.
+Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) (`pokemon_species.csv`, `pokemon_evolution.csv`). Chỉ liệt kê các loài **có trong Pokédex 966 Pokémon**. Game kiểm tra sprite đích trước khi tiến hóa. Hai nhánh Meltan và Gimmighoul được bổ sung thủ công vì CSV PokéAPI chưa ghi nhận đầy đủ.
 
 **Phân biệt:** mốc Lv. là cấp tiến hóa nguyên bản; các điều kiện ghi **(quy đổi)** là cơ chế thay thế cho bản solo offline, không được xem là quy tắc của game Pokémon chính thức. Tích ô khi bạn đã thử thành công trong PKMSVV. Bản này chưa hỗ trợ các dạng hình thái (ví dụ Alola/Galar) dưới dạng loài Dex riêng; bản checklist chọn nhánh loài chuẩn.
 
-**Danh mục:** tổng 966 Pokémon; 454 nhánh tiến hóa áp dụng được xét theo số Pokédex. Phân loại: Theo cấp 326 · Đá / vật phẩm 57 · Tình bạn 19 · Đặc biệt 28 · Trao đổi 24.
+**Danh mục:** tổng 966 Pokémon; 456 nhánh tiến hóa áp dụng được xét theo số Pokédex. Phân loại: Theo cấp 326 · Đá / vật phẩm 57 · Tình bạn 19 · Đặc biệt 28 · Trao đổi 24.
 
 ## Các tiến hóa kiểm thử
 
@@ -419,6 +419,7 @@ Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pok
 
 ### Thế hệ 8
 
+- [ ] **#0808 Meltan → #0809 Melmetal** — Thắng 4 boss trong một trận (quy đổi 400 Kẹo Meltan)
 - [ ] **#0810 Grookey → #0811 Thwackey** — Lv. 16
 - [ ] **#0811 Thwackey → #0812 Rillaboom** — Lv. 35
 - [ ] **#0813 Scorbunny → #0814 Raboot** — Lv. 16
@@ -487,6 +488,7 @@ Nguồn dữ liệu: [PokéAPI / PokeAPI/pokeapi](https://github.com/PokeAPI/pok
 - [ ] **#0974 Cetoddle → #0975 Cetitan** — Dùng Ice Stone
 - [ ] **#0996 Frigibax → #0997 Arctibax** — Lv. 35
 - [ ] **#0997 Arctibax → #0998 Baxcalibur** — Lv. 54
+- [ ] **#0999 Gimmighoul → #1000 Gholdengo** — Tích lũy và tiêu 999 Pokécoins trong tài khoản local (quy đổi 999 Gimmighoul Coins)
 - [ ] **#1011 Dipplin → #1019 Hydrapple** — Học Dragon Cheer (kỹ năng tương đương nếu chưa có)
 - [ ] **#1012 Poltchageist → #1013 Sinistcha** — Dùng Unremarkable Teacup
 

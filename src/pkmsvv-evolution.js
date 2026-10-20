@@ -78,6 +78,9 @@ G.PKMSVVEvo = (() => {
     if (r.rain) a.push('đang mưa');
     if (r.flip) a.push('đảo chiều PC');
     if (r.multiplayer) a.push('thắng ít nhất 1 boss (thay multiplayer)');
+    if (r.trigger === '15') a.push('thắng 3 boss (thay thử thách Kingambit)');
+    if (r.candy) a.push('thắng 4 boss (thay ' + r.candy + ' Kẹo Meltan)');
+    if (r.coins) a.push('tiêu ' + r.coins + ' Pokécoins (thay xu Gimmighoul)');
     if (r.party || r.partyType || r.tradeSpecies) a.push('thắng boss (thay đồng đội)');
     if (r.expression || r.nature || r.gender || r.stat != null) a.push('chọn nhánh/biến thể (quy đổi)');
     if (r.trigger === '5') a.push('xoay tại chỗ (quy đổi)');
@@ -104,12 +107,15 @@ G.PKMSVVEvo = (() => {
     if (r.rock && G.World.biome % 3 !== 1) return false;
     if (r.location && G.World.biome % 3 !== locationBiome(r)) return false;
     if (r.multiplayer && (pl.bosses || 0) < 1) return false;
+    if (r.trigger === '15' && (pl.bosses || 0) < 3) return false;
+    if (r.candy && (pl.bosses || 0) < 4) return false;
+    if (r.coins && (!G.DB || !G.DB.save || (G.DB.save.coins || 0) < r.coins)) return false;
     if ((r.party || r.partyType || r.tradeSpecies) && (pl.bosses || 0) < 1) return false;
     if (r.trigger === '5' && (pl.bosses || 0) < 1) return false;
     if (!r.level && !isItemEvolution(r) && !r.friendship && !r.beauty && !r.affection &&
         !r.knownMove && !r.knownType && !r.usedMove && !r.steps && !r.damage &&
         !r.rain && !r.rock && !r.location && !r.multiplayer && !r.party &&
-        !r.partyType && !r.tradeSpecies && r.trigger !== '5' && (pl.bosses || 0) < 1) return false;
+        !r.partyType && !r.tradeSpecies && !r.candy && !r.coins && r.trigger !== '5' && (pl.bosses || 0) < 1) return false;
     return true;
   }
   function evolve(pl, r) {
@@ -118,6 +124,11 @@ G.PKMSVVEvo = (() => {
     if (isItemEvolution(r)) {
       if (!pl.pkmEvoShards) return false;
       pl.pkmEvoShards--;
+    }
+    if (r.coins) {
+      if (!G.DB || !G.DB.save || G.DB.save.coins < r.coins) return false;
+      G.DB.save.coins -= r.coins;
+      G.DB.commit();
     }
     const fraction = pl.maxHp > 0 ? pl.hp / pl.maxHp : 1;
     pl.mon = after; pl.dex = after.dex;
