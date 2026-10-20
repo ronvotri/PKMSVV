@@ -179,6 +179,77 @@ patch('js/ui/hud.js',
   "        ctx.fillText((active ? 'ON ' : 'OFF ') + Math.ceil(Math.max(0, seconds)) + 's', x + S / 2, y + S - 15);\n" +
   "      }");
 
+// v0.6: active dash skills (never move the player without a deliberate press).
+// Xbox X / PC F / mobile dedicated button. Other 99 skills stay fully automatic.
+patch('js/systems/combat.js',
+  "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }",
+  "    if (m.kind === 'dash') { m.t = Math.max(0, (m.t || 0) - dt); return; }\n" +
+  "    if (m.kind === 'orbit') { orbit(pl, m, dt, now); return; }");
+patch('js/systems/combat.js',
+  "  return { tick, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,",
+  "  let manualDashIndex = 0;\n" +
+  "  function manualDash(pl) {\n" +
+  "    if (!pl || pl.dead || G.Game.state !== 'playing') return false;\n" +
+  "    const choices = pl.moves.filter(m => m.kind === 'dash');\n" +
+  "    if (!choices.length) return false;\n" +
+  "    for (let k = 0; k < choices.length; k++) {\n" +
+  "      const i = (manualDashIndex + k) % choices.length, m = choices[i];\n" +
+  "      if (m.t > 0) continue;\n" +
+  "      manualDashIndex = (i + 1) % choices.length;\n" +
+  "      m.t = G.PKMSVVBalance.effectiveCooldown(pl, m);\n" +
+  "      pl.cast(m);\n" +
+  "      if (G.Coop.active) G.Coop.cast(pl, m);\n" +
+  "      m.castAt = performance.now();\n" +
+  "      run(pl, m);\n" +
+  "      return true;\n" +
+  "    }\n" +
+  "    return false;\n" +
+  "  }\n" +
+  "  return { tick, manualDash, resolve, ghostCast, ghostOrbit, updateFields, drawGroundFields, drawAirFields, clearFields,");
+patch('js/game.js',
+  "    if (state !== 'playing' || !pl) return;\n    for (let i = 0; i < 4; i++) {",
+  "    if (state !== 'playing' || !pl) return;\n" +
+  "    if (G.Input.tap('keyf')) G.Combat.manualDash(pl);\n" +
+  "    for (let i = 0; i < 4; i++) {");
+patch('js/core/gamepad.js',
+  "      if (hit(BT.LB) || hit(BT.LT)) G.Input.virtual('keyq');\n" +
+  "      if (hit(BT.RB) || hit(BT.RT)) G.Input.virtual('keye');",
+  "      // PKMSVV: X activates a learned dash. LB/RB no longer cycle attacks.\n" +
+  "      if (hit(BT.X)) G.Input.virtual('keyf');");
+patch('js/ui/hud.js',
+  "    // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------",
+  "    // PKMSVV: one fixed active-skill button, only visible after learning a dash.\n" +
+  "    if (pl.moves.some(m => m.kind === 'dash')) {\n" +
+  "      const x = w - 90 - sa.right, y = h - 174 - sa.bottom, size = 64;\n" +
+  "      const dash = pl.moves.filter(m => m.kind === 'dash');\n" +
+  "      const next = dash.reduce((min, m) => Math.min(min, Math.max(0, m.t || 0)), Infinity);\n" +
+  "      roundRect(ctx, x, y, size, size, 14);\n" +
+  "      ctx.fillStyle = next <= 0 ? '#1b6590' : 'rgba(13,29,54,.87)'; ctx.fill();\n" +
+  "      ctx.lineWidth = 2; ctx.strokeStyle = next <= 0 ? '#53e1ff' : '#59718f'; ctx.stroke();\n" +
+  "      G.Icons.draw(ctx, 'move:' + dash[0].id, x + 14, y + 8, 36);\n" +
+  "      ctx.textAlign = 'center'; ctx.font = F(800, 11); ctx.fillStyle = '#fff';\n" +
+  "      ctx.fillText(next > 0 ? next.toFixed(1) + 's' : 'F / X', x + size / 2, y + 57);\n" +
+  "      if (touch) G.Touch.addButton(x, y, size, size, () => G.Combat.manualDash(pl), 4);\n" +
+  "    }\n" +
+  "    // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------");
+patch('js/ui/settings-ui.js',
+  "        + toggle('gamepad', 'Usar mando', 'Moverte, cambiar de ataque y manejar los menús con el mando.')",
+  "        + toggle('gamepad', 'Usar mando', 'Moverte, activar habilidades especiales y manejar los menús con el mando.')");
+patch('js/ui/settings-ui.js',
+  '             <div><span class="padkey">LB</span> / <span class="padkey">RB</span></div><span>ataque anterior / siguiente</span>',
+  '             <div><span class="padkey">X</span></div><span>activar movimiento especial (si lo has aprendido)</span>');
+patch('js/ui/settings-ui.js',
+  'Toca un ataque de abajo para cambiarlo y el botón de arriba a la derecha para pausar.',
+  'Todos los ataques se lanzan automáticamente; el botón especial aparece si aprendes una embestida. Pulsa el botón de arriba a la derecha para pausar.');
+patch('js/ui/settings-ui.js',
+  '             <div><kbd>1</kbd>–<kbd>4</kbd> o clic en el icono</div><span>elegir ataque</span>\n' +
+  '             <div><kbd>Q</kbd> / <kbd>E</kbd></div><span>ataque anterior / siguiente</span>',
+  '             <div><kbd>F</kbd></div><span>activar movimiento especial (si lo has aprendido)</span>');
+patch('js/data/changelog.js', 'G.CHANGELOG = [',
+  'G.CHANGELOG = ['); // This anchor asserts the upstream format.
+fs.writeFileSync(path.join(game, 'js','data','changelog.js'),
+  '/* PKMSVV change log: intentionally empty; fill in with owner release notes. */\nG.CHANGELOG = [];\n', 'utf8');
+
 // Loginless PC profile: keep a currently restored local save; if none exists,
 // generate a dedicated offline profile (NOT a guest, so G.DB.commit works).
 // Existing ps.accounts and ps.save.* are never replaced or deleted.
@@ -241,6 +312,30 @@ const vm = require('node:vm');
 vm.runInNewContext(enSource, { G: { I18n: { add(d) { Object.assign(dictionary, d); } } } }, { timeout: 3000 });
 if (Object.keys(dictionary).length < 1200) throw new Error('Từ điển nguồn không đầy đủ');
 const viDict = Object.fromEntries(Object.entries(dictionary).map(([es, en]) => [es, vietnamese.translate(en)]));
+// Keep familiar official English move names even with Vietnamese UI.
+// The Vietnamese community reference distinguishes English move names from
+// Vietnamese explanations. Do not translate whole names through fragment rules.
+const upstreamMoves = fs.readFileSync(path.join(game,'js','data','moves.js'),'utf8');
+const spanishMoveNames = new Set(
+  [...upstreamMoves.matchAll(/\bname:\s*'([^']+)'/g)].map(m=>m[1])
+);
+const evoStart = upstreamMoves.indexOf('const EVO = {'), evoEnd = upstreamMoves.indexOf('const EVO_MODS',evoStart);
+if(evoStart<0||evoEnd<0) throw new Error('Upstream move evolutions changed.');
+for(const m of upstreamMoves.slice(evoStart,evoEnd).matchAll(/:\s*\['([^']+)'/g))spanishMoveNames.add(m[1]);
+for(const [es,en] of Object.entries(dictionary)) {
+  if(spanishMoveNames.has(es))viDict[es]=en;
+}
+// Prevent partial Vietnamese conversion of skill-name text inside dynamically
+// constructed UI. Add a dedicated move context for original Spanish names.
+const moveMap = Object.fromEntries([...spanishMoveNames].filter(k=>dictionary[k]).map(k=>[k,dictionary[k]]));
+if(Object.keys(moveMap).length < 90) throw new Error('Missing source English skill names: '+Object.keys(moveMap).length);
+fs.writeFileSync(path.join(game,'js','data','pkmsvv-move-names.js'),
+  'G.I18n.add('+JSON.stringify(moveMap)+',"vi","move");\n','utf8');
+patch('dev.html',
+  '<script defer src="js/data/lang-vi.js"></script>',
+  '<script defer src="js/data/lang-vi.js"></script>\n<script defer src="js/data/pkmsvv-move-names.js"></script>');
+
+
 fs.writeFileSync(path.join(game, 'js', 'data', 'lang-vi.js'),
   '/* PKMSVV: Vietnamese dictionary (built from pinned original) */\nG.I18n.add(' + JSON.stringify(viDict) + ', "vi");\n', 'utf8');
 const equal = Object.entries(dictionary).filter(([es,en]) => viDict[es] === en && /[A-Za-z]{4}/.test(en));
