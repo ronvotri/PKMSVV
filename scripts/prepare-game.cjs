@@ -301,7 +301,9 @@ patch('js/game.js', '    if (!coop || G.Coop.isHost) maybeLevelUp();',
 // Noncommercial derivative attribution; keep original JPTER78 and SpriteCollab credits.
 const pkmsvvCredit = 'Việt hóa và Mod điều chỉnh bởi Votri Valley';
 patch('dev.html',
+  '      <div class="t1">PokéSurvivor<span class="splash">Folagor, Sekiam, PokeAlex: ¿un hueco?</span></div>\n' +
   '      <div class="t2">Mundo Misterioso</div>',
+  '      <div class="t1">PokéSurvivor<span class="splash">Folagor, Sekiam, PokeAlex: ¿un hueco?</span></div>\n' +
   '      <div class="t2">Mundo Misterioso</div>\n' +
   '      <div class="pkmsvv-attribution" translate="no" lang="vi">' + pkmsvvCredit + '</div>');
 patch('dev.html',
