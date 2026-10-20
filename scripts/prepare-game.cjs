@@ -117,13 +117,28 @@ console.log('[VI] '+ Object.keys(viDict).length +' mục, còn '+equal.length+' 
 
 // Do not request a missing js/lang/vi.js: vi translations are packaged inline.
 patch('js/core/locales.js', "['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],",
-  "['vi', 'Tiếng Việt', 'vi-VN'], ['es', 'Español', 'es-ES'], ['en', 'English', 'en-GB'],");
+  "['vi', 'Tiếng Việt', 'vi-VN'],");
 patch('js/core/locales.js',
   "const lang = normalize(saved) || (/\\/en(\\/|$)/.test(location.pathname) ? 'en' : null)",
-  "const lang = 'vi' || normalize(saved) || (/\\/en(\\/|$)/.test(location.pathname) ? 'en' : null)");
+  "const lang = 'vi'");
 patch('js/core/locales.js',
   "if (lang !== 'es' && lang !== 'en') {",
   "if (lang !== 'es' && lang !== 'en' && lang !== 'vi') {");
+// Browser pixel-font has no guaranteed Vietnamese glyph coverage. Use a
+// native UTF-8 capable Windows font for canvas HUD, menus and battle texts.
+fs.writeFileSync(path.join(game, 'js', 'core', 'pkmsvv-vi-font.js'),
+  "/* PKMSVV Vietnamese accent-safe canvas font */\n" +
+  "(() => { const P = CanvasRenderingContext2D.prototype;\n" +
+  "  const fd = Object.getOwnPropertyDescriptor(P, 'font');\n" +
+  "  if (!fd || !fd.set || !fd.get) return;\n" +
+  "  Object.defineProperty(P, 'font', { configurable: true, enumerable: fd.enumerable,\n" +
+  "    get() { return fd.get.call(this); },\n" +
+  "    set(v) { const value = typeof v === 'string' ? v.replace(/\\\\bPixelify\\\\b/g, '\\\"Segoe UI\\\"') : v;\n" +
+  "      return fd.set.call(this, value); } });\n" +
+  "})();\n", 'utf8');
+patch('dev.html', '<script defer src="js/core/i18n.js"></script>',
+  '<script defer src="js/core/i18n.js"></script>\n<script defer src="js/core/pkmsvv-vi-font.js"></script>');
+
 // Include Vietnamese after English fallback, before game systems execute.
 patch('dev.html', '<script defer src="js/data/lang-en.js"></script>',
   '<script defer src="js/data/lang-en.js"></script>\n<script defer src="js/data/lang-vi.js"></script>');
