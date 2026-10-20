@@ -1,13 +1,15 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
-const sharp=require('sharp'),pngToIco=require('png-to-ico');
+const sharp=require('sharp'),pngToIco=require('png-to-ico').default;
 const root=path.join(__dirname,'..');
 async function main(){
  const svg=fs.readFileSync(path.join(root,'assets','icon-survival.svg'));
  const png=await sharp(svg,{density:192}).resize(512,512).png().toBuffer();
  const dest=path.join(root,'build');fs.mkdirSync(dest,{recursive:true});
  fs.writeFileSync(path.join(dest,'icon.png'),png);
- fs.writeFileSync(path.join(dest,'icon.ico'),await pngToIco(await sharp(png).resize(256,256).png().toBuffer()));
+ const icon256=path.join(dest,'icon-256.png');
+ fs.writeFileSync(icon256,await sharp(png).resize(256,256).png().toBuffer());
+ fs.writeFileSync(path.join(dest,'icon.ico'),await pngToIco(icon256));
  const game=path.join(root,'vendor','pokesurvivor');
  if(fs.existsSync(path.join(game,'assets','icons'))){
   fs.copyFileSync(path.join(dest,'icon.ico'),path.join(game,'favicon.ico'));
