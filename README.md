@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC Offline (v0.4.1)
+# PKMSVV — PokéSurvivor PC + Android Offline (v0.5.0)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -41,6 +41,8 @@ git -C vendor/pokesurvivor fetch --depth 1 origin 11fe868c640b62ac37beacc222e056
 git -C vendor/pokesurvivor checkout --detach FETCH_HEAD
 npm install
 npm run prepare:game
+npm run prepare:icons
+npm run test:balance
 npm run build:win
 ```
 
@@ -88,7 +90,7 @@ Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` �
 - Băng Lựa Chọn đổi thành **+25% sát thương, -15% tốc chạy** do hình phạt không được chuyển chiêu đã không còn ý nghĩa.
 - Hỗ trợ thay nhạc theo [7 vị trí đã đặt tên](custom-music/README.md). Thêm bài MP3/OGG/WAV đã có quyền sử dụng vào repo rồi build lại. Nếu không thêm bài nào, vẫn phát nhạc gốc do máy tổng hợp; không có nhạc Pokémon chính thức được phân phối kèm.
 
-## Android APK — v0.4.1 (thử nghiệm)
+## Android APK — v0.5.0 (thử nghiệm)
 
 - Android 7.0+ (API 24), WebView/Chrome hiện đại; yêu cầu chơi màn hình ngang. Game và tài nguyên nằm trong APK, không cần truy cập website để chơi.
 - Đóng gói bằng Capacitor 8; giữ các bản vá hiện tại: tự động đăng nhập offline, tiếng Việt, tiến hóa Pokémon và tự thi triển các kỹ năng.
@@ -105,12 +107,23 @@ Yêu cầu Node.js 22, Java 21 và Android SDK 36. Sau khi đã clone đúng rev
 ```bash
 npm install
 npm run prepare:game
+npm run prepare:icons
+npm run test:balance
 npm run prepare:android
 npx cap add android
 npx cap sync android
 node scripts/configure-android.cjs
+node scripts/apply-android-icons.cjs
 cd android
 ./gradlew assembleDebug
 ```
 
 File đầu ra: android/app/build/outputs/apk/debug/app-debug.apk.
+
+## V0.5.0 — Cân bằng 103 chiêu tự động, 6 buff và biểu tượng Survival
+
+- Mọi **103 kỹ năng** được cân lại hồi chiêu theo **23 nhóm**. Không đổi tác dụng riêng của từng kỹ năng; khi học mới và lên cấp, vẫn hoạt động bình thường. Giảm hồi chiêu từ các thẻ nâng cấp có giới hạn an toàn tránh spam quá nhanh.
+- **6 buff** (Swords Dance, Nasty Plot, Agility, Harden, Aqua Ring, Dragon Dance) không còn cộng dồn liên tục: cấp 1–4 tự bật và nghỉ theo chu kỳ 16 giây, với thời gian hiệu lực tăng theo cấp. Lên **cấp 5** buff duy trì vĩnh viễn, chỉ 1 tầng tác dụng, không tiếp tục tạo hoạt ảnh. Buff không chịu giảm hồi chiêu chung để giữ khoảng nghỉ ở cấp thấp.
+- HUD kỹ năng hiển thị `ON 5s`, `OFF 4s` hoặc `MAX`; chiêu gây sát thương vẫn hiển thị `AUTO` và hồi chiêu.
+- [Chi tiết hồi chiêu và buff cho từng chiêu](docs/SKILL_BALANCE.md) — đối chiếu 103 chiêu từ nguồn. Cân bằng là điểm khởi đầu, cần chơi thử để điều chỉnh thêm mật độ quái, DPS và FPS.
+- Icon Windows EXE, favicon và launcher Android dùng **Poké Ball với chữ Survival**. Nguồn icon có thể xem ở [assets/icon-survival.svg](assets/icon-survival.svg); icon được render trong CI từ nguồn vector này.

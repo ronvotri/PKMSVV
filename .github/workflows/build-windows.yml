@@ -33,6 +33,8 @@ jobs:
         run: npm run prepare:game
       - name: Test auto-cast and music integration
         run: npm run test:autocast
+      - name: Generate Survival launcher icons and test all skill cooldowns
+        run: npm run prepare:icons && npm run test:balance
       - name: Produce portable Windows x64 EXE
         run: npm run build:win
         env:
