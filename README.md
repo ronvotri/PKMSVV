@@ -127,3 +127,13 @@ File đầu ra: android/app/build/outputs/apk/debug/app-debug.apk.
 - HUD kỹ năng hiển thị `ON 5s`, `OFF 4s` hoặc `MAX`; chiêu gây sát thương vẫn hiển thị `AUTO` và hồi chiêu.
 - [Chi tiết hồi chiêu và buff cho từng chiêu](docs/SKILL_BALANCE.md) — đối chiếu 103 chiêu từ nguồn. Cân bằng là điểm khởi đầu, cần chơi thử để điều chỉnh thêm mật độ quái, DPS và FPS.
 - Icon Windows EXE, favicon và launcher Android dùng **Poké Ball với chữ Survival**. Nguồn icon có thể xem ở [assets/icon-survival.svg](assets/icon-survival.svg); icon được render trong CI từ nguồn vector này.
+
+## v0.6.0 — QA sau bản chơi thử
+
+- Khôi phục **hai ngôn ngữ Tiếng Việt (mặc định) và English** trong phần Cài đặt. Khi đổi ngôn ngữ sẽ lưu lựa chọn qua lần chạy sau.
+- **Tên của 103 chiêu thức và 97 tên chiêu sau tiến hóa trở lại tiếng Anh**, tham chiếu theo tên tiếng Anh chính thức và bảng phân biệt tên Anh/Việt của cộng đồng. Phần mô tả, nâng cấp và nhiệm vụ vẫn bằng tiếng Việt.
+- Mục **Có gì mới?** được đặt về danh sách trống để chờ nhật ký cập nhật PKMSVV do bạn biên soạn, không còn bản tin tác giả game gốc. Khi cần thêm bản tin, cập nhật `js/data/changelog.js` trong nguồn patch thay vì tin bản gốc.
+- Không còn hướng dẫn đổi chiêu 1–4/Q/E hoặc LB/RB. Các chiêu bình thường vẫn tự dùng khi hồi chiêu xong.
+- **4 chiêu lao vào mục tiêu** (nhóm `dash`): chỉ kích hoạt thủ công bằng **F trên PC / X trên tay cầm / nút kỹ năng ở cạnh phải màn hình cảm ứng**. Nếu học nhiều hơn một chiêu lao tới, mỗi lần bấm sẽ kích hoạt một chiêu sẵn sàng theo vòng luân phiên. Không thể kích hoạt khi đang hồi chiêu hoặc game tạm dừng.
+- Màn hình **tiến hóa Pokémon** được đưa vào hệ thống chọn bằng tay cầm. D-pad/analog chọn, **A** xác nhận, **B** giữ nguyên dạng hiện tại.
+- Bản vá này là bản kiểm thử mới. Cần xác nhận trực tiếp với các tay cầm Xbox, PlayStation hoặc Switch vì ánh xạ nút thực tế có thể khác trên từng thiết bị.

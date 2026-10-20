@@ -1,6 +1,6 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Unofficial noncommercial offline Windows and Android edition of PokéSurvivor",
   "author": "PKMSVV contributors (desktop customizations); original game by JPTER78",
@@ -14,7 +14,8 @@
     "prepare:android": "node scripts/prepare-android.cjs",
     "test:android": "node --test tests/android.test.cjs",
     "prepare:icons": "node scripts/generate-icons.cjs",
-    "test:balance": "node --test tests/skill-balance.test.cjs"
+    "test:balance": "node --test tests/skill-balance.test.cjs",
+    "test:ux": "node --test tests/ux.test.cjs"
   },
   "devDependencies": {
     "electron": "^38.0.0",

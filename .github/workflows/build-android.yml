@@ -45,7 +45,7 @@ jobs:
       - name: Verify automatic skills and music slots
         run: npm run test:autocast
       - name: Render Survival Pokeball artwork and verify full skill cooldowns
-        run: npm run prepare:icons && npm run test:balance
+        run: npm run prepare:icons && npm run test:balance && npm run test:ux
       - name: Bundle offline Android web assets
         run: npm run prepare:android && npm run test:android
       - name: Generate Android native project
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/PKMSVV-0.5.0-Android-universal-debug.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/PKMSVV-0.6.0-Android-universal-debug.apk
           ls -lh dist/*.apk
           unzip -t dist/*.apk | tail -1
           "${ANDROID_HOME}/build-tools/36.0.0/aapt" dump badging dist/*.apk | grep -E "^(package:|sdkVersion:|targetSdkVersion:)" | head -4
