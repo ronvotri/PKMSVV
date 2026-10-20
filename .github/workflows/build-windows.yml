@@ -27,6 +27,8 @@ jobs:
           git -C vendor/pokesurvivor checkout --detach FETCH_HEAD
       - name: Install Windows build dependencies
         run: npm install --no-audit --no-fund
+      - name: Test local Pokédex evolution module
+        run: npm run test:evolution
       - name: Apply offline patches and compile game assets
         run: npm run prepare:game
       - name: Produce portable Windows x64 EXE

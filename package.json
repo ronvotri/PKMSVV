@@ -1,12 +1,13 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Unendorsed noncommercial offline Windows edition of PokéSurvivor",
   "author": "PKMSVV contributors (desktop customizations); original game by JPTER78",
   "main": "desktop/main.cjs",
   "scripts": {
     "prepare:game": "node scripts/prepare-game.cjs",
+    "test:evolution": "node --test tests/evolution.test.cjs",
     "build:win": "electron-builder --win portable --x64 --publish never"
   },
   "devDependencies": {
@@ -19,7 +20,9 @@
     "productName": "PKMSVV Offline",
     "copyright": "Unofficial noncommercial project; original game copyright JPTER78",
     "asar": true,
-    "directories": { "output": "dist" },
+    "directories": {
+      "output": "dist"
+    },
     "files": [
       "desktop/**/*",
       "vendor/pokesurvivor/index.html",
@@ -36,7 +39,9 @@
       "package.json"
     ],
     "win": {
-      "target": ["portable"],
+      "target": [
+        "portable"
+      ],
       "artifactName": "PKMSVV-${version}-Windows-x64.${ext}"
     },
     "compression": "normal"

@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC Offline
+# PKMSVV — PokéSurvivor PC Offline (v0.2.0)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -53,6 +53,18 @@ Output: `dist/PKMSVV-*-Windows-x64.exe`. The prep script is designed to run **on
 See [NOTICE.md](NOTICE.md), and bundled original `LICENSE`, `LICENSE-NONCOMMERCIAL.md` and `CREDITS.md`. All source copyright notices remain in the imported source; the executable is for personal, noncommercial use only. Third-party IP holders may still impose independent restrictions.
 
 The workflow publishes a **temporary GitHub Actions artifact**, not a public GitHub Release or commercial distribution. Do not imply endorsement by JPTER78 or The Pokémon Company.
+
+## Tiến hóa Pokémon trong trận — v0.2.0
+
+- Bảng [454 nhánh tiến hóa Pokédex](data/evolution-rules.json), đi kèm [checklist toàn bộ Pokémon](docs/EVOLUTION_CHECKLIST.md) và [bảng CSV](docs/EVOLUTION_CHECKLIST.csv). Dữ liệu lấy từ PokeAPI, chỉ xét các loài hiện có trong PokéSurvivor; cần sprite đích mới có thể tiến hóa.
+- **Lên cấp:** tiến hóa đúng mốc cấp của Pokédex (Charmander Lv16 → Charmeleon; Charmeleon Lv36 → Charizard). Giữ chiêu thức, cấp, HP theo tỷ lệ, các buff đang có; chỉ đổi dạng, chỉ số cơ bản, hệ và sprite.
+- **Tiến hóa bằng vật phẩm/trao đổi:** thắng boss để nhận 1 **Mảnh Tiến Hóa** mỗi boss, tiêu một mảnh để kích hoạt đúng đá/vật phẩm hoặc Dây Liên Kết; không cần mạng.
+- **Điều kiện đặc biệt:** tính thân thiết dựa trên cấp và thời gian sinh tồn; luân phiên ngày/đêm theo chu kỳ 4 phút trong trận; di chuyển, chịu sát thương, dùng chiêu, thời tiết, địa hình và thắng boss cho các yêu cầu được chuyển thể.
+- **Nhiều nhánh:** menu hiện các dạng thỏa điều kiện để tự chọn; có nút hoãn đến lần lên cấp tiếp theo.
+- **Giới hạn:** không hỗ trợ phát sinh thêm Shedinja như đồng đội; không tạo các dạng regional/giới tính riêng khi Pokédex gốc không có sprite tương ứng; biến thể hình thái và nhiều điều kiện ngoại lệ được **quy đổi**, không cam kết giống tuyệt đối game chính thức. Chưa kiểm thử thủ công tất cả 454 nhánh.
+- **Sưu tầm:** tiến hóa trong run không tự mở khóa Pokémon mới trong bộ sưu tập; vẫn cần gacha/thu thập như cũ. Trong game chỉ phát triển một Pokémon đang điều khiển; không phải đội 6 Pokémon.
+
+Xem `src/pkmsvv-evolution.js` để sửa logic và `tests/evolution.test.cjs` để kiểm tra tự động.
 
 ## Hướng phát triển tiếp
 
