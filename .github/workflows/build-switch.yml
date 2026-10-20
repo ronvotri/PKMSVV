@@ -12,7 +12,7 @@ jobs:
   switch:
     name: Build noncommercial Switch SD offline package
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,6 +37,34 @@ jobs:
         run: npm run prepare:icons && npm run prepare:android && npm run test:android
       - name: Package SD Switch folder
         run: npm run prepare:switch && npm run test:switch
+      - name: Render Switch NRO icon with Survival Poké Ball
+        run: |
+          node -e "require('sharp')('build/icon.png').resize(256,256).jpeg({quality:90}).toFile('switch/nro-forwarder/icon.jpg').catch(e=>{console.error(e);process.exit(1)})"
+      - name: Compile native launcher NRO with devkitPro / libnx
+        shell: bash
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace/switch/nro-forwarder \
+            -e DEVKITPRO=/opt/devkitpro \
+            devkitpro/devkita64:20260219 \
+            make -j2
+          test -s switch/nro-forwarder/PKMSVV.nro
+          python3 - <<'PY'
+          from pathlib import Path
+          nro=Path('switch/nro-forwarder/PKMSVV.nro')
+          data=nro.read_bytes()
+          assert data[0x10:0x14] == b'NRO0', 'Not a valid Nintendo Switch NRO'
+          print(f'PKMSVV.nro: {len(data):,} bytes, NRO0 verified')
+          PY
+          cp switch/nro-forwarder/PKMSVV.nro dist/switch-package/switch/PKMSVV.nro
+      - name: Upload standalone PKMSVV hbmenu launcher NRO
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKMSVV-Switch-NRO-Launcher
+          path: switch/nro-forwarder/PKMSVV.nro
+          retention-days: 14
+          if-no-files-found: error
       - name: Create offline ZIP
         shell: bash
         run: |

@@ -189,3 +189,13 @@ PKMSVV dùng công nghệ **HTML5/JavaScript/Canvas 2D**, không phải game Swi
 Để đóng gói thử trên PC: `npm run prepare:game && npm run prepare:icons && npm run prepare:android && npm run prepare:switch && npm run test:switch` (cần tải mã nguồn gốc theo workflow trước). File ZIP được GitHub Actions tạo từ `dist/switch-package/`.
 
 **Về dạng icon Homebrew Menu:** Brewser có chức năng tạo shortcut `.nro` cho những ứng dụng đã đăng ký/cài đặt theo catalogue; việc chép app thủ công chưa bảo đảm Brewser sẽ hiển thị nó trong danh sách catalogue hoặc cung cấp nút tạo shortcut. Trước mắt sử dụng URL nội bộ để test; chỉ tạo shortcut khi trò chơi được Brewser nhận là app đã cài.
+
+## PKMSVV.nro — Mở game bằng Homebrew Menu (v0.7.1)
+
+Bản Switch hiện có thể tạo **PKMSVV.nro** (native ARM64 launcher bằng libnx/devkitPro, có icon Poké Ball Survival). Nhờ tham số `--fwd=com.votrivalley.pkmsvv` theo giao thức Brewser, khi bạn bấm PKMSVV trong Homebrew Menu, trò chơi sẽ mở ngay mà không cần gõ đường dẫn Brewser.
+
+- Tải **PKMSVV-Switch-NRO-Launcher** (chứa `PKMSVV.nro`) và **PKMSVV-Switch-Brewser-Offline-Test** (chứa game offline cùng file NRO) tại workflow [Build Switch Lite Brewser Offline Test](https://github.com/ronvotri/PKMSVV/actions/workflows/build-switch.yml).
+- Chép `PKMSVV.nro` và `brewser.nro` vào `sd:/switch/`. Chép thư mục `switch/brewser/apps/com.votrivalley.pkmsvv/` từ gói offline vào thẻ nhớ như hướng dẫn trước đó.
+- Mở Homebrew Menu chế độ đầy đủ RAM, chọn biểu tượng **PKMSVV Survival**. Launcher kiểm tra hai đường dẫn này trước khi chạy, và sẽ hiển thị hướng dẫn nếu thiếu file.
+- Đây là **NRO chạy được ở cấp hệ thống (launcher)**, không phải NRO chứa engine và assets độc lập trong cùng một file. Switch vẫn cần `sd:/switch/brewser.nro` và thư mục game đã giải nén. Không có NSP hay cài vào Nintendo Home Menu.
+- Chưa kiểm thử trên Switch Lite thật, nên việc chuyển giao Brewser bằng `--fwd` và tương thích game vẫn cần test thực tế.
