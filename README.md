@@ -164,3 +164,10 @@ Trên màn hình khởi động và dưới logo menu chính: **Việt hóa và 
 ## Cảnh báo SmartScreen khi tải EXE
 
 Bản Windows portable chưa ký số Authenticode. Thay icon và chữ trong menu sẽ không làm mất cảnh báo Unknown publisher. Xem [docs/WINDOWS_SMARTSCREEN.md](docs/WINDOWS_SMARTSCREEN.md).
+
+## v0.6.3 — Nhãn Chủ động / Tự động và nhiều chiêu lao tới
+
+- Các chiêu **Dash / lao tới** là **Kỹ năng chủ động**, hiện nhãn riêng khi học chiêu, trong thanh kỹ năng và bảng kỹ năng khi tạm dừng. Các chiêu thông thường là **Kỹ năng tự động**, buff là **Buff tự động**. Có cả nhãn tiếng Anh tương ứng.
+- Có **4 kỹ năng lao tới**: Quick Attack, Aerial Ace, Flame Charge, U-turn. Chúng chỉ lao tới khi bạn nhấn **F (bàn phím), X (tay cầm Xbox), □ (PlayStation), nút riêng Android**.
+- Khi sở hữu **2 hoặc nhiều chiêu lao tới**, một nút tiếp tục dùng chung: kích hoạt từng chiêu sẵn sàng theo vòng; chiêu đang hồi được tự bỏ qua, và mỗi chiêu hồi độc lập. Nút chủ động hiển thị **đúng biểu tượng và tên chiêu tiếp theo**, chỉ số `1/2`, `2/2`, và số giây nếu chưa có chiêu nào sẵn sàng.
+- Nếu tất cả đều đang hồi, bấm nút không sử dụng chiêu và không làm mất lượt. Danh sách luân phiên được đặt lại với Pokémon mới khi bắt đầu một trận mới.
