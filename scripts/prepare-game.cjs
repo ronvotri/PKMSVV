@@ -413,6 +413,8 @@ execFileSync(process.execPath,[path.join(project,'scripts','patch-global-upgrade
 execFileSync(process.execPath,[path.join(project,'scripts','patch-collection.cjs')],{cwd:project,stdio:'inherit'});
 // v0.9.1: Switch/Android/PC controller navigation and one-press play from Pokedex.
 execFileSync(process.execPath,[path.join(project,'scripts','patch-controller.cjs')],{cwd:project,stdio:'inherit'});
+// v0.9.2: restore WebAudio music after focus/sleep and gamepad-only input.
+execFileSync(process.execPath,[path.join(project,'scripts','patch-music.cjs')],{cwd:project,stdio:'inherit'});
 
 execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo', '--expose'], { cwd: game, stdio: 'inherit' });
 
