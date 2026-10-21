@@ -434,12 +434,12 @@ html = html.replace('</head>', '<style>\n' +
   '.pkmsvv-evo-option,.pkmsvv-evo-skip{display:block;width:100%;padding:12px;border-radius:8px;font-family:inherit;font-size:16px;cursor:pointer;margin:8px 0;text-align:left}\n' +
   '.pkmsvv-evo-option{background:#304c7c;color:#fff;border:1px solid #8ebcfb}.pkmsvv-evo-option:hover{background:#42669e}\n' +
   '.pkmsvv-evo-skip{background:#151f35;color:#c3cede;border:1px solid #536b90;text-align:center}\n' +
-  '.pkmsvv-evo-panel{overscroll-behavior:contain;scrollbar-width:thin;}\\n' +
-  '.pkmsvv-evo-option:disabled{opacity:.47;cursor:not-allowed;background:#182846;color:#a6bad4;border-color:#415577;box-shadow:none;}\\n' +
-  '.pkmsvv-evo-option{line-height:1.5;white-space:normal;overflow-wrap:anywhere;}\\n' +
-  '.pkmsvv-evo-transform{display:flex;align-items:flex-start;gap:10px;padding:11px;margin:7px 0 12px;background:#10253c;border:1px solid #6384a9;border-radius:9px;font-size:13px;line-height:1.5;color:#e8efff;}\\n' +
-  '.pkmsvv-evo-transform input{flex:none;width:21px;height:21px;accent-color:#ffdb66;margin:0;}\\n' +
-  '@media(max-width:600px){.pkmsvv-evo-panel{padding:14px}.pkmsvv-evo-panel h2{font-size:21px}.pkmsvv-evo-option{font-size:14px;padding:10px}.pkmsvv-evo-transform{font-size:12px}}\\n' +
+  '.pkmsvv-evo-panel{overscroll-behavior:contain;scrollbar-width:thin;}\n' +
+  '.pkmsvv-evo-option:disabled{opacity:.47;cursor:not-allowed;background:#182846;color:#a6bad4;border-color:#415577;box-shadow:none;}\n' +
+  '.pkmsvv-evo-option{line-height:1.5;white-space:normal;overflow-wrap:anywhere;}\n' +
+  '.pkmsvv-evo-transform{display:flex;align-items:flex-start;gap:10px;padding:11px;margin:7px 0 12px;background:#10253c;border:1px solid #6384a9;border-radius:9px;font-size:13px;line-height:1.5;color:#e8efff;}\n' +
+  '.pkmsvv-evo-transform input{flex:none;width:21px;height:21px;accent-color:#ffdb66;margin:0;}\n' +
+  '@media(max-width:600px){.pkmsvv-evo-panel{padding:14px}.pkmsvv-evo-panel h2{font-size:21px}.pkmsvv-evo-option{font-size:14px;padding:10px}.pkmsvv-evo-transform{font-size:12px}}\n' +
   '</style>\n</head>');
 html = html.replace('Web oficial: pokesurvivor.com · si alguien te pide pagar, no somos nosotros',
   'PKMSVV: edición offline no oficial · solo uso personal sin fines comerciales');
