@@ -60,7 +60,12 @@ patch('js/core/db.js',
  "      globalUpgrades: {},     // PKMSVV: account-wide upgrades for every Pokémon");
 patch('js/core/db.js',
  "    s.coins = n(s.coins);",
- "    s.coins = n(s.coins);\n    s.globalUpgrades = G.GlobalPower.clean(s.globalUpgrades);");
+ "    s.coins = n(s.coins);\n" +
+ "    // v0.8.1: refund obsolete second rank of Strong Start (now max rank 1).\n" +
+ "    if (s.globalUpgrades && Number(s.globalUpgrades.opening) > 1) {\n" +
+ "      s.coins += 1250; s.globalUpgrades.opening = 1;\n" +
+ "    }\n" +
+ "    s.globalUpgrades = G.GlobalPower.clean(s.globalUpgrades);");
 patch('js/core/db.js',
  "    r.pupg = r.pupg || {};",
  "    r.globalUpgrades = G.GlobalPower.merge(r.globalUpgrades,older.globalUpgrades);\n    r.pupg = r.pupg || {};");
@@ -76,15 +81,30 @@ patch('js/game.js',
       if (pool.length) pl.addMove(G.U.pick(pool));
       pl.setActive(0);
     }`,
- `    // PKMSVV: team powerups allow up to THREE starting attacks, independent
+ `    // PKMSVV: team powerups allow up to TWO starting attacks, independent
     // of Pokémon-specific Repertorio. Never add the same move or a buff twice.
-    for (let i = 1; i < Math.min(3,perks.startMoves); i++) {
+    for (let i = 1; i < Math.min(2,perks.startMoves); i++) {
       const pool = G.Moves.poolFor(mon).filter(id =>
         !pl.hasMove(id) && !pl.banned.has(id) && G.Moves.BY_ID[id].kind !== 'buff');
       if (!pool.length) break;
       pl.addMove(G.U.pick(pool));
     }
     pl.setActive(0);`);
+
+
+// Purchase once (50,000 PokéCoins) and automatically revive once EACH run.
+// Per-run charges live on G.Player, never in the permanent save.
+patch('js/entities/player.js',
+ '    this.critChance = perks.crit || 0;',
+ '    this.critChance = perks.crit || 0;\n    this.extraRevives = perks.revives || 0;');
+patch('js/entities/player.js',
+ '    if (this.hp <= 0) {\n      this.hp = 0; this.dead = true;',
+ "    if (this.hp <= 0 && G.GlobalPower.tryRevive(this)) {\n" +
+ "      G.FX.dmgText(this.x, this.y - this.bodyH - 16, 'HỒI SINH!', '#ffd65d', true);\n" +
+ "      G.FX.ring(this.x, this.y, 12, 105, '#ffde78', 0.8, 6);\n" +
+ "      G.Audio.sfx('shinyGet');\n" +
+ "    }\n" +
+ "    if (this.hp <= 0) {\n      this.hp = 0; this.dead = true;");
 
 const css=String.raw`
 /* PKMSVV: global powerups — compact 2-column layout across desktop/touch */
