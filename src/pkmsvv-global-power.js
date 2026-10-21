@@ -14,8 +14,9 @@ G.GlobalPower = (() => {
     {id:'learning', icon:'book',  vi:'Ham học hỏi',       en:'Experience',           viUnit:'+10% EXP / cấp',enUnit:'+10% XP / rank',max:8,base:90,grow:1.38},
     {id:'fortune',  icon:'coin',   vi:'Tích lũy',          en:'Gold Bonus',           viUnit:'+12% PokéCoins / cấp',enUnit:'+12% PokéCoins / rank',max:8,base:110,grow:1.46},
     {id:'crit',     icon:'star',   vi:'Đòn chí mạng',      en:'Critical Chance',      viUnit:'+4% tỷ lệ chí mạng / cấp',enUnit:'+4% critical chance / rank',max:6,base:140,grow:1.40},
-    {id:'opening',  icon:'cards',  vi:'Khởi đầu áp đảo',   en:'Strong Start',          viUnit:'+1 chiêu bắt đầu / cấp (tối đa 3)',enUnit:'+1 starting move / rank (up to 3)',max:2,base:250,grow:5.00},
-    {id:'reroll',   icon:'up',     vi:'Đổi thẻ',           en:'Extra Rerolls',        viUnit:'+1 đổi thẻ lên cấp / trận',enUnit:'+1 level-up reroll / run',max:3,base:180,grow:1.85}
+    {id:'opening',  icon:'cards',  vi:'Khởi đầu áp đảo',   en:'Strong Start',          viUnit:'Bắt đầu với 2 chiêu thay vì 1',enUnit:'Start every run with 2 moves',max:1,base:250,grow:1.00},
+    {id:'reroll',   icon:'up',     vi:'Đổi thẻ',           en:'Extra Rerolls',        viUnit:'+1 đổi thẻ lên cấp / trận',enUnit:'+1 level-up reroll / run',max:3,base:180,grow:1.85},
+    {id:'revive',   icon:'heart',  vi:'Hồi Sinh Huyền Thoại',en:'Legendary Revival',     viUnit:'Mua 1 lần, tự hồi sinh 1 lần mỗi trận (60% HP, miễn thương 3 giây)',enUnit:'Buy once; revive once per run (60% HP, 3s invulnerability)',max:1,base:50000,grow:1.00}
   ];
   const BY = Object.fromEntries(LIST.map(u => [u.id,u]));
   const rank = (levels,id) => {
@@ -83,9 +84,20 @@ G.GlobalPower = (() => {
       xpMul:(per.xpMul||1)*(1+0.10*L('learning')),
       coinMul:(per.coinMul||1)*(1+0.12*L('fortune')),
       crit:Math.min(0.75,(per.crit||0)+0.04*L('crit')),
-      startMoves:Math.min(3,Math.max(per.startMoves||1,1+L('opening'))),
+      startMoves:Math.min(2,Math.max(per.startMoves||1,1+L('opening'))),
+      revives:L('revive'),
       rerolls:(per.rerolls||0)+L('reroll')
     };
   }
-  return {LIST,BY,rank,clean,cost,spent,purchase,refundAll,merge,combine};
+  /** A paid permanent unlock provides one automatic revival per run.
+   *  Does not trigger if Focus Sash already saved the fatal blow.
+   */
+  function tryRevive(pl) {
+    if(!pl || pl.dead || pl.hp>0 || !(pl.extraRevives>0)) return false;
+    pl.extraRevives--;
+    pl.revive(0.6); // reset dead state, animation and HP; existing mechanic
+    pl.invuln=Math.max(pl.invuln,3);
+    return true;
+  }
+  return {LIST,BY,rank,clean,cost,spent,purchase,refundAll,merge,combine,tryRevive};
 })();
