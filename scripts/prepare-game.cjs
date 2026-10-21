@@ -407,6 +407,9 @@ patch('dev.html', '<script defer src="js/game.js"></script>',
 fs.writeFileSync(path.join(game, 'js/core/firebase-config.js'),
   '/* PKMSVV: forced local saves, Firebase deliberately disabled. */\nG.FIREBASE_CONFIG = null;\n', 'utf8');
 
+// Persistent account-wide powerups are installed on the pinned source before compilation.
+execFileSync(process.execPath,[path.join(project,'scripts','patch-global-upgrades.cjs')],{cwd:project,stdio:'inherit'});
+
 execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo', '--expose'], { cwd: game, stdio: 'inherit' });
 
 const indexPath = path.join(game, 'index.html');
