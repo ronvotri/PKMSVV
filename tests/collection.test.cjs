@@ -20,7 +20,7 @@ function context(){
  vm.runInNewContext(read('src/pkmsvv-collection.js'),ctx);
  return {ctx,G,C:G.PKMSVVCollect};
 }
-function fresh(owned=[1,4,7]){
+function fresh(owned=[1,4]){
  return {owned:Object.fromEntries(owned.map(x=>[x,{at:100}])),shiny:{},pused:{1:10,4:0,7:1},
    coins:0,tickets:{t1:0,t10:0},pkmStamps:{},pkmMilestones:{},pkmGenRewards:{},pkmShinyRewards:{}};
 }
@@ -41,7 +41,7 @@ test('daily assigned Pokémon prioritizes unused owned pokemon and grants reward
  assert.equal(s.tickets.t1,2);assert.equal(s.coins,650);
 });
 test('weekly requires completing each distinct owned Pokémon and grants 10x ticket',()=>{
- const {C}=context(),s=fresh();C.ensure(s);
+ const {C}=context(),s=fresh([1,4,7]);C.ensure(s);
  assert.deepEqual(new Set(s.pkmWeekly.dexes).size,3);
  for(const id of s.pkmWeekly.dexes)C.onRunEnd(s,id,180);
  assert.equal(C.claim(s,'weekly'),true);
