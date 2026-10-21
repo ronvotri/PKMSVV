@@ -411,6 +411,8 @@ fs.writeFileSync(path.join(game, 'js/core/firebase-config.js'),
 execFileSync(process.execPath,[path.join(project,'scripts','patch-global-upgrades.cjs')],{cwd:project,stdio:'inherit'});
 // Gacha ALL GEN, Pokédex milestones, daily/weekly Pokemon missions and manual backup.
 execFileSync(process.execPath,[path.join(project,'scripts','patch-collection.cjs')],{cwd:project,stdio:'inherit'});
+// v0.9.1: Switch/Android/PC controller navigation and one-press play from Pokedex.
+execFileSync(process.execPath,[path.join(project,'scripts','patch-controller.cjs')],{cwd:project,stdio:'inherit'});
 
 execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo', '--expose'], { cwd: game, stdio: 'inherit' });
 
