@@ -68,9 +68,9 @@ test('compiled game has the new menu, save schema, and start move integration',(
  assert.match(read('index.html'),/data-go="global"/);
  assert.match(read('js/game.js'),/G\.GlobalPower\.combine/);
  assert.match(read('js/game.js'),/Math\.min\(2,perks\.startMoves\)/);
- assert.match(read('js/core/db.js'),/globalUpgrades: \\{\\}/);
- assert.match(read('js/core/db.js'),/globalSpent: \\{\\}/);
- assert.match(read('js/core/db.js'),/G\\.GlobalPower\\.legacyLedger/);
+ assert.match(read('js/core/db.js'),/globalUpgrades: \{\}/);
+ assert.match(read('js/core/db.js'),/globalSpent: \{\}/);
+ assert.match(read('js/core/db.js'),/G\.GlobalPower\.legacyLedger/);
  assert.match(read('js/entities/player.js'),/G\.GlobalPower\.tryRevive\(this\)/);
  assert.match(read('js/entities/player.js'),/this\.extraRevives = perks\.revives \|\| 0/);
  assert.match(read('js/core/db.js'),/s\.coins \+= 1250/);
@@ -141,7 +141,7 @@ test('legacy saves keep original purchase price when refunding despite 3x price 
  assert.equal(s.globalSpent.power,490);
  assert.equal(P.refundable(s),paidBefore+390);
  assert.equal(P.refundAll(s),paidBefore+390);
- assert.equal(s.coins,12000);
+ assert.equal(s.coins,12000+paidBefore);
  assert.equal(s.globalUpgrades.power,undefined);
 });
 test('ledger sanitization prevents over-credit from impossible amounts',()=>{
