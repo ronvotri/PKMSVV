@@ -45,11 +45,11 @@ patch('js/ui/gacha-ui.js',
  "    $('banner-desc').textContent = \`Los \${all.length} Pokémon de la generación \${gen}. ¡Los legendarios esperan!\`;",
  "    $('banner-desc').textContent = gen === 0 ? 'Quay Pokémon từ cả 9 Gen — có pity riêng cho ALL GEN.' : \`Los \${all.length} Pokémon de la generación \${gen}. ¡Los legendarios esperan!\`;");
 patch('js/ui/gacha-ui.js',
- "    G.Progress.checkAch();\n    G.DB.commit(true);",
- "    G.Progress.checkAch();\n    G.PKMSVVCollect.checkCollection(G.DB.save);\n    G.DB.commit(true);");
+ "    G.Progress.checkAch();",
+ "    G.Progress.checkAch();\n    G.PKMSVVCollect.checkCollection(G.DB.save);");
 patch('js/ui/gacha-ui.js',
- "    G.UI.show('scr-gacha', true);\n    refresh();",
- "    gen=0; // default every time, switch to any specific generation via tabs\n    G.UI.show('scr-gacha', true);\n    refresh();");
+ "    G.UI.show('scr-gacha', true);",
+ "    gen=0; // default every time, switch to any specific generation via tabs\n    G.UI.show('scr-gacha', true);");
 
 // Run-end stamp checks, after original mission progress, before commit/achievements.
 patch('js/game.js',
@@ -69,8 +69,8 @@ patch('js/ui/menu.js',
  '        <p class="pkm-dex-stamp">\${s.pkmStamps && s.pkmStamps[dex] ? "🏅 Đã nhận Dấu Ấn" : own ? "🔒 Dấu Ấn: sống sót 3 phút với Pokémon này" : "🔒 Mở khóa Pokémon để nhận Dấu Ấn"}</p>');
 // Backup in visible GRAPHICS tab (account tab is hidden in offline build).
 patch('js/ui/settings-ui.js',
- '    wire(box);\n  }\n\n  function renderAccount(box) {',
- "    if(tab === 'gfx') G.PKMSVVSaveUI.mount(box);\n    wire(box);\n  }\n\n  function renderAccount(box) {");
+ '    wire(box);',
+ "    if(tab === 'gfx') G.PKMSVVSaveUI.mount(box);\n    wire(box);");
 
 fs.appendFileSync(path.join(game,'css','style.css'),String.raw`
 /* PKMSVV stamp, collection challenge, and backup additions */
