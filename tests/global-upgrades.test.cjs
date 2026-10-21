@@ -6,10 +6,12 @@ vm.runInNewContext(fs.readFileSync(path.join(root,'src','pkmsvv-global-power.js'
 const P=context.G.GlobalPower;
 const obj=x=>JSON.parse(JSON.stringify(x));
 
-test('twelve independent worldwide permanent powerups',()=>{
- assert.equal(P.LIST.length,12);
+test('thirteen worldwide permanent powerups including costly revival',()=>{
+ assert.equal(P.LIST.length,13);
  for(const u of P.LIST) assert.ok(P.BY[u.id]===u);
  assert.equal(P.LIST.reduce((n,u)=>n+u.max,0),80);
+ assert.equal(P.BY.opening.max,1);
+ assert.equal(P.BY.revive.max,1);
 });
 test('new account and old saves start without global buffs',()=>{
  assert.deepEqual(obj(P.clean(null)),{});
@@ -20,17 +22,17 @@ test('new account and old saves start without global buffs',()=>{
 });
 test('global and per-Pokémon strength stack without replacing old levels',()=>{
  const personal={atkMul:1.2,cdMul:.90,magnetMul:1.12,rerolls:2,startMoves:2,crit:.15,hp:24};
- const r=P.combine(personal,{power:5,rapid:3,vital:2,opening:2,reach:4,reroll:3});
+ const r=P.combine(personal,{power:5,rapid:3,vital:2,opening:1,reach:4,reroll:3});
  assert.ok(Math.abs(r.atkMul-1.92)<1e-9);
  assert.ok(Math.abs(r.cdMul-.765)<1e-9);
- assert.equal(r.hp,74);assert.equal(r.startMoves,3);assert.equal(r.rerolls,5);
+ assert.equal(r.hp,74);assert.equal(r.startMoves,2);assert.equal(r.rerolls,5);
  assert.ok(Math.abs(r.magnetMul-1.792)<1e-9);
  assert.equal(personal.hp,24);
 });
-test('low-cost early power and two extra skills available',()=>{
+test('low-cost early power with only two total starting skills',()=>{
  assert.equal(P.cost('power',0),100);
  assert.equal(P.cost('opening',0),250);
- assert.equal(P.cost('opening',1),1250);
+ assert.equal(P.cost('opening',1),0);
  const s={coins:750,globalUpgrades:{}};
  assert.equal(P.purchase(s,'opening'),true);
  assert.equal(s.coins,500);
@@ -54,7 +56,7 @@ test('refund returns exactly spent coins, never changes individual Pokémon upgr
 test('rank clamping and merge do not read unrelated saved fields',()=>{
  const old={power:3,vital:5};
  const incoming={power:7,vital:3,opening:9000,INVALID:2};
- assert.deepEqual(obj(P.merge(old,incoming)),{power:7,vital:5,opening:2});
+ assert.deepEqual(obj(P.merge(old,incoming)),{power:7,vital:5,opening:1});
  assert.equal(P.rank({power:'not-a-number'},'power'),0);
 });
 test('compiled game has the new menu, save schema, and start move integration',()=>{
@@ -64,7 +66,45 @@ test('compiled game has the new menu, save schema, and start move integration',(
  assert.match(read('index.html'),/scr-global-powerups/);
  assert.match(read('index.html'),/data-go="global"/);
  assert.match(read('js/game.js'),/G\.GlobalPower\.combine/);
- assert.match(read('js/game.js'),/Math\.min\(3,perks\.startMoves\)/);
+ assert.match(read('js/game.js'),/Math\.min\(2,perks\.startMoves\)/);
  assert.match(read('js/core/db.js'),/globalUpgrades: \{\}/);
+ assert.match(read('js/entities/player.js'),/G\.GlobalPower\.tryRevive\(this\)/);
+ assert.match(read('js/entities/player.js'),/this\.extraRevives = perks\.revives \|\| 0/);
+ assert.match(read('js/core/db.js'),/s\.coins \+= 1250/);
  assert.match(read('js/app.min.js'),/GlobalPower|globalUpgrades|pkmg-list/);
+});
+
+test('revival is deliberately expensive, bought exactly once permanently',()=>{
+ const unaffordable={coins:49999,globalUpgrades:{}};
+ assert.equal(P.purchase(unaffordable,'revive'),false);
+ assert.equal(P.cost('revive',0),50000);
+ const s={coins:50100,globalUpgrades:{}};
+ assert.equal(P.purchase(s,'revive'),true);
+ assert.equal(s.coins,100);
+ assert.equal(P.purchase(s,'revive'),false);
+ assert.equal(P.combine({},s.globalUpgrades).revives,1);
+ assert.equal(P.cost('revive',1),0);
+});
+test('the purchased revival activates at fatal HP only once per run',()=>{
+ const pl={hp:-24,maxHp:200,dead:false,extraRevives:1,invuln:0,
+   revive(fraction){this.hp=Math.round(this.maxHp*fraction);this.dead=false;this.invuln=2;}
+ };
+ assert.equal(P.tryRevive(pl),true);
+ assert.equal(pl.hp,120);
+ assert.equal(pl.invuln,3);
+ assert.equal(pl.extraRevives,0);
+ pl.hp=0;pl.invuln=0;
+ assert.equal(P.tryRevive(pl),false);
+ const sashSaved={...pl,hp:1,extraRevives:1};
+ assert.equal(P.tryRevive(sashSaved),false);
+ assert.equal(sashSaved.extraRevives,1);
+ const noUnlock={...pl,hp:0,extraRevives:0};
+ assert.equal(P.tryRevive(noUnlock),false);
+});
+test('an earlier 3-skill save is capped at two and returns legacy second-rank cost',()=>{
+ assert.equal(P.combine({}, {opening:2}).startMoves,2);
+ assert.deepEqual(obj(P.clean({opening:2})),{opening:1});
+ const s={coins:2000,globalUpgrades:{opening:1,revive:1}};
+ assert.equal(P.refundAll(s),50250);
+ assert.equal(s.coins,52250);
 });
