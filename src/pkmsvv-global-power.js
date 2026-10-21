@@ -31,17 +31,45 @@ G.GlobalPower = (() => {
     }
     return result;
   }
-  function cost(id, level) {
+  // v0.8.2: Triple all team upgrade prices except the one-time 50,000-coin revive.
+  const PRICE_MULTIPLIER=3;
+  function originalCost(id, level) {
     const u=BY[id];
-    if (!u) return 0;
+    if(!u) return 0;
     const lv=Math.max(0,Math.min(u.max,Math.floor(Number(level)||0)));
     if(lv>=u.max) return 0;
     return Math.round(u.base*Math.pow(u.grow,lv)/10)*10;
   }
-  function spent(levels) {
-    let total=0;
-    for (const u of LIST) for (let n=0;n<rank(levels,u.id);n++) total+=cost(u.id,n);
-    return total;
+  function cost(id,level) {
+    return originalCost(id,level)*(id==='revive'?1:PRICE_MULTIPLIER);
+  }
+  // Track what was ACTUALLY paid instead of refunding old purchases at the new prices.
+  function legacyLedger(levels) {
+    const out={};
+    for(const u of LIST) {
+      let paid=0;
+      for(let lv=0;lv<rank(levels,u.id);lv++) paid+=originalCost(u.id,lv);
+      if(paid) out[u.id]=paid;
+    }
+    return out;
+  }
+  function cleanLedger(ledger,levels) {
+    const out={};
+    for(const u of LIST) {
+      const lv=rank(levels,u.id);
+      const maximum=Array.from({length:lv},(_,i)=>cost(u.id,i)).reduce((a,b)=>a+b,0);
+      const n=Number(ledger && ledger[u.id]);
+      if(lv && Number.isFinite(n) && n>0) out[u.id]=Math.min(maximum,Math.floor(n));
+    }
+    return out;
+  }
+  function spent(levels,ledger) {
+    // Missing ledger means an old save from v0.8.1; its purchases had old prices.
+    const amounts=cleanLedger(ledger===undefined?legacyLedger(levels):ledger,levels);
+    return Object.values(amounts).reduce((a,b)=>a+b,0);
+  }
+  function refundable(save) {
+    return save?spent(save.globalUpgrades,save.globalSpent):0;
   }
   function purchase(save,id) {
     if(!save || !BY[id]) return false;
@@ -49,17 +77,21 @@ G.GlobalPower = (() => {
     if(n>=BY[id].max) return false;
     const price=cost(id,n);
     if(!Number.isFinite(save.coins)||save.coins<price) return false;
+    const ledger=cleanLedger(save.globalSpent===undefined?legacyLedger(levels):save.globalSpent,levels);
     save.coins-=price;
     levels[id]=n+1;
+    ledger[id]=(ledger[id]||0)+price;
     save.globalUpgrades=levels;
+    save.globalSpent=ledger;
     return true;
   }
   function refundAll(save) {
     if(!save) return 0;
-    const amount=spent(save.globalUpgrades);
+    const amount=refundable(save);
     if(!amount) return 0;
     save.coins=Math.min(Number.MAX_SAFE_INTEGER,Math.max(0,Number(save.coins)||0)+amount);
     save.globalUpgrades={};
+    save.globalSpent={};
     return amount;
   }
   function merge(a,b) {
@@ -99,5 +131,5 @@ G.GlobalPower = (() => {
     pl.invuln=Math.max(pl.invuln,3);
     return true;
   }
-  return {LIST,BY,rank,clean,cost,spent,purchase,refundAll,merge,combine,tryRevive};
+  return {LIST,BY,rank,clean,cost,originalCost,PRICE_MULTIPLIER,legacyLedger,cleanLedger,spent,refundable,purchase,refundAll,merge,combine,tryRevive};
 })();
