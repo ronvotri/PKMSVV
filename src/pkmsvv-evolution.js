@@ -12,6 +12,15 @@ G.PKMSVVEvo = (() => {
   const HP_FACTOR = __PKMSVV_HP_FACTOR__;
   const BIOMES = ['Rừng', 'Hang pha lê', 'Núi lửa'];
   const DAY_SPAN = 240; // 4 minutes day, 4 minutes night, repeated within a run
+  // Eevee: one optional, level-preserving conversion of a non-evolved Normal attack.
+  // The rest of the existing moves, skills, buffs and run levels are untouched.
+  const EEVEE_SIGNATURE = {
+    134:'water-gun', 135:'thunder-shock', 136:'ember',
+    196:'confusion', 197:'bite', 470:'vine-whip',
+    471:'ice-beam', 700:'fairy-wind'
+  };
+  const isSupported = r => !!r && !!G.DEX_BY[r.to] && !!G.SPRITE_META[r.to] && r.special !== 'shedinja';
+
   const S = id => (G.DEX_BY[id] && G.DEX_BY[id].name) || ('#' + id);
   const nice = s => (s || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   const daytime = t => Math.floor(t / DAY_SPAN) % 2 === 0 ? 'day' : 'night';
@@ -124,9 +133,42 @@ G.PKMSVVEvo = (() => {
         !r.partyType && !r.tradeSpecies && !r.candy && !r.coins && r.trigger !== '5' && (pl.bosses || 0) < 1) return false;
     return true;
   }
-  function evolve(pl, r) {
+  function conversionCandidate(pl, toDex) {
+    const signature = EEVEE_SIGNATURE[toDex], def = G.Moves && G.Moves.BY_ID && G.Moves.BY_ID[signature];
+    if (!signature || !def || !pl.moves || pl.moves.some(m => m.id === signature)) return null;
+    const sources = pl.moves.filter(m => m.type === 'normal' && m.kind !== 'buff' && !m.evolved);
+    if (!sources.length) return null;
+    // Transform the most-invested non-evolved Normal attack, keeping every other move.
+    sources.sort((a,b) => (b.lvl||1) - (a.lvl||1));
+    return {from:sources[0],to:signature};
+  }
+  function convertNormal(pl,toDex) {
+    const choice = conversionCandidate(pl,toDex);
+    if (!choice || !G.Moves.instance) return null;
+    const old = choice.from, def=G.Moves.BY_ID[choice.to];
+    const max = Math.max(1, def.maxLvl || 1);
+    const level = Math.max(1,Math.min(max,old.lvl||1));
+    const upgraded = G.Moves.instance(choice.to,level);
+    upgraded.since = old.since;
+    upgraded.t = old.cd > 0 && upgraded.cd > 0
+      ? Math.max(0,Math.min(upgraded.cd,(old.t||0)/old.cd*upgraded.cd)) : 0;
+    const idx=pl.moves.indexOf(old);
+    if(idx<0) return null;
+    pl.moves[idx]=upgraded;
+    // Preserve the ORIGINAL slot/bond group instead of adding a new slot.
+    for(const group of pl.slots||[]) {
+      const n=group.indexOf(old);
+      if(n!==-1)group[n]=upgraded;
+    }
+    if(pl.bind && pl.bind[old.id] != null && pl.bind[upgraded.id] == null) {
+      pl.bind[upgraded.id]=pl.bind[old.id];
+    }
+    return {from:old.id,to:upgraded.id,lvl:upgraded.lvl};
+  }
+  function evolve(pl, r, options = {}) {
     if (!pl || !r || pl.dex !== r.from || !G.DEX_BY[r.to] || !G.SPRITE_META[r.to]) return false;
     const before = pl.mon, after = G.DEX_BY[r.to];
+    const eeveeChoice = pl.dex === 133 && options.convertNormal !== false;
     if (isItemEvolution(r)) {
       if (!pl.pkmEvoShards) return false;
       pl.pkmEvoShards--;
@@ -148,16 +190,39 @@ G.PKMSVVEvo = (() => {
     pl.anim = new G.Sprites.Animator(after.dex, pl.scale, pl.shiny && G.Sprites.hasShiny(after.dex));
     pl.anim.dir = dir;
     pl.shiny = pl.shiny && G.Sprites.hasShiny(after.dex);
-    pl.pkmEvoHistory.push({ from: r.from, to: r.to, at: pl.level });
+    const converted=eeveeChoice?convertNormal(pl,after.dex):null;
+    pl.pkmEvoHistory.push({ from: r.from, to: r.to, at: pl.level, converted:converted||null });
     pl.pkmEvoSkipLevel = -1;
     G.Sprites.preload([after.dex], 8000, pl.shiny);
     G.FX.ring(pl.x, pl.y, 8, 130, '#ffe082', 0.9, 6);
     G.FX.burst(pl.x, pl.y - pl.bodyH / 2, '#e1b9ff', 44, 270);
     G.Audio.sfx('legend');
-    G.Spawner.say('PKMSVV: ' + before.name + ' tiến hóa thành ' + after.name + '!', 4, true);
+    G.Spawner.say('PKMSVV: ' + before.name + ' tiến hóa thành ' + after.name + '!' +
+      (converted ? ' ' + converted.from + ' → ' + converted.to + ' Lv.' + converted.lvl : ''), 4, true);
     return true;
   }
-  function show(pl, routes, done) {
+  function choiceRoutes(pl,t) {
+    const available=(BY_FROM.get(pl.dex)||[]).filter(isSupported);
+    // Eevee is the only Pokémon whose unmet branches are shown as LOCKED;
+    // preserve the existing single-route behavior for all other Pokémon.
+    const list=pl.dex===133?available:available.filter(r=>eligible(pl,t,r));
+    return list.map(rule=>({rule,unlocked:eligible(pl,t,rule)}));
+  }
+  function pendingReason(pl,t,r) {
+    if(eligible(pl,t,r))return '';
+    const missing=[];
+    if(isItemEvolution(r) && (pl.pkmEvoShards||0)<1) missing.push('Cần 1 Mảnh Tiến Hóa (hạ boss)');
+    const points=friendship(pl,t);
+    if(r.friendship && points<r.friendship)missing.push('Thân thiết '+points+'/'+r.friendship);
+    if(r.time && r.time!==daytime(t))missing.push('Cần '+(r.time==='day'?'ban ngày (0–4, 8–12 phút)':'ban đêm (4–8, 12–16 phút)'));
+    if(r.knownType && !pl.moves.some(m=>m.type===r.knownType)) {
+      const pool=G.Moves.poolFor?G.Moves.poolFor(pl.mon):[];
+      const possible=pool.some(id=>G.Moves.BY_ID[id] && G.Moves.BY_ID[id].type===r.knownType);
+      missing.push(possible?'Cần chiêu hệ '+nice(r.knownType):'Cần dùng chiêu '+(pl.pkmEvoCasts||0)+'/30 lần');
+    }
+    return missing.length?missing.join(' · '):requirement(r);
+  }
+  function show(pl, choices, t, done) {
     const modal = document.createElement('div');
     modal.className = 'scr pkmsvv-evo'; // Register as highest modal in G.Pad.topScreen()
     const panel = document.createElement('div');
@@ -169,14 +234,31 @@ G.PKMSVVEvo = (() => {
     sub.textContent = S(pl.dex) + ' · Lv. ' + pl.level + ' · ' + (pl.pkmEvoShards || 0) + ' Mảnh Tiến Hóa';
     panel.appendChild(head); panel.appendChild(sub);
     const hint = document.createElement('p');
-    hint.textContent = 'Chọn dạng tiến hóa. Các chiêu thức, cấp và nâng cấp trận này được giữ lại.';
+    hint.textContent = pl.dex===133
+      ? 'Eevee có 8 nhánh. Nhánh tối màu chưa đạt điều kiện; nhánh sáng có thể chọn ngay.'
+      : 'Chọn dạng tiến hóa. Các chiêu thức, cấp và nâng cấp trận này được giữ lại.';
     panel.appendChild(hint);
+    let convertBox=null;
+    if(pl.dex===133) {
+      const caption=document.createElement('label');
+      caption.className='pkmsvv-evo-transform';
+      convertBox=document.createElement('input');
+      convertBox.type='checkbox';convertBox.checked=true;
+      const explanation=document.createElement('span');
+      explanation.textContent='Chuyển 1 chiêu Normal sang chiêu hệ mới (giữ cấp nâng cấp). Bỏ chọn để giữ nguyên mọi chiêu.';
+      caption.appendChild(convertBox);caption.appendChild(explanation);
+      panel.appendChild(caption);
+    }
     function exit() { modal.remove(); done(); }
-    for (const r of routes) {
+    for (const {rule:r,unlocked} of choices) {
       const b = document.createElement('button');
       b.className = 'pkmsvv-evo-option';
-      b.textContent = S(pl.dex) + ' → ' + S(r.to) + ' · ' + requirement(r);
-      b.addEventListener('click', () => { if (evolve(pl, r)) exit(); });
+      b.disabled=!unlocked;
+      b.textContent=(unlocked?'✓ ':'🔒 ')+S(pl.dex)+' → '+S(r.to)+' · '+
+        (unlocked?requirement(r):pendingReason(pl,t,r));
+      if(unlocked) b.addEventListener('click', () => {
+        if (evolve(pl,r,{convertNormal:!!convertBox && convertBox.checked}))exit();
+      });
       panel.appendChild(b);
     }
     const skip = document.createElement('button');
@@ -190,10 +272,10 @@ G.PKMSVVEvo = (() => {
   }
   function tryOpen(pl, t, done) {
     if (!pl || pl.dead || pl.pkmEvoSkipLevel === pl.level) return false;
-    const options = (BY_FROM.get(pl.dex) || []).filter(r => eligible(pl, t, r));
-    if (!options.length) return false;
-    show(pl, options, done);
+    const options=choiceRoutes(pl,t);
+    if(!options.some(o=>o.unlocked))return false;
+    show(pl,options,t,done);
     return true;
   }
-  return { reset, tick, onCast, onHurt, eligible, evolve, requirement, friendship, tryOpen, routes: BY_FROM };
+  return { reset, tick, onCast, onHurt, eligible, evolve, requirement, friendship, tryOpen, routes: BY_FROM, choiceRoutes, pendingReason, conversionCandidate, convertNormal };
 })();
