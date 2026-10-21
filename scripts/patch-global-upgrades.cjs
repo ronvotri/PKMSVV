@@ -27,7 +27,7 @@ patch('dev.html',
  '<button class="menu-item" data-go="upgrades">Mejoras<small>Haz más fuerte cada run</small></button>\n'+
  '        <button class="menu-item" data-go="global">Nâng cấp Toàn Đội<small>Vĩnh viễn cho mọi Pokémon</small></button>');
 
-const section=String.raw\`
+const section=String.raw`
 <!-- ====== PKMSVV: permanent team powerups ====== -->
 <section id="scr-global-powerups" class="scr dim hidden">
  <div class="box wide pkmg-panel">
@@ -39,7 +39,7 @@ const section=String.raw\`
   <div class="pkmg-footer"><button class="btn small ghost" id="pkmg-refund" data-sfx="none"></button></div>
  </div>
 </section>
-\`;
+`;
 patch('dev.html','<!-- ====== Gacha ====== -->',section+'\n<!-- ====== Gacha ====== -->');
 patch('js/ui/ui.js',
  "'scr-dex', 'scr-upgrades', 'scr-gacha',",
@@ -86,7 +86,7 @@ patch('js/game.js',
     }
     pl.setActive(0);`);
 
-const css=String.raw\`
+const css=String.raw`
 /* PKMSVV: global powerups — compact 2-column layout across desktop/touch */
 #scr-global-powerups{padding-top:66px}
 .pkmg-panel{width:min(970px,96vw)!important;max-height:89vh;overflow-y:auto}
@@ -107,7 +107,7 @@ const css=String.raw\`
 .pkmg-buy button{font-size:12px;min-width:86px;padding:7px}
 .pkmg-footer{display:flex;justify-content:flex-end;padding-top:14px}
 @media(max-width:660px){.pkmg-grid{grid-template-columns:1fr}.pkmg-panel{max-height:81vh}.pkmg-info strong{font-size:13px}}
-\`;
+`;
 const cssPath=path.join(game,'css','style.css');
 fs.appendFileSync(cssPath,'\n'+css+'\n');
 console.log('PKMSVV: team powerups patched; starter attacks, migration, UI and refund ready');
