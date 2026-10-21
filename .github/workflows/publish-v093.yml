@@ -1,0 +1,87 @@
+name: Publish direct-download v0.9.3 files
+
+on:
+  push:
+    paths:
+      - .github/workflows/publish-v093.yml
+  workflow_dispatch:
+
+# One-time publication of the three already-tested v0.9.3 artifacts.
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    name: Put verified v0.9.3 builds on GitHub Releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm all three v0.9.3 builds passed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run watch 39665803481 --exit-status --repo "$GITHUB_REPOSITORY"
+          gh run watch 39665803536 --exit-status --repo "$GITHUB_REPOSITORY"
+          gh run watch 39665803571 --exit-status --repo "$GITHUB_REPOSITORY"
+
+      - name: Fetch verified Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: 39665803481
+          name: PKMSVV-Android-APK-debug
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: incoming/android
+
+      - name: Fetch verified Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: 39665803536
+          name: PKMSVV-Windows-Offline-x64
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: incoming/windows
+
+      - name: Fetch verified Switch offline archive
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: 39665803571
+          name: PKMSVV-Switch-Brewser-Offline-Test
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: incoming/switch
+
+      - name: Verify expected files and prepare download names
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          mapfile -t apks < <(find incoming/android -type f -name '*.apk')
+          mapfile -t exes < <(find incoming/windows -type f -name '*.exe')
+          mapfile -t zips < <(find incoming/switch -type f -name '*.zip')
+          test "${#apks[@]}" -eq 1
+          test "${#exes[@]}" -eq 1
+          test "${#zips[@]}" -eq 1
+          cp "${apks[0]}" release/Pokemon-Survivor-v0.9.3-Android-universal.apk
+          cp "${exes[0]}" release/Pokemon-Survivor-v0.9.3-Windows-PC-x64.exe
+          cp "${zips[0]}" release/Pokemon-Survivor-v0.9.3-Switch-Lite-Offline.zip
+          find release -maxdepth 1 -type f -exec ls -lh {} \;
+          sha256sum release/*
+
+      - name: Publish official repository download assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v0.9.3 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload v0.9.3 release/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create v0.9.3 release/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Pokémon Survivor – Votri Valley v0.9.3" \
+              --notes "Unofficial noncommercial offline build for Windows, Android and Switch Brewser. Eevee evolution displays all 8 forms, with unmet conditions shown as locked; players can opt to transform one Normal attack into a move of the new evolved type while preserving move level and other skills. Existing controller and background audio fixes remain. Android APK is debug-signed; back up your save before uninstalling or upgrading. Switch ZIP is an offline Brewser homebrew package, not an independent NSP."
+          fi
+          gh release view v0.9.3 --repo "$GITHUB_REPOSITORY" --json url,assets
