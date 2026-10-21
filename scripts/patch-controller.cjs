@@ -36,14 +36,19 @@ patch('js/core/gamepad.js',
 const helper=String.raw`/* PKMSVV — One-tap Start after choosing a Pokémon. */
 G.PKMSVVPadFlow=(()=>{
  let chosen=null;
- const select=dex=>{chosen=Number(dex);};
+ const select=(dex,shiny=false)=>{chosen={dex:Number(dex),shiny:!!shiny};};
+ const updateVariant=(dex,shiny)=>{
+   if(chosen && chosen.dex===Number(dex))chosen.shiny=!!shiny;
+ };
  const consumeSelected=save=>{
-   if(!save || save.partner==null || chosen!==Number(save.partner)
-        || !save.owned || !save.owned[save.partner])return false;
+   if(!save || !chosen || !save.owned || !save.owned[chosen.dex])return false;
+   save.partner=chosen.dex;
+   save.partnerShiny=!!(chosen.shiny && save.shiny && save.shiny[chosen.dex]);
+   G.DB.commit(true);
    chosen=null;return true;
  };
  const reset=()=>{chosen=null;};
- return {select,consumeSelected,reset};
+ return {select,updateVariant,consumeSelected,reset};
 })();
 `;
 fs.writeFileSync(path.join(dir,'js','ui','pkmsvv-pad-flow.js'),helper);
@@ -70,6 +75,11 @@ patch('js/ui/menu.js',
 patch('js/ui/menu.js',
  '      G.PKMSVVPadFlow.select(dex);',
  '      G.PKMSVVPadFlow.select(dex);\n      $("dex-play-now").classList.remove("hidden");');
+
+// v0.9.2: A on the tile arms the choice; Start selects + enters the run.
+patch("js/ui/menu.js","      G.PKMSVVPadFlow.select(dex);\n      $(\"dex-play-now\").classList.remove(\"hidden\");","      G.PKMSVVPadFlow.select(dex, hasSh && viewShiny);\n      $(\"dex-play-now\").classList.remove(\"hidden\");");
+patch("js/ui/menu.js","      showDetail(p.dex);\n    };","      showDetail(p.dex);\n      if (own) {\n        G.PKMSVVPadFlow.select(p.dex, !!(s.shiny && s.shiny[p.dex]) && viewShiny);\n        $('dex-play-now').classList.remove('hidden');\n      } else {\n        G.PKMSVVPadFlow.reset();\n        $('dex-play-now').classList.add('hidden');\n      }\n    };");
+patch("js/ui/menu.js","      b.onclick = () => { viewShiny = b.dataset.v === '1'; showDetail(dex); };","      b.onclick = () => {\n        viewShiny = b.dataset.v === '1';\n        G.PKMSVVPadFlow.updateVariant(dex,viewShiny);\n        showDetail(dex);\n      };");
 // Avoid a stale armed shortcut after changing screens without starting a run.
 patch('js/ui/menu.js',
  '  function open() {\n    const s = G.DB.save;',
