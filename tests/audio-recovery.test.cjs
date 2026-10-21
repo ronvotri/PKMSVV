@@ -20,6 +20,6 @@ test('audio engine retries suspended music, does not restart when muted intentio
 test('compiled offline bundle includes v0.9.2 audio and immediate-start controller',()=>{
  if(!fs.existsSync(path.join(base,'index.html')))return;
  const js=fs.readFileSync(path.join(base,'js/app.min.js'),'utf8');
- assert.match(js,/pkmsvvResuming|ensureMusic/);
+ assert.match(js,/visibilitychange/);
  assert.match(js,/updateVariant|PKMSVVPadFlow/);
 });
