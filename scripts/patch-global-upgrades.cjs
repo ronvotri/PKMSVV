@@ -57,7 +57,13 @@ patch('js/ui/menu.js',
 patch('js/core/db.js',
  "      pupg: {},               // dex -> { id -> nivel }: mejoras de cada Pokémon",
  "      pupg: {},               // dex -> { id -> nivel }: mejoras de cada Pokémon\n"+
- "      globalUpgrades: {},     // PKMSVV: account-wide upgrades for every Pokémon");
+ "      globalUpgrades: {},     // PKMSVV: account-wide upgrades for every Pokémon\n" +
+ "      globalSpent: {},        // PKMSVV: real cost ledger for correct refunds across price updates");
+patch('js/core/db.js',
+ "    for (const k in base) if (s[k] == null) s[k] = base[k];",
+ "    // v0.8.2: old powerups were purchased at 1x cost. Preserve their true refund values.\n" +
+ "    if (s.globalSpent == null) s.globalSpent = G.GlobalPower.legacyLedger(s.globalUpgrades);\n" +
+ "    for (const k in base) if (s[k] == null) s[k] = base[k];");
 patch('js/core/db.js',
  "    s.coins = n(s.coins);",
  "    s.coins = n(s.coins);\n" +
@@ -65,10 +71,17 @@ patch('js/core/db.js',
  "    if (s.globalUpgrades && Number(s.globalUpgrades.opening) > 1) {\n" +
  "      s.coins += 1250; s.globalUpgrades.opening = 1;\n" +
  "    }\n" +
- "    s.globalUpgrades = G.GlobalPower.clean(s.globalUpgrades);");
+ "    s.globalUpgrades = G.GlobalPower.clean(s.globalUpgrades);\n" +
+ "    s.globalSpent = G.GlobalPower.cleanLedger(s.globalSpent, s.globalUpgrades);");
 patch('js/core/db.js',
  "    r.pupg = r.pupg || {};",
- "    r.globalUpgrades = G.GlobalPower.merge(r.globalUpgrades,older.globalUpgrades);\n    r.pupg = r.pupg || {};");
+ "    r.globalUpgrades = G.GlobalPower.merge(r.globalUpgrades,older.globalUpgrades);\n" +
+ "    // Keep highest paid ledger per upgrade to avoid price-changing refund exploits.\n" +
+ "    const oldLedger = older.globalSpent == null ? G.GlobalPower.legacyLedger(older.globalUpgrades) : older.globalSpent;\n" +
+ "    r.globalSpent = G.GlobalPower.cleanLedger(\n" +
+ "      Object.fromEntries(G.GlobalPower.LIST.map(u => [u.id, Math.max(+((r.globalSpent || {})[u.id]) || 0, +(oldLedger[u.id]) || 0)])),\n" +
+ "      r.globalUpgrades);\n" +
+ "    r.pupg = r.pupg || {};");
 
 patch('js/game.js',
  "    const perks = G.Upgrades.perks(G.DB.upgradesOf(mon.dex));",
