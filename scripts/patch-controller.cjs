@@ -3,7 +3,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'..'),dir=path.join(root,'vendor','pokesurvivor');
 function patch(file,a,b) {
- const target=path.join(dir,file),src=fs.readFileSync(target,'utf8'),parts=src.split(a);
+ const target=path.join(dir,file),src=fs.readFileSync(target,'utf8').replace(/\r\n/g,'\n'),parts=src.split(a.replace(/\r\n/g,'\n'));
  if(parts.length!==2)throw Error('Controller: expected one source anchor: '+file+' '+a.slice(0,100));
  fs.writeFileSync(target,parts.join(b),'utf8');
 }
