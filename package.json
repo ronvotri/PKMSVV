@@ -1,6 +1,6 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "description": "Unofficial noncommercial offline Windows, Android and Switch Brewser test edition of PokéSurvivor",
   "author": "Votri Valley (Vietnamese translation/gameplay mods); original PokéSurvivor by JPTER78",
@@ -20,7 +20,8 @@
     "prepare:switch": "node scripts/prepare-switch.cjs",
     "test:switch": "node --test tests/switch.test.cjs",
     "test:global": "node --test tests/global-upgrades.test.cjs",
-    "test:collection": "node --test tests/collection.test.cjs"
+    "test:collection": "node --test tests/collection.test.cjs",
+    "test:controller": "node --test tests/controller.test.cjs"
   },
   "devDependencies": {
     "electron": "^38.0.0",
