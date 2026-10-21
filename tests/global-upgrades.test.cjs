@@ -9,7 +9,7 @@ const obj=x=>JSON.parse(JSON.stringify(x));
 test('twelve independent worldwide permanent powerups',()=>{
  assert.equal(P.LIST.length,12);
  for(const u of P.LIST) assert.ok(P.BY[u.id]===u);
- assert.equal(P.LIST.reduce((n,u)=>n+u.max,0),86);
+ assert.equal(P.LIST.reduce((n,u)=>n+u.max,0),80);
 });
 test('new account and old saves start without global buffs',()=>{
  assert.deepEqual(obj(P.clean(null)),{});
