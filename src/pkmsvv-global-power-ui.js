@@ -50,7 +50,7 @@ G.GlobalPowerUI = (() => {
       right.append(level,btn);
       line.append(head,right);box.appendChild(line);
     }
-    const refund=G.GlobalPower.spent(levels),btn=$('pkmg-refund');
+    const refund=G.GlobalPower.refundable(save),btn=$('pkmg-refund');
     btn.disabled=!refund;
     btn.textContent=txt('Hoàn trả toàn bộ (','Refund all (')+money(refund)+' ◉)';
     btn.onclick=()=>{
