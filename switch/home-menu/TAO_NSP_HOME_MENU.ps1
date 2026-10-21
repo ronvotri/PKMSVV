@@ -15,7 +15,7 @@ if (-not (Test-Path -LiteralPath $icon -PathType Leaf)) { throw "Thiếu icon po
 if (-not (Get-Command nton -ErrorAction SilentlyContinue)) { throw "Chưa cài NTON: https://github.com/rlaphoenix/nton/releases" }
 Push-Location $PSScriptRoot
 try {
-    & nton build $nro --sdmc '/switch/PKMSVV.nro' --name 'Pokémon Survivor' --publisher 'Votri Valley' --version '0.9.2' --icon $icon
+    & nton build $nro --sdmc '/switch/PKMSVV.nro' --name 'Pokémon Survivor' --publisher 'Votri Valley' --version '0.9.3' --icon $icon
     if ($LASTEXITCODE -ne 0) { throw "NTON thất bại (exit $LASTEXITCODE); kiểm tra NRO và prod.keys cục bộ." }
     Write-Host "Hoàn tất. Xem đường dẫn NSP đầu ra do NTON hiển thị." -ForegroundColor Green
 } finally {
