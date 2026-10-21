@@ -46,7 +46,7 @@ test('weekly requires completing each distinct owned Pokémon and grants 10x tic
  for(const id of s.pkmWeekly.dexes)C.onRunEnd(s,id,180);
  assert.equal(C.claim(s,'weekly'),true);
  assert.equal(C.claim(s,'weekly'),false);
- assert.equal(s.tickets.t10,1);
+ assert.equal(s.tickets.t10,2); // 1 for weekly reward + 1 for completing Gen 1
 });
 test('full owned generation grants coins and 10x exactly once; shiny milestone ignores impossible shiny',()=>{
  const {C}=context(),s=fresh([1,4,7,152,155]);
