@@ -23,9 +23,9 @@
  <circle cx="256" cy="240" r="30" fill="url(#white)" stroke="#fff" stroke-width="3"/>
 </g>
 <g font-family="Arial Black,Arial,sans-serif" font-weight="1000" font-size="79" letter-spacing="-3" text-anchor="middle">
- <text x="257" y="455" stroke="#020b24" stroke-width="29" stroke-linejoin="round" fill="#020b24">Survival</text>
- <text x="257" y="455" stroke="#edf8ff" stroke-width="21" stroke-linejoin="round" fill="#edf8ff">Survival</text>
- <text x="257" y="455" stroke="#003986" stroke-width="12" stroke-linejoin="round" fill="#003986">Survival</text>
- <text x="257" y="455" fill="url(#gold)">Survival</text>
+ <text x="257" y="455" stroke="#020b24" stroke-width="29" stroke-linejoin="round" fill="#020b24">Survivor</text>
+ <text x="257" y="455" stroke="#edf8ff" stroke-width="21" stroke-linejoin="round" fill="#edf8ff">Survivor</text>
+ <text x="257" y="455" stroke="#003986" stroke-width="12" stroke-linejoin="round" fill="#003986">Survivor</text>
+ <text x="257" y="455" fill="url(#gold)">Survivor</text>
 </g>
 </svg>

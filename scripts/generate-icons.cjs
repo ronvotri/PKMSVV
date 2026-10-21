@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path');
 const sharp=require('sharp'),pngToIco=require('png-to-ico').default;
 const root=path.join(__dirname,'..');
 async function main(){
- const svg=fs.readFileSync(path.join(root,'assets','icon-survival.svg'));
+ const svg=fs.readFileSync(path.join(root,'assets','icon-survivor.svg'));
  const png=await sharp(svg,{density:192}).resize(512,512).png().toBuffer();
  const dest=path.join(root,'build');fs.mkdirSync(dest,{recursive:true});
  fs.writeFileSync(path.join(dest,'icon.png'),png);
@@ -19,6 +19,6 @@ async function main(){
   }
   fs.writeFileSync(path.join(game,'assets','icons','icon-maskable-512.png'),png);
  }
- console.log('Generated Survival Pokeball Windows and web icon assets');
+ console.log('Generated Survivor Pokeball Windows and web icon assets');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});

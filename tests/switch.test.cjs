@@ -32,3 +32,14 @@ test('boot settings only apply on first run; clear install instruction',()=>{
  assert.ok(info.includes('brewser://apps/'+id+'/index.html'));
  assert.ok(info.includes('sd:/switch/brewser.nro'));
 });
+
+test('correct Pokémon Survivor branding, not Survival, and complete bundle guide',()=>{
+ const manifest=JSON.parse(content('manifest.json'));
+ assert.match(manifest.name,/Pokémon Survivor/);
+ assert.doesNotMatch(manifest.name,/Survival/);
+ const guide=fs.readFileSync(path.join(root,'dist','switch-package','HUONG_DAN_SWITCH.txt'),'utf8');
+ assert.match(guide,/brewser-forwarder\.nsp/);
+ assert.match(guide,/NSP này CHỈ mở Brewser/);
+ assert.match(guide,/PKMSVV\.nro/);
+ assert.match(guide,/switch\/brewser\.nro/);
+});

@@ -16,7 +16,7 @@
 static void explain(const char *msg) {
     consoleInit(NULL);
     printf("\x1b[2J\x1b[H");
-    printf("PKMSVV Survival\n");
+    printf("Pokemon Survivor\n");
     printf("Viet hoa va Mod dieu chinh boi Votri Valley\n\n");
     printf("%s\n\n", msg);
     printf("Press PLUS (+) to exit to hbmenu.\n");

@@ -33,50 +33,16 @@ html=html.replace(/<\/head>/i,
   '<script src="pkmsvv-switch-boot.js"></script>\n</head>');
 fs.writeFileSync(p,html,'utf8');
 const manifest={
- id,name:'PKMSVV Pokémon Sinh Tồn',version,
+ id,name:'Pokémon Survivor — Votri Valley',version,
  description:'<p>PokéSurvivor fan translation & noncommercial gameplay modifications by Votri Valley; source game by JPTER78.</p>',
- summary:'PKMSVV Switch Lite — phiên bản homebrew offline',
+ summary:'Pokémon Survivor — Switch homebrew offline',
  logo:'assets/icons/icon-512.png',entry:'index.html',
  categories:['Games'],permissions:['storage'],compatibility:['switch'],allowed_origins:[],
  developer:'Votri Valley',license:'LicenseRef-PolyForm-Noncommercial-1.0.0',
- tags:['Survival','Offline','Fan Translation'],exitGame:'MINUS',fullscreen:true,
+ tags:['Survivor','Offline','Fan Translation'],exitGame:'MINUS',fullscreen:true,
  hideMouseDocked:false,hideMouseUndocked:false,publishedAt:'2026-10-21T00:00:00Z'
 };
 fs.writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-const guide=[
- 'PKMSVV '+version+' — THỬ NGHIỆM TRÊN SWITCH / SWITCH LITE (ATMOSPHERE)',
- '',
- 'Đây là GÓI GAME HTML5 cho ứng dụng homebrew Brewser. KHÔNG PHẢI NSP',
- 'hay NRO độc lập. Đã đóng gói tài nguyên offline, không tải từ website.',
- '',
- '1. Tải Brewser tại: https://github.com/natureglass/Brewser/releases',
- '2. Chép brewser.nro vào: sd:/switch/brewser.nro',
- '3. Khởi động Brewser từ Homebrew Menu một lần, sau đó thoát.',
- '4. Giải nén ZIP này vào gốc thẻ nhớ, để gộp chung thư mục switch/.',
- '   KHÔNG xóa những thư mục Brewser cũ hoặc save đã có.',
- '5. Chạy Brewser, dùng thanh địa chỉ mở URL nội bộ:',
- '   brewser://apps/com.votrivalley.pkmsvv/index.html',
- '',
- 'ĐIỀU KHIỂN DỰ KIẾN',
- 'Analog trái/D-pad : Di chuyển / menu',
- 'A : Xác nhận',
- 'B : Quay lại',
- 'X : Chiêu lao tới (khi có chiêu chủ động)',
- 'Y : Đổi thẻ khi lên cấp',
- '+ : Tạm dừng',
- '- : Thoát ứng dụng (theo manifest)',
- 'Cảm ứng : Menu và nút chiêu chủ động',
- '',
- 'TÙY CHỈNH: lần đầu tự chọn đồ họa Thấp để thử. Game dùng',
- 'localStorage trên thẻ SD; không tự đồng bộ save với PC hoặc APK.',
- 'Nên mở hbmenu ở chế độ đầy đủ RAM (giữ R khi vào một game).',
- 'Brewser chưa hỗ trợ đầy đủ mọi hiệu ứng Web Audio; nhạc có thể lỗi.',
- 'Chưa chơi thử trên Switch thật: cần QA âm thanh, save, hình và FPS.',
- '',
- 'Tác giả game gốc: https://github.com/JPTER78/pokesurvivor',
- 'Việt hóa và Mod điều chỉnh bởi Votri Valley.',
- 'Giữ ghi công và PolyForm Noncommercial; không thương mại.',
- ''
-].join('\r\n');
+const guide="PKMSVV-VotriValley1.0 — HƯỚNG DẪN SWITCH / SWITCH LITE (ATMOSPHÈRE)\r\nBuild PKMSVV 0.7.2 — Pokémon Survivor\r\n\r\nĐÂY LÀ GÓI THỬ NGHIỆM CHẠY OFFLINE BẰNG BREWSER.\r\nGame là HTML5 và có thể mở qua PKMSVV.nro hoặc bên trong Brewser.\r\nbrewser-forwarder.nsp chỉ tạo BIỂU TƯỢNG BREWSER ở Nintendo Home Menu,\r\nkhông phải NSP trò chơi Pokémon Survivor hay engine độc lập.\r\n\r\nTRONG GÓI ZIP CÓ:\r\n  switch/brewser.nro                               — runtime Brewser\r\n  switch/PKMSVV.nro                               — lối tắt mở thẳng Pokémon Survivor\r\n  switch/brewser/apps/com.votrivalley.pkmsvv/     — dữ liệu game offline\r\n  NSP_TUY_CHON/brewser-forwarder.nsp              — lối tắt Brewser tại Home Menu (tùy chọn)\r\n  NSP_TUY_CHON/BREWSER_LICENSE_MPL-2.0.txt        — giấy phép Brewser\r\n\r\nCÁCH CÀI:\r\n1. Thoát hoàn toàn PKMSVV/Brewser trước khi sao chép dữ liệu.\r\n2. Giải nén GÓI ZIP game vào GỐC thẻ nhớ Switch (không chép nhầm\r\n   cả thư mục switch-package/). Gộp thư mục switch/ đang có,\r\n   KHÔNG xóa game, save, hồ sơ hoặc thư mục Brewser cũ.\r\n3. Không cần tải Brewser riêng: gói đã kèm brewser.nro chính thức.\r\n4. Cách A — Homebrew Menu: mở PKMSVV.nro để khởi chạy game.\r\n   Nên chạy HBMenu chế độ full RAM: giữ R khi mở một game hợp lệ.\r\n5. Cách B — Nintendo Home Menu: nếu muốn có icon Brewser tại đây,\r\n   dùng công cụ cài homebrew của bạn để cài file tùy chọn\r\n   NSP_TUY_CHON/brewser-forwarder.nsp. NSP này CHỈ mở Brewser.\r\n   Trong Brewser, chọn app PKMSVV nếu hiện, hoặc nhập:\r\n   brewser://apps/com.votrivalley.pkmsvv/index.html\r\n   Việc cài NSP phụ thuộc vào môi trường Atmosphère của máy;\r\n   không phải điều kiện bắt buộc nếu đã mở được PKMSVV.nro.\r\n\r\nĐIỀU KHIỂN DỰ KIẾN:\r\n  Analog trái          : Di chuyển\r\n  D-pad                : Chọn mục / nâng cấp\r\n  A                    : Xác nhận\r\n  B                    : Quay lại\r\n  X                    : Chiêu lao tới CHỦ ĐỘNG (nếu có)\r\n  +                    : Tạm dừng trong game\r\n  -                    : Thoát app về Brewser (nếu runtime hỗ trợ)\r\n  Cảm ứng              : Menu, kỹ năng chủ động\r\n  Các chiêu khác       : Tự thi triển khi hồi xong\r\n\r\nLƯU Ý:\r\n  - Không cài NSP tùy chọn nếu máy bạn không hỗ trợ. NSP\r\n    không thay cho dữ liệu game, brewser.nro hay PKMSVV.nro.\r\n  - Lưu tiến trình trên Switch riêng biệt PC và Android.\r\n  - Đồ họa mặc định Thấp trong lần đầu thử nghiệm.\r\n  - Brewser có thể không hỗ trợ toàn bộ Web Audio; cần test nhạc.\r\n  - Chưa xác nhận FPS, nút tay cầm và save trên Switch Lite thật.\r\n  - Không đổi Firmware/hack chỉ để chạy bản thử nghiệm.\r\n\r\nQUYỀN TÁC GIẢ:\r\n  PKMSVV: Việt hóa và Mod điều chỉnh bởi Votri Valley.\r\n  Game gốc: https://github.com/JPTER78/pokesurvivor\r\n  Brewser: https://github.com/natureglass/Brewser\r\n  Brewser v0.1.1.31 theo giấy phép MPL-2.0.\r\n  Mã game PokéSurvivor: PolyForm Noncommercial 1.0.0.\r\n  Không phải bản phát hành chính thức của Nintendo/Pokémon.\r\n  Chỉ sử dụng phi thương mại; giữ nguyên ghi công/giấy phép.\r\n";
 fs.writeFileSync(path.join(dest,'HUONG_DAN_SWITCH.txt'),guide);
 console.log('PKMSVV Switch Brewser local SD game ready:',dir);

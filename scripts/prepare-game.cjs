@@ -412,7 +412,7 @@ execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo
 const indexPath = path.join(game, 'index.html');
 let html = fs.readFileSync(indexPath, 'utf8');
 if (!html.includes('</head>')) throw new Error('index.html không có thẻ head');
-html = html.replace(/<title>[^<]*<\/title>/, '<title>PKMSVV — Pokémon Sinh Tồn (Việt hóa)</title>');
+html = html.replace(/<title>[^<]*<\/title>/, '<title>Pokémon Survivor — Votri Valley</title>');
 html = html.replace('</head>', '<style>\n' +
   'body,button,input,select{font-family:"Segoe UI",Tahoma,Arial,sans-serif!important;}\n' +
   '.pkmsvv-attribution{font-family:"Segoe UI",Tahoma,sans-serif;color:#ffe3a0;font-size:clamp(11px,1.25vw,14px);line-height:1.45;margin:8px auto 0;text-align:center;max-width:min(420px,90vw);text-shadow:0 1px 3px #111c37;}\n' +

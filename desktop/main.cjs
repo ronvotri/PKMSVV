@@ -17,7 +17,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 540,
     backgroundColor: '#0a1430',
-    title: 'PKMSVV — Offline',
+    title: 'Pokémon Survivor — Votri Valley',
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,

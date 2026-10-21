@@ -27,7 +27,7 @@ fs.writeFileSync(idx,html,'utf8');
 const manifest=path.join(dest,'manifest.webmanifest');
 if(fs.existsSync(manifest)){
  const data=JSON.parse(fs.readFileSync(manifest,'utf8'));
- data.name='PKMSVV — Pokémon Sinh Tồn';
+ data.name='Pokémon Survivor — Votri Valley';
  data.short_name='PKMSVV';
  data.lang='vi';
  data.orientation='landscape';

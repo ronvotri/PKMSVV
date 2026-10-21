@@ -1,6 +1,6 @@
 {
   "name": "pkmsvv-offline",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "private": true,
   "description": "Unofficial noncommercial offline Windows, Android and Switch Brewser test edition of PokéSurvivor",
   "author": "Votri Valley (Vietnamese translation/gameplay mods); original PokéSurvivor by JPTER78",
@@ -30,7 +30,7 @@
   },
   "build": {
     "appId": "com.ronvotri.pkmsvv",
-    "productName": "PKMSVV Offline",
+    "productName": "Pokémon Survivor",
     "copyright": "Unofficial noncommercial project; original game copyright JPTER78",
     "asar": true,
     "directories": {

@@ -1,4 +1,4 @@
-# PKMSVV — PokéSurvivor PC + Android Offline (v0.5.0)
+# Pokémon Survivor — PKMSVV (Votri Valley)
 
 **Unofficial, free, noncommercial fan build** of [PokéSurvivor](https://github.com/JPTER78/pokesurvivor) for Windows 10/11 x64.
 
@@ -120,13 +120,13 @@ cd android
 
 File đầu ra: android/app/build/outputs/apk/debug/app-debug.apk.
 
-## V0.5.0 — Cân bằng 103 chiêu tự động, 6 buff và biểu tượng Survival
+## V0.5.0 — Cân bằng 103 chiêu tự động, 6 buff và biểu tượng Survivor
 
 - Mọi **103 kỹ năng** được cân lại hồi chiêu theo **23 nhóm**. Không đổi tác dụng riêng của từng kỹ năng; khi học mới và lên cấp, vẫn hoạt động bình thường. Giảm hồi chiêu từ các thẻ nâng cấp có giới hạn an toàn tránh spam quá nhanh.
 - **6 buff** (Swords Dance, Nasty Plot, Agility, Harden, Aqua Ring, Dragon Dance) không còn cộng dồn liên tục: cấp 1–4 tự bật và nghỉ theo chu kỳ 16 giây, với thời gian hiệu lực tăng theo cấp. Lên **cấp 5** buff duy trì vĩnh viễn, chỉ 1 tầng tác dụng, không tiếp tục tạo hoạt ảnh. Buff không chịu giảm hồi chiêu chung để giữ khoảng nghỉ ở cấp thấp.
 - HUD kỹ năng hiển thị `ON 5s`, `OFF 4s` hoặc `MAX`; chiêu gây sát thương vẫn hiển thị `AUTO` và hồi chiêu.
 - [Chi tiết hồi chiêu và buff cho từng chiêu](docs/SKILL_BALANCE.md) — đối chiếu 103 chiêu từ nguồn. Cân bằng là điểm khởi đầu, cần chơi thử để điều chỉnh thêm mật độ quái, DPS và FPS.
-- Icon Windows EXE, favicon và launcher Android dùng **Poké Ball với chữ Survival**. Nguồn icon có thể xem ở [assets/icon-survival.svg](assets/icon-survival.svg); icon được render trong CI từ nguồn vector này.
+- Icon Windows EXE, favicon và launcher Android dùng **Poké Ball với chữ Survivor**. Nguồn icon có thể xem ở [assets/icon-survivor.svg](assets/icon-survivor.svg); icon được render trong CI từ nguồn vector này.
 
 ## v0.6.0 — QA sau bản chơi thử
 
@@ -192,10 +192,22 @@ PKMSVV dùng công nghệ **HTML5/JavaScript/Canvas 2D**, không phải game Swi
 
 ## PKMSVV.nro — Mở game bằng Homebrew Menu (v0.7.1)
 
-Bản Switch hiện có thể tạo **PKMSVV.nro** (native ARM64 launcher bằng libnx/devkitPro, có icon Poké Ball Survival). Nhờ tham số `--fwd=com.votrivalley.pkmsvv` theo giao thức Brewser, khi bạn bấm PKMSVV trong Homebrew Menu, trò chơi sẽ mở ngay mà không cần gõ đường dẫn Brewser.
+Bản Switch hiện có thể tạo **PKMSVV.nro** (native ARM64 launcher bằng libnx/devkitPro, có icon Poké Ball Survivor). Nhờ tham số `--fwd=com.votrivalley.pkmsvv` theo giao thức Brewser, khi bạn bấm PKMSVV trong Homebrew Menu, trò chơi sẽ mở ngay mà không cần gõ đường dẫn Brewser.
 
 - Tải **PKMSVV-Switch-NRO-Launcher** (chứa `PKMSVV.nro`) và **PKMSVV-Switch-Brewser-Offline-Test** (chứa game offline cùng file NRO) tại workflow [Build Switch Lite Brewser Offline Test](https://github.com/ronvotri/PKMSVV/actions/workflows/build-switch.yml).
 - Chép `PKMSVV.nro` và `brewser.nro` vào `sd:/switch/`. Chép thư mục `switch/brewser/apps/com.votrivalley.pkmsvv/` từ gói offline vào thẻ nhớ như hướng dẫn trước đó.
-- Mở Homebrew Menu chế độ đầy đủ RAM, chọn biểu tượng **PKMSVV Survival**. Launcher kiểm tra hai đường dẫn này trước khi chạy, và sẽ hiển thị hướng dẫn nếu thiếu file.
+- Mở Homebrew Menu chế độ đầy đủ RAM, chọn biểu tượng **Pokémon Survivor**. Launcher kiểm tra hai đường dẫn này trước khi chạy, và sẽ hiển thị hướng dẫn nếu thiếu file.
 - Đây là **NRO chạy được ở cấp hệ thống (launcher)**, không phải NRO chứa engine và assets độc lập trong cùng một file. Switch vẫn cần `sd:/switch/brewser.nro` và thư mục game đã giải nén. Không có NSP hay cài vào Nintendo Home Menu.
 - Chưa kiểm thử trên Switch Lite thật, nên việc chuyển giao Brewser bằng `--fwd` và tương thích game vẫn cần test thực tế.
+
+## v0.7.2 — Sửa toàn bộ icon và tên Pokémon Survivor
+
+**Tên app và icon chính thức của bản mod: Pokémon Survivor.** Chữ trên Poké Ball là **Survivor** (không phải Survival), áp dụng thống nhất cho icon Windows EXE/shortcut, icon Android (5 DPI + adaptive), favicon, icon PWA, biểu tượng và tiêu đề NRO Switch. Dữ liệu save trên Windows/Android không thay đổi đường dẫn lưu vì app ID vẫn giữ nguyên.
+
+### Một gói Switch đầy đủ, có Brewser và NSP tuỳ chọn
+
+- Từ v0.7.2, gói Switch ZIP chứa `switch/brewser.nro` (Brewser chính thức v0.1.1.31), `switch/PKMSVV.nro` (shortcut mở thẳng game), thư mục `switch/brewser/apps/com.votrivalley.pkmsvv/` (game offline), và `NSP_TUY_CHON/brewser-forwarder.nsp` (chỉ mở Brewser tại Nintendo Home Menu). **Không cần tải riêng brewser.nro** nếu gói đã chứa đủ hai file.
+- NSP đi kèm là **Brewser forwarder**, KHÔNG phải NSP trò chơi Pokémon Survivor. Người dùng có thể chạy `PKMSVV.nro` mà không cần cài NSP. Nếu cài NSP, mở Brewser rồi chọn PKMSVV hoặc dùng URL nội bộ `brewser://apps/com.votrivalley.pkmsvv/index.html`.
+- SHA-256 của hai tệp Brewser được kiểm tra tự động với bản phát hành chính thức [v0.1.1.31](https://github.com/natureglass/Brewser/releases/tag/v0.1.1.31); giữ giấy phép MPL-2.0 và liên kết mã nguồn Brewser trong ZIP. Các điều khoản phi thương mại của PokéSurvivor vẫn giữ nguyên.
+- Đọc **HUONG_DAN_SWITCH.txt** mới nằm ở gốc ZIP; nó thay cho hướng dẫn Switch cũ ở những đoạn mô tả rằng gói không chứa Brewser.
+

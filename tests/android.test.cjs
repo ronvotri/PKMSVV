@@ -17,3 +17,10 @@ test('mobile shell has stable origin and package identity',()=>{
  assert.equal(conf.webDir,'mobile/www');
  assert.equal(conf.server.androidScheme,'https');
 });
+
+test('Android assets have Survivor title, never the old Survival branding',()=>{
+ const root=path.join(__dirname,'..','mobile','www');
+ const m=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
+ assert.match(m.name,/Pokémon Survivor/);
+ assert.doesNotMatch(m.name,/Survival/);
+});
