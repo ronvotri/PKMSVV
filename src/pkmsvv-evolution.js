@@ -14,6 +14,10 @@ G.PKMSVVEvo = (() => {
   const DAY_SPAN = 240; // 4 minutes day, 4 minutes night, repeated within a run
   // Eevee: one optional, level-preserving conversion of a non-evolved Normal attack.
   // The rest of the existing moves, skills, buffs and run levels are untouched.
+  const EEVEE_STONES = {
+    'water-stone':'Đá Nước', 'thunder-stone':'Đá Sét',
+    'fire-stone':'Đá Lửa', 'leaf-stone':'Đá Lá', 'ice-stone':'Đá Băng'
+  };
   const EEVEE_SIGNATURE = {
     134:'water-gun', 135:'thunder-shock', 136:'ember',
     196:'confusion', 197:'bite', 470:'vine-whip',
@@ -71,7 +75,7 @@ G.PKMSVVEvo = (() => {
   function requirement(r) {
     const a = [];
     if (r.level) a.push('Lv. ' + r.level);
-    if (r.item) a.push('đá/vật phẩm ' + nice(r.item) + ' (1 Mảnh)');
+    if (r.item) a.push((EEVEE_STONES[r.item] || 'vật phẩm ' + nice(r.item)) + ' (1 Mảnh)');
     if (r.trigger === '2') a.push('Dây Liên Kết (1 Mảnh)');
     if (r.held) a.push('vật phẩm ' + nice(r.held) + ' (1 Mảnh)');
     if (r.friendship) a.push('Thân thiết ' + r.friendship);
@@ -244,8 +248,11 @@ G.PKMSVVEvo = (() => {
       caption.className='pkmsvv-evo-transform';
       convertBox=document.createElement('input');
       convertBox.type='checkbox';convertBox.checked=true;
+      convertBox.disabled=!pl.moves.some(m=>m.type==='normal'&&m.kind!=='buff'&&!m.evolved);
       const explanation=document.createElement('span');
-      explanation.textContent='Chuyển 1 chiêu Normal sang chiêu hệ mới (giữ cấp nâng cấp). Bỏ chọn để giữ nguyên mọi chiêu.';
+      explanation.textContent=convertBox.disabled
+        ? 'Không có chiêu Normal phù hợp để chuyển hóa. Mọi chiêu hiện tại sẽ được giữ nguyên.'
+        : 'Chuyển 1 chiêu Normal chưa tiến hóa thành chiêu hệ mới (giữ cấp). Bỏ chọn để giữ nguyên mọi chiêu.';
       caption.appendChild(convertBox);caption.appendChild(explanation);
       panel.appendChild(caption);
     }
