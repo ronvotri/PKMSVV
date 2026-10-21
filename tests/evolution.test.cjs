@@ -110,3 +110,56 @@ test('Sylveon fallback unlocks when Fairy moves are unavailable in source',()=>{
  p.pkmEvoCasts=30;
  assert.equal(evo.eligible(p,960,r),true);
 });
+
+test('Eevee evolution menu exposes all eight routes, but locks unmet forms',()=>{
+ const p=pl(133,8);p.pkmEvoShards=1;
+ const options=evo.choiceRoutes(p,30);
+ assert.equal(options.length,8,'Five stone-based and three friendship-based forms must remain visible');
+ assert.equal(options.filter(x=>x.unlocked).length,5);
+ for(const to of [134,135,136,470,471]) assert.equal(options.find(x=>x.rule.to===to).unlocked,true);
+ for(const to of [196,197,700]) {
+   const locked=options.find(x=>x.rule.to===to);
+   assert.equal(locked.unlocked,false);
+   assert.match(evo.pendingReason(p,30,locked.rule),/Thân thiết/);
+ }
+ p.level=25;
+ assert.equal(evo.choiceRoutes(p,30).find(x=>x.rule.to===196).unlocked,true);
+ assert.equal(evo.choiceRoutes(p,30).find(x=>x.rule.to===197).unlocked,false);
+ assert.equal(evo.choiceRoutes(p,260).find(x=>x.rule.to===197).unlocked,true);
+ p.pkmEvoCasts=30;
+ assert.equal(evo.choiceRoutes(p,260).find(x=>x.rule.to===700).unlocked,true);
+});
+test('Eevee can optionally convert highest-upgraded non-evolved Normal attack without losing slots',()=>{
+ const defs={
+   'water-gun':{id:'water-gun',type:'water',maxLvl:7,cd:5},
+   'thunder-shock':{id:'thunder-shock',type:'electric',maxLvl:6,cd:4},
+   'ember':{id:'ember',type:'fire',maxLvl:7,cd:6}
+ };
+ const original=sandbox.G.Moves;
+ sandbox.G.Moves={...original,BY_ID:defs,
+   instance:(id,lvl)=>({id,kind:'projectile',type:defs[id].type,cd:defs[id].cd,def:defs[id],lvl,t:0})};
+ try{
+   const p=pl(133,22);
+   const upgraded={id:'tackle',type:'normal',kind:'melee',lvl:5,cd:10,t:5,since:8};
+   const other={id:'quick-attack',type:'normal',kind:'dash',lvl:3,evolved:true};
+   const buff={id:'swords-dance',type:'normal',kind:'buff',lvl:4};
+   p.moves=[upgraded,other,buff];p.slots=[[upgraded],[other],[buff]];p.bind={tackle:0};
+   p.pkmEvoShards=1;
+   assert.equal(evo.evolve(p,rule(133,134),{convertNormal:true}),true);
+   assert.equal(p.dex,134);
+   assert.equal(p.moves[0].id,'water-gun');
+   assert.equal(p.moves[0].lvl,5);
+   assert.equal(p.moves[0].t,2.5);
+   assert.equal(p.moves[0].since,8);
+   assert.equal(p.slots[0][0],p.moves[0]);
+   assert.equal(p.moves[1],other);
+   assert.equal(p.moves[2],buff);
+   assert.equal(p.slots.length,3);
+   assert.equal(p.bind['water-gun'],0);
+   const keep=pl(133,22),old={id:'tackle',type:'normal',kind:'melee',lvl:6};
+   keep.moves=[old];keep.slots=[[old]];keep.pkmEvoShards=1;
+   assert.equal(evo.evolve(keep,rule(133,136),{convertNormal:false}),true);
+   assert.equal(keep.moves[0],old,'Opting out must keep full invested Normal move');
+   assert.equal(keep.moves[0].lvl,6);
+ }finally {sandbox.G.Moves=original;}
+});
