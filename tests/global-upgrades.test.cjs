@@ -29,13 +29,13 @@ test('global and per-Pokémon strength stack without replacing old levels',()=>{
  assert.ok(Math.abs(r.magnetMul-1.792)<1e-9);
  assert.equal(personal.hp,24);
 });
-test('low-cost early power with only two total starting skills',()=>{
- assert.equal(P.cost('power',0),100);
- assert.equal(P.cost('opening',0),250);
+test('triple-priced starting skills and base stats, with same strength effects',()=>{
+ assert.equal(P.cost('power',0),300);
+ assert.equal(P.cost('opening',0),750);
  assert.equal(P.cost('opening',1),0);
- const s={coins:750,globalUpgrades:{}};
+ const s={coins:1500,globalUpgrades:{},globalSpent:{}};
  assert.equal(P.purchase(s,'opening'),true);
- assert.equal(s.coins,500);
+ assert.equal(s.coins,750);
  assert.equal(P.combine({},s.globalUpgrades).startMoves,2);
  assert.equal(P.purchase(s,'power'),true);
  assert.equal(P.combine({},s.globalUpgrades).atkMul,1.12);
@@ -45,11 +45,12 @@ test('refund returns exactly spent coins, never changes individual Pokémon upgr
  const s={coins:3000,globalUpgrades:{},pupg:{25:{hp:3}}};
  const original=s.coins;
  for(const id of ['vital','power','rapid','healing'])assert.ok(P.purchase(s,id));
- const spent=P.spent(s.globalUpgrades);
+ const spent=P.refundable(s);
  assert.ok(spent>0);
  assert.equal(P.refundAll(s),spent);
  assert.equal(s.coins,original);
  assert.deepEqual(obj(s.globalUpgrades),{});
+ assert.deepEqual(obj(s.globalSpent),{});
  assert.equal(s.pupg[25].hp,3);
  assert.equal(P.refundAll(s),0);
 });
@@ -67,7 +68,9 @@ test('compiled game has the new menu, save schema, and start move integration',(
  assert.match(read('index.html'),/data-go="global"/);
  assert.match(read('js/game.js'),/G\.GlobalPower\.combine/);
  assert.match(read('js/game.js'),/Math\.min\(2,perks\.startMoves\)/);
- assert.match(read('js/core/db.js'),/globalUpgrades: \{\}/);
+ assert.match(read('js/core/db.js'),/globalUpgrades: \\{\\}/);
+ assert.match(read('js/core/db.js'),/globalSpent: \\{\\}/);
+ assert.match(read('js/core/db.js'),/G\\.GlobalPower\\.legacyLedger/);
  assert.match(read('js/entities/player.js'),/G\.GlobalPower\.tryRevive\(this\)/);
  assert.match(read('js/entities/player.js'),/this\.extraRevives = perks\.revives \|\| 0/);
  assert.match(read('js/core/db.js'),/s\.coins \+= 1250/);
@@ -78,6 +81,7 @@ test('revival is deliberately expensive, bought exactly once permanently',()=>{
  const unaffordable={coins:49999,globalUpgrades:{}};
  assert.equal(P.purchase(unaffordable,'revive'),false);
  assert.equal(P.cost('revive',0),50000);
+ assert.equal(P.originalCost('revive',0),50000);
  const s={coins:50100,globalUpgrades:{}};
  assert.equal(P.purchase(s,'revive'),true);
  assert.equal(s.coins,100);
@@ -107,4 +111,41 @@ test('an earlier 3-skill save is capped at two and returns legacy second-rank co
  const s={coins:2000,globalUpgrades:{opening:1,revive:1}};
  assert.equal(P.refundAll(s),50250);
  assert.equal(s.coins,52250);
+});
+
+test('ALL 12 non-revive upgrades cost triple for every purchase level',()=>{
+ assert.equal(P.PRICE_MULTIPLIER,3);
+ for(const u of P.LIST) {
+   for(let level=0;level<u.max;level++) {
+     assert.equal(P.cost(u.id,level),P.originalCost(u.id,level)*(u.id==='revive'?1:3),u.id+' rank '+level);
+   }
+ }
+ assert.equal(P.cost('reach',0),210);
+ assert.equal(P.cost('vital',0),240);
+ assert.equal(P.cost('rapid',0),420);
+ assert.equal(P.cost('opening',0),750);
+ assert.equal(P.cost('revive',0),50000);
+});
+test('legacy saves keep original purchase price when refunding despite 3x price updates',()=>{
+ const levels={power:1,rapid:2,opening:1,revive:1};
+ const legacy=P.legacyLedger(levels);
+ assert.equal(legacy.power,100);
+ assert.equal(legacy.opening,250);
+ assert.equal(legacy.revive,50000);
+ const s={coins:12000,globalUpgrades:{...levels},globalSpent:legacy};
+ const paidBefore=P.refundable(s);
+ assert.equal(paidBefore,P.spent(levels,legacy));
+ assert.equal(P.cost('power',1),390);
+ assert.equal(P.purchase(s,'power'),true);
+ assert.equal(s.globalUpgrades.power,2);
+ assert.equal(s.globalSpent.power,490);
+ assert.equal(P.refundable(s),paidBefore+390);
+ assert.equal(P.refundAll(s),paidBefore+390);
+ assert.equal(s.coins,12000);
+ assert.equal(s.globalUpgrades.power,undefined);
+});
+test('ledger sanitization prevents over-credit from impossible amounts',()=>{
+ const s={coins:0,globalUpgrades:{power:1},globalSpent:{power:100000000,revive:50000,INVALID:10000}};
+ assert.equal(P.refundable(s),300);
+ assert.deepEqual(obj(P.cleanLedger(s.globalSpent,s.globalUpgrades)),{power:300});
 });
