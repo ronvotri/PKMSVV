@@ -6,6 +6,8 @@ on:
       - .github/workflows/publish-v091.yml
   workflow_dispatch:
 
+# One-time publication of the three already-tested v0.9.1 artifacts.
+
 permissions:
   contents: write
   actions: read
