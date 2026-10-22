@@ -1,32 +1,32 @@
-/* PKMSVV v0.5 — 103 auto-cast moves rebalance, six cycle-based buffs.
+/* PKMSVV v1.2 balance hotfix — responsive 103 auto-cast moves and useful cycle buffs.
  * Never changes names, damage, sprite data, move pool, or evolved attack bonuses.
  * Cooldown tuning runs AFTER game moves definitions and BEFORE a run begins.
  */
 G.PKMSVVBalance = (() => {
   const profiles = {
-    melee:     {base:1.05,scale:1.10,min:1.40,max:2.55,floor:0.75},
-    projectile:{base:1.40,scale:1.35,min:1.82,max:2.65,floor:0.80},
-    homing:    {base:1.48,scale:1.35,min:1.90,max:2.80,floor:0.90},
-    bounce:    {base:1.75,scale:1.30,min:2.30,max:3.10,floor:1.05},
-    cone:      {base:2.00,scale:1.20,min:2.60,max:3.35,floor:1.15},
-    beam:      {base:1.95,scale:1.20,min:2.80,max:4.10,floor:1.15},
-    nova:      {base:2.50,scale:1.10,min:3.50,max:4.60,floor:1.50},
-    boomerang: {base:1.85,scale:1.00,min:2.55,max:3.50,floor:1.05},
-    chain:     {base:2.45,scale:0.95,min:3.05,max:3.95,floor:1.30},
-    aura:      {base:0.75,scale:1.05,min:1.10,max:1.60,floor:0.55},
-    orbit:     {base:0.43,scale:1.00,min:0.66,max:0.85,floor:0.60},
-    mine:      {base:3.70,scale:1.05,min:4.60,max:5.90,floor:2.00},
-    meteor:    {base:3.95,scale:1.05,min:5.10,max:6.10,floor:2.10},
-    turret:    {base:6.90,scale:0.95,min:9.90,max:11.0,floor:4.20},
-    trail:     {base:3.55,scale:1.20,min:3.80,max:4.50,floor:1.90},
-    dash:      {base:2.85,scale:1.00,min:3.50,max:4.10,floor:1.65},
-    charge:    {base:3.60,scale:1.05,min:5.50,max:6.65,floor:2.70},
-    spin:      {base:2.05,scale:1.15,min:3.05,max:3.85,floor:1.20},
-    quake:     {base:3.25,scale:1.05,min:4.10,max:5.00,floor:1.75},
-    vortex:    {base:3.90,scale:1.05,min:6.50,max:7.60,floor:3.40},
-    stun:      {base:3.70,scale:1.10,min:5.20,max:6.30,floor:2.00},
-    shove:     {base:2.45,scale:1.00,min:3.30,max:4.15,floor:1.30},
-    buff:      {base:16,scale:0,min:16,max:16,floor:16}
+    melee      {base:0.46,scale:0.95,min:0.85,max:1.5,floor:0.48},
+    projectile {base:0.58,scale:0.9,min:0.94,max:1.58,floor:0.55},
+    homing     {base:0.66,scale:0.98,min:1.02,max:1.68,floor:0.62},
+    bounce     {base:0.75,scale:0.95,min:1.15,max:1.9,floor:0.68},
+    cone       {base:0.8,scale:0.95,min:1.2,max:2,floor:0.7},
+    beam       {base:0.78,scale:1.05,min:1.32,max:2.3,floor:0.8},
+    nova       {base:1.02,scale:1.08,min:1.65,max:2.7,floor:0.9},
+    boomerang  {base:0.8,scale:1.05,min:1.26,max:2,floor:0.75},
+    chain      {base:0.94,scale:1.05,min:1.6,max:2.55,floor:0.85},
+    aura       {base:0.45,scale:1,min:0.8,max:1.3,floor:0.45},
+    orbit      {base:0.34,scale:1,min:0.55,max:0.78,floor:0.45},
+    mine       {base:1.65,scale:0.85,min:2.1,max:3.4,floor:1.2},
+    meteor     {base:1.7,scale:0.95,min:2.4,max:3.65,floor:1.3},
+    turret     {base:3,scale:0.85,min:4.8,max:6.4,floor:2.2},
+    trail      {base:1.55,scale:0.9,min:2.1,max:3,floor:1.1},
+    dash       {base:1.35,scale:0.9,min:1.95,max:2.65,floor:1.1},
+    charge     {base:1.65,scale:0.95,min:2.5,max:3.6,floor:1.3},
+    spin       {base:0.9,scale:0.95,min:1.4,max:2.25,floor:0.85},
+    quake      {base:1.4,scale:1,min:2.25,max:3.3,floor:1.15},
+    vortex     {base:1.9,scale:1,min:2.9,max:4.5,floor:1.5},
+    stun       {base:1.65,scale:0.95,min:2.4,max:3.6,floor:1.2},
+    shove      {base:0.92,scale:1,min:1.45,max:2.4,floor:0.8},
+    buff       {base:8.5,scale:0,min:8.5,max:8.5,floor:7.8},
   };
   const moveDefs = Object.values(G.Moves.BY_ID);
   if (moveDefs.length !== 103 || Object.keys(profiles).length !== 23)
@@ -52,8 +52,14 @@ G.PKMSVVBalance = (() => {
   }
 
   function effectiveCooldown(pl, m) {
-    if (m.kind === 'buff') return m.cd; // No global CDR: early buffs must have OFF time.
-    return Math.max(profiles[m.kind].floor, m.cd * Math.max(0.01, pl.cdMul));
+    if (m.kind === 'buff') {
+      // Most boosts begin at 7 s duration. Keep a short rest instead of
+      // 9 seconds of downtime; upgrading duration still matters.
+      // Honor moderate haste, but never recast before the effect expires.
+      const haste = Math.max(0.75, Math.min(1.5, Number(pl.cdMul) || 1));
+      return Math.max(m.dur + 0.8, m.cd * haste, profiles.buff.floor);
+    }
+    return Math.max(profiles[m.kind].floor, m.cd * Math.max(0.01, Number(pl.cdMul) || 1));
   }
   function refreshBuff(pl, m) {
     if (m.kind !== 'buff' || m.lvl < m.def.maxLvl) return false;
