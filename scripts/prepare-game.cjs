@@ -193,6 +193,16 @@ patch('js/core/audio.js',
   "get track() { return customAudio ? customAudio.pkmsvvName : current && current.name; }");
 
 
+// Help new runs find a damaging second/third move before the first boss.
+// Readying a golden evolution still takes priority over the early guarantee.
+patch('js/systems/levelup.js',
+  "    if (evo >= 0) { const c = pool.splice(evo, 1)[0]; used.add(c.key); picked.push(c); }",
+  "    if (evo >= 0) { const c = pool.splice(evo, 1)[0]; used.add(c.key); picked.push(c); }\n" +
+  "    if (pl.level <= 6 && pl.moves.filter(m => m.kind !== 'buff').length < 3 && picked.length < n) {\n" +
+  "      const early = pool.findIndex(c => c.type === 'new' && G.Moves.BY_ID[c.key.slice(4)] && G.Moves.BY_ID[c.key.slice(4)].kind !== 'buff');\n" +
+  "      if (early >= 0) { const card = pool.splice(early, 1)[0]; used.add(card.key); picked.push(card); }\n" +
+  "    }");
+
 // Rebalance all 103 simultaneous attacks AFTER source moves define G.Moves,
 // before any run starts.  Buff duration/cooldown is upgraded explicitly.
 const combatBalance = fs.readFileSync(path.join(project, 'src', 'pkmsvv-skill-balance.js'), 'utf8');
