@@ -101,12 +101,26 @@ patch('js/ui/hud.js', 'ctx.fillText(String(i + 1), x + 3, y + 10);',
   "ctx.fillText('AUTO', x + 3, y + 10);");
 patch('js/ui/hud.js', '      if (on) {\n        ctx.font = F(700, 10);',
   '      if (on && i === 0) {\n        ctx.font = F(700, 10);');
-// Legendary rifts expand capacity to eight skills and improve attack speed.
+// Legendary resonance rewards multi-autocast builds: independent CDR,
+// up to 8 learned moves, and +8% damage per rift for the first three wins.
 patch('js/systems/rift.js',
   "      pl.bonds++;\n      G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, '¡Vínculo!', '#ff8ad8', true);",
-  "      pl.maxMoves = Math.min(8, pl.maxMoves + 1);\n" +
-  "      pl.cdMul *= 0.96;\n" +
-  "      G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, 'Thêm ô kỹ năng! -4% hồi chiêu', '#ff8ad8', true);");
+  "      const reward = G.PKMSVVBalance.rewardRift(pl);\n" +
+  "      G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, (G.I18n && G.I18n.lang === 'vi' ? 'Cộng hưởng huyền thoại ' : 'Legendary Resonance ') + reward.stacks + '/3', '#ff8ad8', true);");
+// Six independently auto-casting moves must not drain six Life Orb fees
+// in the same second. One 1% max-HP cost every 2 seconds of game time.
+patch('js/entities/player.js',
+  "    if (this.hasItem('lifeorb') && m.kind !== 'orbit' && m.kind !== 'trail' && !this.remote) {\n" +
+  "      this.hp = Math.max(1, this.hp - Math.max(1, this.maxHp * 0.01));\n" +
+  "    }",
+  "    if (this.hasItem('lifeorb') && m.kind !== 'orbit' && m.kind !== 'trail' && m.kind !== 'buff' && !this.remote) {\n" +
+  "      const now = G.Game.st.time;\n" +
+  "      if (now >= (this._pkmsvvLifeOrbNext || 0)) {\n" +
+  "        this.hp = Math.max(1, this.hp - Math.max(1, this.maxHp * 0.01));\n" +
+  "        this._pkmsvvLifeOrbNext = now + 2;\n" +
+  "      }\n" +
+  "    }");
+
 // Choice Band's old no-switch penalty no longer applies; rebalance.
 patch('js/data/items.js',
   "desc: '+40% de daño, pero no puedes cambiar de movimiento.',\n" +
