@@ -6,10 +6,10 @@ vm.runInNewContext(fs.readFileSync(path.join(root,'src','pkmsvv-global-power.js'
 const P=context.G.GlobalPower;
 const obj=x=>JSON.parse(JSON.stringify(x));
 
-test('thirteen worldwide permanent powerups including costly revival',()=>{
- assert.equal(P.LIST.length,13);
+test('fifteen worldwide permanent powerups including area, duration and costly revival',()=>{
+ assert.equal(P.LIST.length,15);
  for(const u of P.LIST) assert.ok(P.BY[u.id]===u);
- assert.equal(P.LIST.reduce((n,u)=>n+u.max,0),80);
+ assert.equal(P.LIST.reduce((n,u)=>n+u.max,0),90);
  assert.equal(P.BY.opening.max,1);
  assert.equal(P.BY.revive.max,1);
 });
@@ -113,7 +113,7 @@ test('an earlier 3-skill save is capped at two and returns legacy second-rank co
  assert.equal(s.coins,52250);
 });
 
-test('ALL 12 non-revive upgrades cost triple for every purchase level',()=>{
+test('ALL 14 non-revive upgrades cost triple for every purchase level',()=>{
  assert.equal(P.PRICE_MULTIPLIER,3);
  for(const u of P.LIST) {
    for(let level=0;level<u.max;level++) {
@@ -148,4 +148,56 @@ test('ledger sanitization prevents over-credit from impossible amounts',()=>{
  const s={coins:0,globalUpgrades:{power:1},globalSpent:{power:100000000,revive:50000,INVALID:10000}};
  assert.equal(P.refundable(s),300);
  assert.deepEqual(obj(P.cleanLedger(s.globalSpent,s.globalUpgrades)),{power:300});
+});
+
+test('Candelabrador-like area upgrade scales radius and hitboxes, not item pickup',()=>{
+ assert.equal(P.BY.area.max,5);
+ assert.equal(P.cost('area',0),540);
+ const perk=P.combine({magnetMul:1.1},{area:5});
+ assert.equal(perk.areaMul,1.5);
+ assert.equal(perk.magnetMul,1.1);
+ const pl={areaMul:perk.areaMul,durationMul:1};
+ const def={radius:100,width:20,size:8,range:200,life:1.5,dur:4,cd:2,damage:10};
+ const m=P.applyMove({...def},pl);
+ assert.equal(m.radius,150);assert.equal(m.width,30);
+ assert.equal(m.size,12);assert.equal(m.range,300);
+ assert.equal(m.life,1.5);assert.equal(m.dur,4);
+ assert.equal(m.cd,2);assert.equal(m.damage,10);
+ P.applyMove(m,pl);
+ assert.equal(m.radius,150,'Applying twice must not double scale');
+ assert.equal(def.radius,100,'Never change shared move definitions');
+});
+test('duration upgrade lengthens fields, buffs and projectile lifetimes, not cooldown',()=>{
+ assert.equal(P.BY.duration.max,5);
+ assert.equal(P.cost('duration',0),480);
+ const p=P.combine({areaMul:1.2,durationMul:1.25},{duration:5});
+ assert.ok(Math.abs(p.durationMul-1.875)<1e-9);
+ const m=P.applyMove({radius:100,dur:4,life:2,cd:1.5},p);
+ assert.ok(Math.abs(m.radius-120)<1e-9);
+ assert.ok(Math.abs(m.dur-7.5)<1e-9);
+ assert.ok(Math.abs(m.life-3.75)<1e-9);
+ assert.equal(m.cd,1.5);
+});
+test('new powerup purchases survive cleaning and refund at the paid x3 rate',()=>{
+ const s={coins:5000,globalUpgrades:{},globalSpent:{}};
+ assert.equal(P.purchase(s,'area'),true);
+ assert.equal(P.purchase(s,'duration'),true);
+ assert.deepEqual(obj(P.clean(s.globalUpgrades)),{area:1,duration:1});
+ assert.equal(P.refundable(s),1020);
+ assert.equal(P.refundAll(s),1020);
+ assert.equal(s.coins,5000);
+});
+test('compiled game honors flying water immunity and applies account-wide move perks',()=>{
+ const base=path.join(root,'vendor','pokesurvivor');
+ if(!fs.existsSync(path.join(base,'index.html')))return;
+ const world=fs.readFileSync(path.join(base,'js/world/world.js'),'utf8');
+ const player=fs.readFileSync(path.join(base,'js/entities/player.js'),'utf8');
+ assert.match(world,/water: \\{ slow: 0\\.6, immune: \\['water', 'flying'\\] \\}/);
+ assert.match(world,/swamp: \\{ slow: 0\\.45, immune: \\['water', 'flying'\\] \\}/);
+ assert.match(world,/lava:.*immune: \\['fire'\\]/);
+ assert.match(player,/this\\.areaMul = perks\\.areaMul/);
+ assert.match(player,/this\\.durationMul = perks\\.durationMul/);
+ assert.match(player,/G\\.GlobalPower\\.applyMove\\(G\\.Moves\\.instance/);
+ const js=fs.readFileSync(path.join(base,'js/app.min.js'),'utf8');
+ assert.match(js,/pkmGlobalScaled/);
 });
