@@ -50,7 +50,7 @@ modify('js/ui/settings-ui.js',s=>{
   s=s.replace("        + (canFull() ? `<div class=\"set-row\">","        + (canFull() ? `<div class=\"set-row\">");
   return s;
 });
-fs.appendFileSync(path.join(base,'css','style.css'),\`
+fs.appendFileSync(path.join(base,'css','style.css'),`
 .pkmsvv-dex-action{margin:9px 0 14px;position:sticky;top:0;z-index:2;background:#162744;padding:8px;border:1px solid #7190be;border-radius:10px}
 .pkmsvv-dex-action .btn{min-height:46px;font-weight:700}
 #btn-backup{min-width:40px;min-height:38px;display:inline-flex;justify-content:center;align-items:center}
@@ -60,5 +60,5 @@ fs.appendFileSync(path.join(base,'css','style.css'),\`
 .pkmsvv-quick .pkm-backup{margin-bottom:0}
 @media(max-width:670px){.pkmsvv-quick-box{padding:12px}.pkmsvv-quick-box h2{font-size:16px}
 .pkmsvv-dex-action .btn{font-size:13px}}
-\`+'\n');
+`+'\n');
 console.log('PKMSVV: partner action moved to top, quick save menu added, fullscreen fixed.');
