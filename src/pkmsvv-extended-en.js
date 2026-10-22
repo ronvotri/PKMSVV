@@ -1,7 +1,8 @@
 /* PKMSVV v0.9.5: English localization of Votri Valley extensions.
    The original source localization engine handles DOM, canvas, alert and confirm.
    This dictionary is loaded only for the selected language by G.I18n.add. */
-G.I18n.add({
+// Do not register English as Vietnamese fallback: it turns Vietnamese add-ons into mixed English/VI.
+if (G.I18n.lang !== 'vi') G.I18n.add({
   "Đồng hành": "Partner",
   "Chọn đồng hành": "Choose Partner",
   "Sao lưu / Khôi phục Save": "Back up / Restore Save",
