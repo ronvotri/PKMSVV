@@ -16,8 +16,8 @@ patch('dev.html',
  '  <div class="pill" id="user-pill"></div>\n  <button id="btn-save"',
  '  <div class="pill" id="user-pill"></div>\n  </div>\n  <div class="pkmsvv-top-actions">\n  <button id="btn-save"');
 patch('dev.html',
- '  <button id="btn-logout" class="btn small ghost">Salir</button>\n</div>\n<div id="sound-panel"',
- '  <button id="btn-logout" class="btn small ghost">Salir</button>\n  </div>\n</div>\n<div id="sound-panel"');
+ '  <button id="btn-logout" class="btn small ghost hidden" aria-hidden="true" tabindex="-1">Salir</button>\n</div>\n<div id="sound-panel"',
+ '  <button id="btn-logout" class="btn small ghost hidden" aria-hidden="true" tabindex="-1">Salir</button>\n  </div>\n</div>\n<div id="sound-panel"');
 // The toolbar is interactive independently from the fullscreen game canvas.
 patch('js/ui/ui.js',
  '  function initChrome() {\n    G.Icons.installCss();',
