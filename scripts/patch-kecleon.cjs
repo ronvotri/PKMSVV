@@ -73,15 +73,15 @@ patch('js/ui/ui.js',"'scr-global-powerups', 'scr-gacha',",
 patch('js/game.js',"'scr-global-powerups', 'scr-gacha',",
  "'scr-global-powerups', 'scr-kecleon', 'scr-gacha',");
 // Upstream menu binds all main menu [data-go] in one place.
-patch('js/ui/menu.js',"global: 'star', gacha:","global: 'star', shop: 'coin', bag: 'book', gacha:");
+patch('js/ui/menu.js',"global: 'star', gacha:","global: 'star', shop: 'shop', bag: 'bag', gacha:");
 patch('js/ui/menu.js',"else if (go === 'global') G.GlobalPowerUI.open();",
  "else if (go === 'global') G.GlobalPowerUI.open();\n        else if (go === 'shop' || go === 'bag') G.KecleonUI.open(go);");
 const badge=String.raw`
 const shopBtn=document.querySelector('#scr-menu [data-go="shop"]'),
       bagBtn=document.querySelector('#scr-menu [data-go="bag"]');
-if(shopBtn)shopBtn.innerHTML=G.Icons.html('coin',18)+' '+(G.I18n.lang==='vi'?'Cửa hàng Kecleon':'Kecleon Shop')+
+if(shopBtn)shopBtn.innerHTML=G.Icons.html('shop',18)+' '+(G.I18n.lang==='vi'?'Cửa hàng Kecleon':'Kecleon Shop')+
  '<small>'+(G.I18n.lang==='vi'?'Bạc hà · Đặc tính · TM':'Mints · Abilities · TMs')+'</small>';
-if(bagBtn)bagBtn.innerHTML=G.Icons.html('book',18)+' '+(G.I18n.lang==='vi'?'Túi đồ':'Bag')+
+if(bagBtn)bagBtn.innerHTML=G.Icons.html('bag',18)+' '+(G.I18n.lang==='vi'?'Túi đồ':'Bag')+
  '<small>'+(G.I18n.lang==='vi'?'Vật phẩm & TM':'Items & TMs')+'</small>';
 `;
 patch('js/ui/menu.js',
