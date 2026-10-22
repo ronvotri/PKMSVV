@@ -130,3 +130,34 @@ test('Older save merge cannot resurrect consumed Mint, Capsule or TMs',()=>{
  assert.equal(result.bag.mint,3);
  assert.equal(result.tms.surf,2);
 });
+
+test('Kecleon shop to bag to use to save to reload keeps balances and permanent TM',()=>{
+ const G=game(),s=G.DB.save;
+ G.DEX_ABIL[25]=['static','lightning-rod','surge-surfer'];
+ assert.equal(G.Shop.buy('mint').ok,true);
+ assert.equal(G.Shop.buy('cap').ok,true);
+ assert.equal(G.Shop.buy('tm:surf').ok,true);
+ assert.equal(G.Shop.count('mint'),1);
+ assert.equal(G.Shop.count('cap'),1);
+ assert.equal(G.Shop.tmCount('surf'),1);
+ assert.equal(G.Shop.take('mint'),true);
+ G.Mons.setNature(25,'modest');
+ const choices=G.Mons.abilityChoices(25,false);
+ assert.ok(choices.length);
+ assert.equal(G.Shop.take('cap'),true);
+ G.Mons.setAbility(25,choices[0]);
+ assert.equal(G.Mons.teach(25,'surf'),true);
+ G.DB.commit(true);
+ // Round-trip through the JSON representation that the local save stores.
+ const saved=JSON.stringify(s);
+ const H=game();H.DEX_ABIL[25]=['static','lightning-rod','surge-surfer'];
+ H.DB.save=JSON.parse(saved);
+ assert.equal(H.DB.save.coins,11560);
+ assert.equal(H.Shop.count('mint'),0);
+ assert.equal(H.Shop.count('cap'),0);
+ assert.equal(H.Shop.tmCount('surf'),0);
+ assert.equal(H.Mons.natureOf(25).id,'modest');
+ assert.equal(H.Mons.abilityOf(25).slot,choices[0]);
+ assert.deepEqual(Array.from(H.Mons.taught(25)),['surf']);
+ assert.equal(H.Mons.canLearn(25,'surf'),false);
+});
