@@ -20,6 +20,10 @@ for(const [src,dst] of [
  fs.copyFileSync(path.join(project,'src/kecleon/upstream',src),path.join(base,dst));
 }
 fs.copyFileSync(path.join(project,'src/kecleon/pkmsvv-kecleon-ui.js'),path.join(base,'js/ui/pkmsvv-kecleon-ui.js'));
+fs.copyFileSync(path.join(project,'src/kecleon/pkmsvv-kecleon-scene.js'),path.join(base,'js/ui/pkmsvv-kecleon-scene.js'));
+// Reuse authentic pixel-art icons from the 2026-10-20 shop contribution.
+const iconDefs=fs.readFileSync(path.join(project,'src/kecleon/pkmsvv-kecleon-icon-defs.txt'),'utf8');
+patch('js/ui/icons.js','  const UI = {','  const UI = {\n'+iconDefs);
 // VI never displays Spanish names; use Pokémon's international Ability names.
 patch('js/systems/mons.js',
  "const LANG_I = { es: 0, en: 1,",
@@ -34,7 +38,7 @@ patch('dev.html','<script defer src="js/data/items.js"></script>',
 patch('dev.html','<script defer src="js/systems/stats.js"></script>',
  '<script defer src="js/systems/stats.js"></script>\n<script defer src="js/systems/mons.js"></script>\n<script defer src="js/data/ability-fx.js"></script>');
 patch('dev.html','<script defer src="js/ui/menu.js"></script>',
- '<script defer src="js/ui/menu.js"></script>\n<script defer src="js/ui/pkmsvv-kecleon-ui.js"></script>');
+ '<script defer src="js/ui/menu.js"></script>\n<script defer src="js/ui/pkmsvv-kecleon-scene.js"></script>\n<script defer src="js/ui/pkmsvv-kecleon-ui.js"></script>');
 // Bilingual UI and separate Bag. Do not import original online/co-op shop UI.
 patch('dev.html',
  '<button class="menu-item" data-go="gacha">Gacha<small>9 regiones · Pokémon y shinies</small></button>',
@@ -45,6 +49,12 @@ const section=String.raw`
 <!-- ====== Votri Valley: Kecleon shop + Bag (offline, bilingual) ====== -->
 <section id="scr-kecleon" class="scr dim hidden" translate="no">
  <div class="box wide pkmk-box">
+  <div class="pkmk-stall" id="pkmk-stall" hidden>
+   <canvas class="pkmk-scene" id="pkmk-scene"></canvas>
+   <div class="pkmk-sign" id="pkmk-sign"></div>
+   <div class="pkmk-bubble hide" id="pkmk-bubble"></div>
+  </div>
+  <div class="pkmk-inner">
   <div class="row between"><h2 id="pkmk-heading">Cửa hàng Kecleon</h2>
    <button class="btn small ghost" id="pkmk-back">Trở về</button></div>
   <div class="row wrap pkmk-tabs">
@@ -53,6 +63,7 @@ const section=String.raw`
    <b id="pkmk-balance"></b>
   </div>
   <div id="pkmk-owner"></div><div id="pkmk-list"></div>
+  </div>
  </div>
 </section>
 `;
@@ -235,7 +246,9 @@ patch('js/systems/combat.js',
  "      pl.hurt(e.dmg, e.atkType, false, e.cat);",
  "      pl.hurt(e.dmg, e.atkType, false, e.cat);\n      if(pl.abil&&pl.abil.contact&&!pl.dead&&!e.dead)pl.abil.contact(pl,e);");
 // Shiny/partner UI works independently. Keep approved v1.1 What's New file unchanged.
-fs.appendFileSync(path.join(base,'css/style.css'),String.raw`
+fs.appendFileSync(path.join(base,'css/style.css'),
+  fs.readFileSync(path.join(project,'src/kecleon/pkmsvv-kecleon-theme.css'),'utf8')+'\n');
+fs.appendFileSync(path.join(base,'css/style.css'),String.raw
 .pkmk-box{max-width:min(850px,96vw);max-height:91vh;overflow-y:auto;padding:18px}
 .pkmk-tabs{gap:9px;align-items:center;margin:12px 0}
 #pkmk-balance{margin-left:auto;color:#ffdb69}
