@@ -61,6 +61,18 @@ G.PKMSVVBalance = (() => {
     }
     return Math.max(profiles[m.kind].floor, m.cd * Math.max(0.01, Number(pl.cdMul) || 1));
   }
+  // Original Bond rewards collapse multiple moves into one active slot.
+  // Votri Valley already auto-casts every learned move, so grant a capped
+  // team resonance instead, while retaining bonus slots and a little haste.
+  function rewardRift(pl) {
+    if (!pl) return {stacks:0,slots:0};
+    pl.maxMoves = Math.min(8, pl.maxMoves + 1);
+    pl.cdMul *= 0.96;
+    const before = Math.min(3, Math.max(0, pl.pkmsvvResonance || 0));
+    pl.pkmsvvResonance = Math.min(3, before + 1);
+    if (before < 3) pl.atkMul *= 1.08;
+    return {stacks:pl.pkmsvvResonance, slots:pl.maxMoves, strengthened:before < 3};
+  }
   function refreshBuff(pl, m) {
     if (m.kind !== 'buff' || m.lvl < m.def.maxLvl) return false;
     const b = pl.buffs && pl.buffs[m.stat];
@@ -79,5 +91,5 @@ G.PKMSVVBalance = (() => {
     uptime:m.kind==='buff'?Math.round(m.dur/m.cd*100):null,
     maxLvl:m.maxLvl
   }));
-  return {profiles,effectiveCooldown,refreshBuff,audit};
+  return {profiles,effectiveCooldown,refreshBuff,rewardRift,audit};
 })();
