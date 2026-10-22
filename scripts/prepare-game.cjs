@@ -45,6 +45,20 @@ patch('js/entities/player.js', 'this.maxHp = mon.hp + (perks.hp || 0);', 'this.m
 patch('js/systems/spawner.js', 'const CAP = 64, ELITE_FROM = 0.85;', 'const CAP = ' + cap + ', ELITE_FROM = 0.85;');
 patch('js/systems/spawner.js', 'const DENSITY = 0.24, DMG_K = 2.4, XP_K = 5.6;', 'const DENSITY = ' + density + ', DMG_K = ' + enemyDmg + ', XP_K = ' + xp + ';');
 patch('js/systems/spawner.js', 'const SHINY_RATE = 1 / 4096;', 'const SHINY_RATE = 1 / ' + wild + ';');
+
+// PKMSVV v1.2: opening 180 seconds spawn 2/3 as many ordinary enemies.
+// Do not change enemy strength, boss timing, level progression or later waves.
+patch('js/systems/spawner.js',
+  '  function rate(t) {\n    return (1.6 + t * 0.028 + Math.pow(t / 60, 1.6) * 0.5) * DENSITY;\n  }',
+  '  const openingSpawnFactor = t => t < 180 ? 2 / 3 : 1;\n' +
+  '  function rate(t) {\n    return (1.6 + t * 0.028 + Math.pow(t / 60, 1.6) * 0.5) * DENSITY * openingSpawnFactor(t);\n  }');
+patch('js/systems/spawner.js',
+  'Math.round((14 + Math.floor(t / 22)) * G.Coop.scaleRate(players.length) * 0.4)',
+  'Math.round((14 + Math.floor(t / 22)) * G.Coop.scaleRate(players.length) * 0.4 * openingSpawnFactor(t))');
+patch('js/systems/spawner.js',
+  'for (let i = 0; i < n && G.EnemyMgr.count < CAP + 10; i++) spawnOne(target, t, base + G.U.rand(-0.6, 0.6));',
+  'for (let i = 0, amount = Math.round(n * openingSpawnFactor(t)); i < amount && G.EnemyMgr.count < CAP + 10; i++) spawnOne(target, t, base + G.U.rand(-0.6, 0.6));');
+
 patch('js/systems/gacha.js', 'const SHINY_RATE = 1 / 100;', 'const SHINY_RATE = 1 / ' + gacha + ';');
 patch('js/core/db.js', 'const START_COINS = 500;', 'const START_COINS = ' + coins + ';');
 // All learned attacks now tick together, each keeping its independent cooldown.
