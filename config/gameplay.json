@@ -9,7 +9,7 @@
     "maxAlive": 60,
     "density": 0.24,
     "damageMultiplier": 1.5,
-    "xpMultiplier": 5.6
+    "xpMultiplier": 6.4
   },
   "progression": {
     "startingCoins": 750
