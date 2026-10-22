@@ -192,12 +192,12 @@ test('compiled game honors flying water immunity and applies account-wide move p
  if(!fs.existsSync(path.join(base,'index.html')))return;
  const world=fs.readFileSync(path.join(base,'js/world/world.js'),'utf8');
  const player=fs.readFileSync(path.join(base,'js/entities/player.js'),'utf8');
- assert.match(world,/water: \\{ slow: 0\\.6, immune: \\['water', 'flying'\\] \\}/);
- assert.match(world,/swamp: \\{ slow: 0\\.45, immune: \\['water', 'flying'\\] \\}/);
- assert.match(world,/lava:.*immune: \\['fire'\\]/);
- assert.match(player,/this\\.areaMul = perks\\.areaMul/);
- assert.match(player,/this\\.durationMul = perks\\.durationMul/);
- assert.match(player,/G\\.GlobalPower\\.applyMove\\(G\\.Moves\\.instance/);
+ assert.match(world,/water: \{ slow: 0\.6, immune: \['water', 'flying'\] \}/);
+ assert.match(world,/swamp: \{ slow: 0\.45, immune: \['water', 'flying'\] \}/);
+ assert.match(world,/lava:.*immune: \['fire'\]/);
+ assert.match(player,/this\.areaMul = perks\.areaMul/);
+ assert.match(player,/this\.durationMul = perks\.durationMul/);
+ assert.match(player,/G\.GlobalPower\.applyMove\(G\.Moves\.instance/);
  const js=fs.readFileSync(path.join(base,'js/app.min.js'),'utf8');
  assert.match(js,/pkmGlobalScaled/);
 });
