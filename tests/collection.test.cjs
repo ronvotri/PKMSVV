@@ -90,6 +90,6 @@ test('all gen is default with independent pity and nine legacy banners kept',()=
  assert.match(ui,/let gen = 0/);assert.match(ui,/gen=0; \/\/ default every time/);
  assert.match(game,/G.PKMSVVCollect.onRunEnd/);
  assert.match(goals,/G.PKMSVVCollectUI.render/);
- assert.match(fs.readFileSync(path.join(base,'js/ui/settings-ui.js'),'utf8'),/G.PKMSVVSaveUI.mount/);
+ assert.doesNotMatch(fs.readFileSync(path.join(base,'js/ui/settings-ui.js'),'utf8'),/G\.PKMSVVSaveUI\.mount/);
  assert.match(fs.readFileSync(path.join(base,'js/app.min.js'),'utf8'),/pkmStamps|PKMSVV_SAVE/);
 });
