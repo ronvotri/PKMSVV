@@ -252,6 +252,9 @@ patch('js/ui/settings-ui.js',
 patch('js/data/changelog.js', 'G.CHANGELOG = [', 'G.CHANGELOG = [');
 fs.copyFileSync(path.join(project, 'src', 'pkmsvv-changelog-v11.js'),
   path.join(game, 'js', 'data', 'changelog.js'));
+// Prepend the additive v1.2 entry. The full owner-approved v1.1 source is intact.
+fs.appendFileSync(path.join(game,'js','data','changelog.js'),
+  '\n' + fs.readFileSync(path.join(project,'src','pkmsvv-changelog-v12.js'),'utf8'),'utf8');
 // Upstream news renderer assumes its first language is Spanish. PKMSVV release
 // entries are explicitly [Vietnamese, English]; choose the correct text instead
 // of feeding approved release notes through automatic fragment translation.
@@ -259,6 +262,12 @@ patch('js/ui/news-ui.js',
   "    const text = pair => G.I18n.lang === 'es' ? pair[0]\n" +
   "      : G.I18n.lang === 'en' || !G.I18n.has(pair[0]) ? pair[1] : G.T(pair[0]);",
   "    const text = pair => G.I18n.lang === 'vi' ? pair[0] : pair[1];");
+// v1.2 title credit and changelog button are bilingual, not i18n fragments.
+patch('js/ui/news-ui.js', "    b.innerHTML = G.Icons.html('book', 18) + ' <span>Novedades</span><i class=\"dot\"></i>';",
+  "    b.innerHTML = G.Icons.html('book', 18) + ' <span translate=\"no\">' + (G.I18n.lang === 'vi' ? 'Có gì mới: 1.2' : \"What's New: 1.2\") + '</span><i class=\"dot\"></i>';\n    const splash = document.querySelector('#scr-menu .splash');\n    if (splash) splash.textContent = G.I18n.lang === 'vi' ? 'Việt hóa và Mod điều chỉnh bởi Votri Valley' : 'Localized and modded by Votri Valley';");
+// Same-date releases still show the unread indicator after an earlier version.
+patch('js/ui/news-ui.js', "  const latest = () => (G.CHANGELOG[0] || {}).d || '';",
+  "  const latest = () => { const v = G.CHANGELOG[0] || {}; return (v.d || '') + '|' + ((v.title || [])[1] || ''); };");
 patch('js/ui/news-ui.js',
   "    const PARTS = [['new', ['Nuevo', 'New']], ['chg', ['Cambios', 'Changes']], ['fix', ['Arreglos', 'Fixes']]];",
   "    const PARTS = [['new', ['TÍNH NĂNG MỚI', 'NEW FEATURES']], ['chg', ['THAY ĐỔI GAMEPLAY', 'GAMEPLAY CHANGES']], ['fix', ['CẢI TIẾN & SỬA LỖI', 'IMPROVEMENTS & FIXES']]];");
@@ -321,9 +330,8 @@ const pkmsvvCredit = 'Việt hóa và Mod điều chỉnh bởi Votri Valley';
 patch('dev.html',
   '      <div class="t1">PokéSurvivor<span class="splash">Folagor, Sekiam, PokeAlex: ¿un hueco?</span></div>\n' +
   '      <div class="t2">Mundo Misterioso</div>',
-  '      <div class="t1">PokéSurvivor<span class="splash">Folagor, Sekiam, PokeAlex: ¿un hueco?</span></div>\n' +
-  '      <div class="t2">Mundo Misterioso</div>\n' +
-  '      <div class="pkmsvv-attribution" translate="no" lang="vi">' + pkmsvvCredit + '</div>');
+  '      <div class="t1">PokéSurvivor<span class="splash" translate="no">' + pkmsvvCredit + '</span></div>\n' +
+  '      <div class="t2">Mundo Misterioso</div>');
 patch('dev.html',
   '    <p class="boot-ld">Cargando…</p>',
   '    <p class="pkmsvv-boot-credit" translate="no" lang="vi">' + pkmsvvCredit + '</p>\n' +
@@ -478,6 +486,7 @@ if (!html.includes('</head>')) throw new Error('index.html không có thẻ head
 html = html.replace(/<title>[^<]*<\/title>/, '<title>Pokémon Survivor — Votri Valley</title>');
 html = html.replace('</head>', '<style>\n' +
   'body,button,input,select{font-family:"Segoe UI",Tahoma,Arial,sans-serif!important;}\n' +
+  '.menu-left .logo .t1 .splash{max-width:13em;overflow-wrap:normal;white-space:normal;}\n' +
   '.pkmsvv-attribution{font-family:"Segoe UI",Tahoma,sans-serif;color:#ffe3a0;font-size:clamp(11px,1.25vw,14px);line-height:1.45;margin:8px auto 0;text-align:center;max-width:min(420px,90vw);text-shadow:0 1px 3px #111c37;}\n' +
   '.pkmsvv-boot-credit{font-family:"Segoe UI",Tahoma,sans-serif;color:#ffe3a0;font-size:14px;margin:12px auto 0;text-align:center;}\n' +
   '#scr-menu [data-go="friends"], #scr-menu [data-go="rank"], #btn-google, #btn-logout, #set-tabs [data-t="acc"], #btn-support { display: none !important; }\n' +
