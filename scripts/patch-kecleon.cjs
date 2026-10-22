@@ -112,11 +112,10 @@ patch('js/core/db.js',
     s.tickets.t1 = n(s.tickets.t1);`);
 patch('js/core/db.js',
  "    r.pupgDone = r.pupgDone || older.pupgDone;",
- String.raw`    // Local-only Votri Valley: choose newer inventory snapshot (never sum purchases).
-    for(const key of ['bag','tms']){
-      r[key]=r[key]||{};
-      for(const k of Object.keys(older[key]||{}))if(!(k in r[key]))r[key][k]=older[key][k];
-    }
+ String.raw`    // Inventory is consumable: newer snapshot wins even if empty.
+    // Merging old keys would resurrect spent Mint, Capsule and TMs.
+    for(const key of ['bag','tms'])
+      if(!isObj(r[key]))r[key]=isObj(older[key])?{...older[key]}:{};
     r.ptm=r.ptm||{};
     for(const d of Object.keys(older.ptm||{}))r.ptm[d]=
       [...new Set((r.ptm[d]||[]).concat(older.ptm[d]||[]))];
