@@ -69,5 +69,5 @@ test('release text reaches offline compiled game assets with no unapproved extra
  const bundled=src('vendor/pokesurvivor/js/app.min.js');
  assert.match(bundled,/15 Team Powerups/);
  assert.match(bundled,/15 Nâng cấp Toàn Đội/);
- assert.match(bundled,/G\.I18n\.lang==="vi"|G\.I18n\.lang==='vi'/);
+ assert.match(bundled,/Pokémon Survivor – Votri Valley v1\.1/);
 });
