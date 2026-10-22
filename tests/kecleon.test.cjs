@@ -110,7 +110,7 @@ test('Kecleon Pokédex pane escapes apostrophes and refreshes after item changes
 
 test('Older save merge cannot resurrect consumed Mint, Capsule or TMs',()=>{
  if(!built())return;
- const G={DEX_BY:{25:{}},Shop:{ITEMS:{mint:{},cap:{},caph:{}}},Moves:{BY_ID:{surf:{id:'surf'}}},NATURE_BY:{hardy:{}}};
+ const G={DEX_BY:{25:{}},Shop:{ITEMS:{mint:{},cap:{},caph:{}}},Moves:{BY_ID:{surf:{id:'surf'}}},NATURE_BY:{hardy:{}},GlobalPower:{merge:(newer,older)=>newer||older||{}}};
  const localStorage={getItem:()=>null,setItem(){},removeItem(){},length:0};
  vm.runInNewContext(read('vendor/pokesurvivor/js/core/db.js'),{G,localStorage,Math,Date,JSON,Number,String,Object,Set,Map,Intl}, {timeout:5000});
  const snap=(updated,bag,tms)=>({
