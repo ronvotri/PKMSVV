@@ -7,6 +7,7 @@ const baseG={};vm.runInNewContext(src('src/pkmsvv-changelog-v11.js'),{G:baseG});
 const entry=baseG.CHANGELOG[0];
 const releaseG={};vm.runInNewContext(src('src/pkmsvv-changelog-v11.js'),{G:releaseG});
 vm.runInNewContext(src('src/pkmsvv-changelog-v12.js'),{G:releaseG});
+vm.runInNewContext(src('src/pkmsvv-changelog-v121.js'),{G:releaseG});
 
 function render(locale){
  const controls={};
@@ -78,18 +79,23 @@ test('release text reaches offline compiled game assets with no unapproved extra
 
 test("v1.2 is first in localized What's New; v1.1 is still untouched",()=>{
  assert.equal(baseG.CHANGELOG.length,1);
- assert.equal(releaseG.CHANGELOG.length,2);
- assert.equal(releaseG.CHANGELOG[0].title[0],'Pokémon Survivor – Votri Valley v1.2');
- assert.equal(releaseG.CHANGELOG[1].title[0],entry.title[0]);
- assert.equal(releaseG.CHANGELOG[0].new.length,5);
+ assert.equal(releaseG.CHANGELOG.length,3);
+ assert.equal(releaseG.CHANGELOG[0].title[0],'Pokémon Survivor – Votri Valley v1.2.1');
+ assert.equal(releaseG.CHANGELOG[1].title[0],'Pokémon Survivor – Votri Valley v1.2');
+ assert.equal(releaseG.CHANGELOG[2].title[0],entry.title[0]);
+ assert.equal(releaseG.CHANGELOG[1].new.length,5);
+ assert.equal(releaseG.CHANGELOG[1].chg.length,3);
+ assert.equal(releaseG.CHANGELOG[1].fix.length,3);
  assert.equal(releaseG.CHANGELOG[0].chg.length,3);
- assert.equal(releaseG.CHANGELOG[0].fix.length,3);
- assert.doesNotMatch(JSON.stringify(releaseG.CHANGELOG[0]),/Tinh gọn màn hình chính|Thay câu chữ vàng|Simplified the main menu|Replace the decorative title splash/);
- assert.ok(releaseG.CHANGELOG[0].chg[0][0].includes('2/3'));
- assert.ok(releaseG.CHANGELOG[0].chg[0][1].includes('two-thirds'));
+ assert.equal(releaseG.CHANGELOG[0].fix.length,1);
+ assert.doesNotMatch(JSON.stringify(releaseG.CHANGELOG[0])+JSON.stringify(releaseG.CHANGELOG[1]),/Tinh gọn màn hình chính|Thay câu chữ vàng|Simplified the main menu|Replace the decorative title splash/);
+ assert.ok(releaseG.CHANGELOG[1].chg[0][0].includes('2/3'));
+ assert.ok(releaseG.CHANGELOG[1].chg[0][1].includes('two-thirds'));
  const compiled=path.join(base,'vendor/pokesurvivor/js/ui/news-ui.js');
  if(!fs.existsSync(compiled))return;
  const vi=render('vi'),en=render('en');
+ assert.ok(vi.includes('Pokémon Survivor – Votri Valley v1.2.1'));
+ assert.ok(en.includes('Legendary victories'));
  assert.ok(vi.includes('Cửa hàng Kecleon'));
  assert.ok(vi.includes('Khởi đầu dễ thở hơn'));
  assert.ok(vi.indexOf('v1.2') < vi.indexOf('v1.1'));
