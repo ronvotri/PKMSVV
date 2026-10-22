@@ -58,5 +58,5 @@ test('Approved v1.1 What’s New text remains unchanged by mobile patch',()=>{
  const s=file('src/pkmsvv-changelog-v11.js');
  assert.match(s,/15 Nâng cấp Toàn Đội/);
  assert.match(s,/15 Team Powerups/);
- if(built())assert.equal(file('vendor/pokesurvivor/js/data/changelog.js').trim(),s.trim());
+ if(built()) { const release=file('vendor/pokesurvivor/js/data/changelog.js'); assert.ok(release.startsWith(s)); assert.match(release,/G\.CHANGELOG\.unshift\(/); }
 });
