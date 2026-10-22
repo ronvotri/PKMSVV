@@ -30,9 +30,7 @@ G.CHANGELOG.unshift({
     ['Cải thiện thông tin Nature, Ability và TM trong Pokédex; nội dung cập nhật khi chọn Pokémon khác.',
      'Pokédex Nature, Ability and TM information refreshes when a different Pokémon is selected.'],
     ['Ngăn vật phẩm đã dùng xuất hiện trở lại khi hợp nhất với bản Save cũ; cải thiện hiển thị tên chiêu có dấu nháy.',
-     'Prevent consumed items from returning when merging old saves and fix apostrophes in move names.'],
-    ['Thay câu chữ vàng trang trí trên màn hình chính bằng dòng ghi công Việt hóa và mod của Votri Valley.',
-     'Replace the decorative title splash with Votri Valley localization and mod credits.']
+     'Prevent consumed items from returning when merging old saves and fix apostrophes in move names.']
   ],
   credit: [
     'Votri Valley — Bản chỉnh sửa và Việt hóa phi thương mại từ Pokémon Survivor của JPTER78.',
