@@ -36,7 +36,23 @@ G.KecleonUI=(()=>{
    cap:L('Chuyển sang Đặc tính thường còn lại.','Switch to another standard ability.'),
    caph:L('Có thể chọn cả Đặc tính ẩn.','Allows selection of the hidden ability.')
  })[key]||'';
- let selected=null,tab='shop';
+ let selected=null,tab='shop',sceneActive=false;
+ const Scene=()=>G.PKMSVVKecleonScene;
+ function syncScene(){
+   const stall=$('pkmk-stall'),show=tab==='shop';
+   if(!stall)return;
+   stall.hidden=!show;
+   if(!show){if(sceneActive&&Scene())Scene().stop();sceneActive=false;return;}
+   if(sceneActive||!Scene())return;
+   sceneActive=true;
+   const calm=!!(G.Settings&&G.Settings.get('calm'));
+   Scene().start(!calm);
+   stall.onclick=()=>{if(Scene().intro)Scene().skip();};
+ }
+ function close(){
+   if(sceneActive&&Scene())Scene().stop();
+   sceneActive=false;G.MenuUI.open();
+ }
  function valid(){
   if(!G.DB.save)return false;
   if(!owned().length)return false;
@@ -47,12 +63,23 @@ G.KecleonUI=(()=>{
  function open(which='shop'){
   tab=which==='bag'?'bag':'shop';
   if(!valid()){toast('Cần mở khóa Pokémon trước.','Unlock a Pokémon first.');return;}
+  if(sceneActive&&Scene())Scene().stop();
+  sceneActive=false;
   G.UI.show('scr-kecleon',true);
   render();
+ }
+ function itemIcon(key,size=34){
+  if(!G.Icons||!G.Icons.html)return '🎒';
+  return G.Icons.html(key,size);
  }
  function row(icon,name,desc,tail=''){
   return '<div class="pkmk-row"><div class="pkmk-icon">'+icon+'</div><div class="pkmk-row-copy"><b>'+name+
    '</b><small>'+desc+'</small></div><div class="pkmk-row-tail">'+tail+'</div></div>';
+ }
+ function card(icon,name,desc,tail='',tags=''){
+  return '<div class="pkmk-card"><div class="pkmk-product-art">'+icon+'</div>'+
+   '<div class="pkmk-product-copy"><b>'+name+'</b>'+tags+'<small>'+desc+'</small></div>'+
+   '<div class="pkmk-product-tail">'+tail+'</div></div>';
  }
  function buttons(){
   const p=G.DEX_BY[selected],n=G.Mons.natureOf(selected),a=G.Mons.abilityOf(selected);
@@ -70,16 +97,25 @@ G.KecleonUI=(()=>{
   $('pkmk-tab-shop').classList.toggle('gold',tab==='shop');
   $('pkmk-tab-bag').classList.toggle('gold',tab==='bag');
   $('pkmk-balance').textContent=money(G.DB.save.coins||0)+' PokéCoins';
-  $('pkmk-owner').innerHTML=buttons();
+  $('pkmk-owner').innerHTML=tab==='bag'?buttons():'';
   $('pkmk-list').innerHTML=tab==='shop'?shopHtml():bagHtml();
+  $('pkmk-sign').textContent=L('Cửa hàng Kecleon','Kecleon Shop');
+  syncScene();
   $('pkmk-tab-shop').onclick=()=>{tab='shop';render();};
   $('pkmk-tab-bag').onclick=()=>{tab='bag';render();};
-  $('pkmk-back').onclick=()=>G.MenuUI.open();
+  $('pkmk-back').onclick=close;
   $('pkmk-mon').onchange=e=>{selected=Number(e.target.value);render();};
+  const backToShop=$('pkmk-list').querySelector('[data-pkmk-goshop]');
+  if(backToShop)backToShop.onclick=()=>{tab='shop';render();};
   $('pkmk-list').querySelectorAll('[data-pkmk-buy]').forEach(btn=>btn.onclick=()=>{
     const what=btn.dataset.pkmkBuy, result=G.Shop.buy(what);
     if(!result.ok){toast('Không đủ xu hoặc vật phẩm đã hết hàng.','Insufficient coins or item no longer for sale.');return;}
-    G.UI.refreshCoins();G.Audio.sfx('buy');render();
+    G.UI.refreshCoins();G.Audio.sfx('buy');
+    if(sceneActive&&Scene()){
+      const icon=what.startsWith('tm:')?'tm':(what==='cap'?'capsule':what==='caph'?'capsuleh':'mint');
+      Scene().cheer(icon);
+    }
+    render();
     toast('Đã mua! Vật phẩm được chuyển vào Túi đồ.','Purchased! Your item is in the Bag.');
   });
   $('pkmk-list').querySelectorAll('[data-pkmk-use]').forEach(btn=>btn.onclick=()=>{
@@ -107,21 +143,33 @@ G.KecleonUI=(()=>{
   return '<button class="btn small gold" data-pkmk-buy="'+esc(key)+'" '+(G.DB.save.coins<cost?'disabled':'')+'>'+price(cost)+'</button>';
  }
  function shopHtml(){
-  let s='<p class="sub">'+L('8 TM luân phiên mỗi ngày. Bạc hà và Viên nang luôn bán. Vật phẩm mua được lưu trong Túi đồ.',
-  '8 TMs rotate daily. Mints and Capsules are always available. Purchases go to your Bag.')+'</p>';
-  s+='<h3>'+L('Vật phẩm','Items')+'</h3>';
+  let s='<p class="pkmk-lead">'+L(
+    'Chào mừng! Bạc hà, Viên nang và TM được chuyển vào Túi đồ sau khi mua. Mỗi ngày có 8 TM mới!',
+    'Welcome! Mints, Capsules and TMs go into your Bag after purchase. Eight TMs rotate daily!')+'</p>';
+  s+='<h3 class="pkmk-group-title">'+L('Vật phẩm','Items')+'</h3><div class="pkmk-cards">';
   for(const key of G.Shop.ORDER){
-    const item=G.Shop.ITEMS[key];s+=row('🎒',esc(label(key)),esc(text(key)),
-      buyBtn(key,item.price)+'<small>×'+G.Shop.count(key)+'</small>');
+    const it=G.Shop.ITEMS[key];
+    s+=card(itemIcon(key==='cap'?'capsule':key==='caph'?'capsuleh':'mint'),
+      esc(label(key)),esc(text(key)),
+      buyBtn(key,it.price)+'<span class="pkmk-stock">×'+G.Shop.count(key)+'</span>');
   }
-  s+='<h3>'+L('TM hôm nay','Today’s TMs')+'</h3>';
+  s+='</div><h3 class="pkmk-group-title">'+L('TM hôm nay','Today’s TMs')+'</h3>';
+  s+='<p class="sub">'+L('Mỗi ngày có 8 TM luân phiên. Chiêu đã học sẽ được giữ vĩnh viễn.',
+     'Eight TMs rotate daily. Learned moves are permanently unlocked.')+'</p><div class="pkmk-cards">';
   for(const id of G.Shop.dailyTms()){
-    if(!G.Moves.BY_ID[id])continue;
+    const m=G.Moves.BY_ID[id];if(!m)continue;
     const ok=G.Mons.canLearn(selected,id),cost=G.Shop.tmPrice(id);
-    s+=row('📀',esc(title(id)),'TM · '+(ok?L('Pokémon đã chọn có thể học','Selected Pokémon can learn'):L('Không tương thích hoặc đã học','Not compatible or already learned')),
-      buyBtn('tm:'+id,cost)+'<small>×'+G.Shop.tmCount(id)+'</small>');
+    const typeColor=G.U&&G.U.TYPE_COLOR?G.U.TYPE_COLOR[m.type]:'#88a8da';
+    const typeName=G.U&&G.U.TYPE_NAME?G.U.TYPE_NAME[m.type]:m.type;
+    const cat=m.cat==='physical'?L('Vật lý','Physical'):m.cat==='special'?L('Đặc biệt','Special'):'';
+    const tags='<div><span class="pkmk-tag" style="background:'+esc(typeColor)+'">'+esc(typeName||m.type)+'</span>'+
+       (cat?'<span class="pkmk-tag pkmk-tag-cat">'+esc(cat)+'</span>':'')+'</div>';
+    const summary=ok?L('Pokémon đang chọn có thể học chiêu này.','Selected Pokémon can learn this move.'):
+      L('Dạy chiêu cho Pokémon tương thích từ Túi đồ.','Teach compatible Pokémon from your Bag.');
+    s+=card(itemIcon('move:'+id),esc(title(id)),esc(summary),
+      buyBtn('tm:'+id,cost)+'<span class="pkmk-stock">×'+G.Shop.tmCount(id)+'</span>',tags);
   }
-  return s;
+  return s+'</div>';
  }
  let picker='';
  function apply(kind){picker=picker===kind?'':kind;}
@@ -129,26 +177,41 @@ G.KecleonUI=(()=>{
   return '<button class="btn small" data-pkmk-use="'+kind+'" '+(!enabled?'disabled':'')+'>'+L('Sử dụng','Use')+'</button>';
  }
  function bagHtml(){
-  let s='<p class="sub">'+L('Chọn Pokémon ở trên rồi sử dụng vật phẩm. TM đã học sẽ xuất hiện trong các lựa chọn chiêu từ trận sau.',
-  'Choose a Pokémon above, then use an item. Learned TMs join its future move choices.')+'</p>';
-  for(const k of G.Shop.ORDER) if(G.Shop.count(k)){
-    const choices=k==='mint'?G.NATURES.filter(n=>n.id!==G.Mons.natureOf(selected).id):G.Mons.abilityChoices(selected,k==='caph');
-    s+=row('🎒',esc(label(k)),L('Trong túi: ','In bag: ')+G.Shop.count(k),useBtn(k,choices.length>0));
+  const total=G.Shop.ORDER.some(k=>G.Shop.count(k)) ||
+    Object.keys(G.DB.save.tms||{}).some(id=>G.Shop.tmCount(id)&&G.Moves.BY_ID[id]);
+  if(!total) return '<div class="pkmk-empty"><div class="pkmk-empty-art">'+itemIcon('bag',64)+'</div>'+
+    '<p>'+L('Túi đồ của bạn đang trống.','Your Bag is empty.')+'</p>'+
+    '<button type="button" class="btn gold" data-pkmk-goshop>'+itemIcon('shop',18)+' '+
+     L('Đi tới Cửa hàng Kecleon','Go to the Kecleon Shop')+'</button></div>';
+  let s='<p class="pkmk-lead">'+L(
+    'Chọn Pokémon ở trên để sử dụng vật phẩm. Các TM đã dạy sẽ có trong trận tiếp theo.',
+    'Choose a Pokémon above to use your items. TMs you teach will be available in later runs.')+'</p>';
+  s+='<div class="pkmk-cards">';
+  for(const k of G.Shop.ORDER)if(G.Shop.count(k)){
+    const choices=k==='mint'?G.NATURES.filter(n=>n.id!==G.Mons.natureOf(selected).id):
+       G.Mons.abilityChoices(selected,k==='caph');
+    s+=card(itemIcon(k==='mint'?'mint':k==='cap'?'capsule':'capsuleh'),
+      esc(label(k)),esc(text(k)),useBtn(k,choices.length>0)+
+      '<span class="pkmk-stock">×'+G.Shop.count(k)+'</span>');
     if(picker===k&&choices.length){
-      s+='<div class="pkmk-choices">';
+      s+='<div class="pkmk-choices pkmk-choice-full">';
       for(const n of choices){
-       const val=k==='mint'?n.id:n,name=k==='mint'?natName(n):abilName(G.Mons.slots(selected)[n]);
-       s+='<button class="btn small ghost" '+(k==='mint'?'data-pkmk-nature="'+val+'"':'data-pkmk-ability="'+val+'" data-pkmk-kind="'+k+'"')+'>'+esc(name)+
-         (k==='mint'?'<small>'+natureDesc(n)+'</small>':'')+'</button>';
+        const val=k==='mint'?n.id:n,name=k==='mint'?natName(n):abilName(G.Mons.slots(selected)[n]);
+        s+='<button class="btn small ghost" '+(k==='mint'?'data-pkmk-nature="'+esc(val)+'"':
+           'data-pkmk-ability="'+val+'" data-pkmk-kind="'+k+'"')+'>'+esc(name)+
+           (k==='mint'?'<small>'+natureDesc(n)+'</small>':'')+'</button>';
       }
       s+='</div>';
     }
   }
+  s+='</div>';
   const tms=Object.keys(G.DB.save.tms||{}).filter(id=>G.Shop.tmCount(id)&&G.Moves.BY_ID[id]);
-  if(!G.Shop.ORDER.some(k=>G.Shop.count(k))&&!tms.length)s+='<p class="sub center">'+L('Túi đồ đang trống.','Your Bag is empty.')+'</p>';
-  if(tms.length)s+='<h3>TM</h3>';
-  for(const id of tms) s+=row('📀',esc(title(id)),L('Trong túi: ','In bag: ')+G.Shop.tmCount(id),
-   '<button class="btn small gold" data-pkmk-tm="'+esc(id)+'" '+(!G.Mons.canLearn(selected,id)?'disabled':'')+'>'+L('Dạy chiêu','Teach')+'</button>');
+  if(tms.length)s+='<h3 class="pkmk-group-title">TM</h3><div class="pkmk-cards">';
+  for(const id of tms)s+=card(itemIcon('move:'+id),esc(title(id)),
+    L('Số lượng trong túi: ','In Bag: ')+G.Shop.tmCount(id),
+   '<button class="btn small gold" data-pkmk-tm="'+esc(id)+'" '+
+    (!G.Mons.canLearn(selected,id)?'disabled':'')+'>'+L('Dạy chiêu','Teach')+'</button>');
+  if(tms.length)s+='</div>';
   return s;
  }
  function attachDex(dex,host){
