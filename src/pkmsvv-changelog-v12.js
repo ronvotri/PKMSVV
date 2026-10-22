@@ -39,8 +39,8 @@ G.CHANGELOG.unshift({
       "A Gentler Beginning: Enemy spawns are reduced to two-thirds during the first 3 minutes, giving players more room to level up and develop their builds."
     ],
     [
-      "Thử thách vẫn được giữ nguyên: Từ phút 03:00, nhịp xuất hiện trở lại bình thường. Sức mạnh quái và thời điểm xuất hiện Boss không thay đổi.",
-      "The Challenge Remains: Normal spawn rates return at 03:00. Enemy strength and Boss timing remain unchanged."
+      "Cân bằng sinh tồn: Từ 03:00 đến 10:00, quái xuất hiện tăng dần thay vì tăng đột ngột. Giảm máu, sát thương và số quái cùng lúc; Boss đầu nhẹ hơn nhưng vẫn xuất hiện đúng lịch.",
+      "Survival Balance: From 03:00 to 10:00, enemy spawn rates rise gradually instead of spiking. Lower enemy HP, damage and on-screen crowding, with gentler early Boss fights on the original schedule."
     ],
     [
       "Tùy biến sâu hơn: Kết hợp Nature, Ability, TM và hệ thống Nâng cấp hiện có để tạo ra nhiều phong cách chiến đấu.",
