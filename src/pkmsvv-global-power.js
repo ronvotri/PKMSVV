@@ -11,6 +11,8 @@ G.GlobalPower = (() => {
     {id:'healing',  icon:'sprout', vi:'Hồi phục',          en:'Regeneration',         viUnit:'+0,5 HP/giây / cấp',enUnit:'+0.5 HP/sec / rank',max:7,base:100,grow:1.40},
     {id:'swift',    icon:'boot',   vi:'Nhanh nhẹn',        en:'Movement Speed',       viUnit:'+5% tốc chạy / cấp',enUnit:'+5% movement speed / rank',max:6,base:100,grow:1.36},
     {id:'reach',    icon:'magnet', vi:'Hút kinh nghiệm',   en:'Pickup Radius',       viUnit:'+15% bán kính nhặt / cấp',enUnit:'+15% pickup radius / rank',max:6,base:70,grow:1.34},
+    {id:'area',     icon:'star',   vi:'Vùng Kỹ Năng',      en:'Skill Area',          viUnit:'+10% phạm vi / cấp (tối đa +50%)',enUnit:'+10% skill area / rank (max +50%)',max:5,base:180,grow:1.48},
+    {id:'duration', icon:'clock',  vi:'Thời Lượng Kỹ Năng',en:'Skill Duration',      viUnit:'+10% thời gian hiệu lực / cấp (tối đa +50%)',enUnit:'+10% effect duration / rank (max +50%)',max:5,base:160,grow:1.48},
     {id:'learning', icon:'book',  vi:'Ham học hỏi',       en:'Experience',           viUnit:'+10% EXP / cấp',enUnit:'+10% XP / rank',max:8,base:90,grow:1.38},
     {id:'fortune',  icon:'coin',   vi:'Tích lũy',          en:'Gold Bonus',           viUnit:'+12% PokéCoins / cấp',enUnit:'+12% PokéCoins / rank',max:8,base:110,grow:1.46},
     {id:'crit',     icon:'star',   vi:'Đòn chí mạng',      en:'Critical Chance',      viUnit:'+4% tỷ lệ chí mạng / cấp',enUnit:'+4% critical chance / rank',max:6,base:140,grow:1.40},
@@ -113,6 +115,8 @@ G.GlobalPower = (() => {
       dmgReduce:Math.min(0.65,(per.dmgReduce||0)+0.04*L('guard')),
       regen:(per.regen||0)+0.5*L('healing'),
       magnetMul:(per.magnetMul||1)*(1+0.15*L('reach')),
+      areaMul:(per.areaMul||1)*(1+0.10*L('area')),
+      durationMul:(per.durationMul||1)*(1+0.10*L('duration')),
       xpMul:(per.xpMul||1)*(1+0.10*L('learning')),
       coinMul:(per.coinMul||1)*(1+0.12*L('fortune')),
       crit:Math.min(0.75,(per.crit||0)+0.04*L('crit')),
@@ -120,6 +124,25 @@ G.GlobalPower = (() => {
       revives:L('revive'),
       rerolls:(per.rerolls||0)+L('reroll')
     };
+  }
+  /** Scale a move ONCE on creation, preserving all later move level-ups.
+   *  Does not mutate G.Moves.BY_ID definitions and does not affect pickup range.
+   *  Duration controls field/buff life and projectile lifetime; area controls
+   *  hitboxes, beam widths, splash radius and orbit radius.
+   */
+  function applyMove(move,pl) {
+    if(!move || !pl || move.pkmGlobalScaled)return move;
+    const area=Number(pl.areaMul)||1;
+    const duration=Number(pl.durationMul)||1;
+    if(!Number.isFinite(area)||!Number.isFinite(duration)||area<=0||duration<=0)return move;
+    if(area!==1) for(const prop of ['radius','size','width','range']){
+      if(Number.isFinite(move[prop])&&move[prop]>0)move[prop]*=area;
+    }
+    if(duration!==1) for(const prop of ['dur','life']){
+      if(Number.isFinite(move[prop])&&move[prop]>0)move[prop]*=duration;
+    }
+    move.pkmGlobalScaled=true;
+    return move;
   }
   /** A paid permanent unlock provides one automatic revival per run.
    *  Does not trigger if Focus Sash already saved the fatal blow.
@@ -131,5 +154,5 @@ G.GlobalPower = (() => {
     pl.invuln=Math.max(pl.invuln,3);
     return true;
   }
-  return {LIST,BY,rank,clean,cost,originalCost,PRICE_MULTIPLIER,legacyLedger,cleanLedger,spent,refundable,purchase,refundAll,merge,combine,tryRevive};
+  return {LIST,BY,rank,clean,cost,originalCost,PRICE_MULTIPLIER,legacyLedger,cleanLedger,spent,refundable,purchase,refundAll,merge,combine,applyMove,tryRevive};
 })();
