@@ -1,4 +1,4 @@
-name: Publish verified Pokémon Survivor v1.2.0
+name: Publish verified Pokémon Survivor v1.2.1
 
 on:
   workflow_run:
@@ -15,7 +15,7 @@ permissions:
 
 # One release only; old commits and partially passing build sets cannot publish.
 concurrency:
-  group: pkmsvv-release-v1.2.0
+  group: pkmsvv-release-v1.2.1
   cancel-in-progress: false
 
 jobs:
@@ -26,12 +26,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Match current main and approved v1.2.0
+      - name: Match current main and approved v1.2.1
         id: version
         shell: bash
         run: |
           set -euo pipefail
-          test "$(node -p 'require("./package.json").version')" = "1.2.0"
+          test "$(node -p 'require("./package.json").version')" = "1.2.1"
           sha="$(git rev-parse HEAD)"
           if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.event.workflow_run.head_sha }}" != "$sha" ]]; then
             echo "Old build commit; latest main has moved. Not publishing."
@@ -64,8 +64,8 @@ jobs:
             fi
             echo "$target=$id" >> "$GITHUB_OUTPUT"
           done
-          if gh release view v1.2.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "v1.2.0 release already exists; do not overwrite assets."
+          if gh release view v1.2.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v1.2.1 release already exists; do not overwrite assets."
             echo "ready=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -117,9 +117,9 @@ jobs:
           unzip -t "${apks[0]}" | tail -1
           unzip -t "${zips[0]}" | tail -1
           file "${exes[0]}" | grep -E 'PE32|MS Windows'
-          cp "${apks[0]}" release/Pokemon-Survivor-v1.2.0-Android-universal-debug.apk
-          cp "${exes[0]}" release/Pokemon-Survivor-v1.2.0-Windows-PC-x64.exe
-          cp "${zips[0]}" release/Pokemon-Survivor-v1.2.0-Switch-Lite-Offline.zip
+          cp "${apks[0]}" release/Pokemon-Survivor-v1.2.1-Android-universal-debug.apk
+          cp "${exes[0]}" release/Pokemon-Survivor-v1.2.1-Windows-PC-x64.exe
+          cp "${zips[0]}" release/Pokemon-Survivor-v1.2.1-Switch-Lite-Offline.zip
           sha256sum release/* | tee release/SHA256SUMS.txt
 
       - name: Generate bilingual notes from the approved in-game changelog
@@ -131,7 +131,11 @@ jobs:
           const G={CHANGELOG:[]};
           vm.runInNewContext(fs.readFileSync('src/pkmsvv-changelog-v12.js','utf8'),{G});
           const e=G.CHANGELOG[0];
-          let text='# Pokémon Survivor – Votri Valley v1.2.0\n\n';
+          let text='# Pokémon Survivor – Votri Valley v1.2.1\n\n';
+          text+='### Bản sửa cân bằng / Combat balance hotfix\n\n';
+          text+='**VI:** Giảm thời gian hồi chiêu của 103 kỹ năng; buff mạnh và hữu dụng hơn; thẻ lên cấp đầu ưu tiên chiêu tấn công; Life Orb chỉ trừ máu tối đa mỗi 2 giây khi nhiều chiêu tự động đánh; đánh bại huyền thoại nhận Cộng hưởng (+8% sát thương tối đa ba lần, tăng ô kỹ năng và tốc độ ra chiêu). Giữ nguyên Save và nâng cấp vĩnh viễn.\n\n';
+          text+='**EN:** Rebalanced cooldowns for all 103 moves; stronger, more useful buffs; early level-ups prioritize damaging moves; Life Orb drains HP at most once every 2 seconds during multi-skill autocast; legendary victories grant Resonance (up to three +8% damage bonuses, extra skill capacity and some haste). Existing saves and permanent upgrades remain compatible.\n\n';
+
           for(const [idx,lang] of [[0,'Tiếng Việt'],[1,'English']]){
             text+='## '+lang+'\n\n'+e.subtitle[idx]+'\n\n';
             for(const [key,name] of [['new',idx===0?'TÍNH NĂNG MỚI':'NEW FEATURES'],['chg',idx===0?'THAY ĐỔI GAMEPLAY':'GAMEPLAY CHANGES'],['fix',idx===0?'CẢI TIẾN & SỬA LỖI':'IMPROVEMENTS & FIXES']]){
@@ -140,7 +144,7 @@ jobs:
             text+='*'+e.credit[idx]+'*\n\n';
           }
           text+='---\n\n**Platform testing notice:** Windows is packaged as a portable executable, Android as a debug APK, and Switch as an offline Brewser homebrew bundle. All three are tested by GitHub Actions; real-device compatibility and touch/gamepad behavior still require hardware testing. Export your save before reinstalling or updating. Noncommercial fan modification; not an official Pokémon release.\n';
-          fs.writeFileSync('RELEASE_NOTES_v1.2.0.md',text);
+          fs.writeFileSync('RELEASE_NOTES_v1.2.1.md',text);
           NODE
 
       - name: Publish verified three-platform release
@@ -150,9 +154,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create v1.2.0 release/* \
+          gh release create v1.2.1 release/* \
             --repo "$GITHUB_REPOSITORY" \
             --target "${{ steps.version.outputs.sha }}" \
-            --title "Pokémon Survivor – Votri Valley v1.2.0" \
-            --notes-file RELEASE_NOTES_v1.2.0.md
-          gh release view v1.2.0 --repo "$GITHUB_REPOSITORY" --json url,assets
+            --title "Pokémon Survivor – Votri Valley v1.2.1" \
+            --notes-file RELEASE_NOTES_v1.2.1.md
+          gh release view v1.2.1 --repo "$GITHUB_REPOSITORY" --json url,assets
