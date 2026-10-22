@@ -87,9 +87,9 @@ test("v1.2 is first in localized What's New; v1.1 is still untouched",()=>{
  if(!fs.existsSync(compiled))return;
  const vi=render('vi'),en=render('en');
  assert.ok(vi.includes('Cửa hàng Kecleon'));
- assert.ok(vi.includes('Ba phút đầu trận'));
+ assert.ok(vi.includes('Khởi đầu dễ thở hơn'));
  assert.ok(vi.indexOf('v1.2') < vi.indexOf('v1.1'));
  assert.ok(en.includes('Kecleon Shop'));
- assert.ok(en.includes('first three minutes'));
+ assert.ok(en.includes('A Gentler Beginning'));
  assert.ok(en.indexOf('v1.2') < en.indexOf('v1.1'));
 });
