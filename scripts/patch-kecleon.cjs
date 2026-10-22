@@ -109,7 +109,7 @@ patch('js/core/db.js',
         s[key][d]=[v[0],n(v[1])];
       }
     }
-    s.tickets.t1 = n(s.tickets.t1);\`);
+    s.tickets.t1 = n(s.tickets.t1);`);
 patch('js/core/db.js',
  "    r.pupgDone = r.pupgDone || older.pupgDone;",
  String.raw`    // Local-only Votri Valley: choose newer inventory snapshot (never sum purchases).
@@ -125,7 +125,7 @@ patch('js/core/db.js',
       for(const d of Object.keys(older[key]||{}))
         if(!r[key][d]||+older[key][d][1]>+r[key][d][1])r[key][d]=older[key][d];
     }
-    r.pupgDone = r.pupgDone || older.pupgDone;\`);
+    r.pupgDone = r.pupgDone || older.pupgDone;`);
 // Learned TM attacks are included in level-up offers and start-move choices.
 patch('js/data/moves.js',
  "  function poolFor(mon) {\n    const ids = new Set(POOL.normal);\n    for (const t of mon.types) for (const id of (POOL[t] || [])) ids.add(id);\n    return [...ids];\n  }",
@@ -135,7 +135,7 @@ patch('js/data/moves.js',
     if(!natural && G.Mons && G.Mons.taught)
       for(const id of G.Mons.taught(mon.dex))if(BY_ID[id])ids.add(id);
     return [...ids];
-  }\`);
+  }`);
 // Apply Nature to stats at run start, then set Ability on the player instance.
 patch('js/game.js',"const mon = G.DEX_BY[save.partner];",
  "const mon = G.Mons.monFor(save.partner);");
@@ -154,7 +154,7 @@ patch('js/entities/player.js',
     if(this.abil.cdMul)this.cdMul*=this.abil.cdMul;
     if(this.abil.start)this.abil.start(this);
   }
-  /** Segundos que hay que estar junto a un compañero caído para levantarlo. */\`);
+  /** Segundos que hay que estar junto a un compañero caído para levantarlo. */`);
 const playerFile=path.join(base,'js/entities/player.js');
 let player=fs.readFileSync(playerFile,'utf8');
 const start=player.indexOf('  get spd() {'),end=player.indexOf('  get reduction()',start);
@@ -176,7 +176,7 @@ patch('js/entities/player.js',
       if(ab.dodge&&Math.random()<ab.dodge(this,type,cls)){this.invuln=.3;return;}
       if(ab.inMul)amount*=ab.inMul(this,type,cls);
     }
-    if (!pure) amount *= G.Stats.taken(this.mon, cat);\`);
+    if (!pure) amount *= G.Stats.taken(this.mon, cat);`);
 patch('js/entities/player.js',
  "    if (this.hp <= 0) {\n      this.hp = 0; this.dead = true;",
  String.raw`    if(this.hp<=0&&ab&&ab.sturdy&&performance.now()-this.sturdyAt>90000){
@@ -184,7 +184,7 @@ patch('js/entities/player.js',
     }
     if(ab&&ab.hurt&&this.hp>0)ab.hurt(this,type,cls);
     if (this.hp <= 0) {
-      this.hp = 0; this.dead = true;\`);
+      this.hp = 0; this.dead = true;`);
 patch('js/entities/player.js',"  heal(amount) {\n",
  "  heal(amount) {\n    if(this.abil&&this.abil.healMul)amount*=this.abil.healMul;\n");
 patch('js/entities/player.js',
@@ -194,7 +194,7 @@ patch('js/entities/player.js',
     if(this.abil&&this.abil.summon&&(!G.Coop.active||G.Coop.isHost)&&
        (this.sumT=(this.sumT||0)-dt)<=0){
        this.sumT=180;if(!G.Weather.current)G.Weather.debugStart(this.abil.summon,60);
-    }\`);
+    }`);
 patch('js/entities/player.js',
  "    this.inLiquid = G.World.isLiquid(this.x, this.y);",
  "    this.inLiquid = !(this.abil&&this.abil.levitate)&&G.World.isLiquid(this.x, this.y);");
@@ -206,7 +206,7 @@ patch('js/systems/combat.js',
  String.raw`  const isCrit = pl => !ghost && pl.critChance > 0 && Math.random() < pl.critChance;
   const abilityK=(pl,m,e)=>pl.abil&&pl.abil.out&&m?pl.abil.out(pl,m,e):1;
   const critK=pl=>pl.abil&&pl.abil.critMul||CRIT_MUL;
-  const statusK=pl=>!pl.abil?1:pl.abil.sheer?0:pl.abil.serene?2:1;\`);
+  const statusK=pl=>!pl.abil?1:pl.abil.sheer?0:pl.abil.serene?2:1;`);
 patch('js/systems/combat.js',
  "const k = typeK(m.type, e) * G.Stats.taken(e.mon, m.cat);",
  "const k = typeK(m.type, e) * G.Stats.taken(e.mon, m.cat) * abilityK(pl,m,e);");
@@ -220,7 +220,7 @@ patch('js/systems/combat.js',
  "    if (m.burn) e.applyBurn(m.burn);\n    if (m.poison) e.applyPoison(m.poison);\n    if (m.slow) e.applySlow(m.slow);",
  String.raw`    if(m.burn&&statusK(pl))e.applyBurn(m.burn*statusK(pl));
     if(m.poison&&statusK(pl))e.applyPoison(m.poison*statusK(pl));
-    if(m.slow&&statusK(pl))e.applySlow(m.slow*statusK(pl));\`);
+    if(m.slow&&statusK(pl))e.applySlow(m.slow*statusK(pl));`);
 patch('js/systems/combat.js',
  "const k = (p.mtype ? typeK(p.mtype, e) : 1) * G.Stats.taken(e.mon, p.mcat) * (crit ? CRIT_MUL : 1);",
  "const k = (p.mtype ? typeK(p.mtype, e) : 1) * G.Stats.taken(e.mon, p.mcat) * (crit ? critK(pl) : 1) * abilityK(pl,p.src,e);");
@@ -231,7 +231,7 @@ patch('js/systems/combat.js',
  "        if (p.burn) e.applyBurn(p.burn);\n        if (p.poison) e.applyPoison(p.poison);\n        if (p.slow) e.applySlow(p.slow);",
  String.raw`        if(p.burn&&statusK(pl))e.applyBurn(p.burn*statusK(pl));
         if(p.poison&&statusK(pl))e.applyPoison(p.poison*statusK(pl));
-        if(p.slow&&statusK(pl))e.applySlow(p.slow*statusK(pl));\`);
+        if(p.slow&&statusK(pl))e.applySlow(p.slow*statusK(pl));`);
 patch('js/systems/combat.js',
  "      pl.hurt(e.dmg, e.atkType, false, e.cat);",
  "      pl.hurt(e.dmg, e.atkType, false, e.cat);\n      if(pl.abil&&pl.abil.contact&&!pl.dead&&!e.dead)pl.abil.contact(pl,e);");
