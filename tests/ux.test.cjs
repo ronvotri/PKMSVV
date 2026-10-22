@@ -21,8 +21,14 @@ test('move names (including evolution names) retain the official English naming'
  const vi=file('js/data/lang-vi.js');
  assert.match(vi,/"Ascuas":"Ember"/);
 });
-test('original changelog cleared for future PKMSVV owner notes',()=>{
- assert.match(file('js/data/changelog.js'),/G\.CHANGELOG\s*=\s*\[\s*\]/);
+test('owner-approved bilingual v1.1 changelog replaces the old empty placeholder',()=>{
+ const notes=file('js/data/changelog.js');
+ assert.match(notes,/G\.CHANGELOG\s*=\s*\[\{/);
+ assert.match(notes,/Pokémon Survivor – Votri Valley v1\.1/);
+ assert.match(notes,/15 Nâng cấp Toàn Đội/);
+ assert.match(notes,/15 Team Powerups/);
+ assert.match(notes,/Đồng hành/);
+ assert.match(notes,/Choose Partner/);
 });
 test('dash attacks are manual and the four dash moves never auto-fire',()=>{
  const s=file('js/systems/combat.js');
