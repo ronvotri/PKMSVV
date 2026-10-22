@@ -67,10 +67,8 @@ patch('js/ui/menu.js',
  '        <div style="color:\${G.Gacha.RARITY_COLOR[p.rarity]}">\${G.UI.stars(p.rarity, 24)} \${G.Gacha.RARITY_NAME[p.rarity]}</div>',
  '        <div style="color:\${G.Gacha.RARITY_COLOR[p.rarity]}">\${G.UI.stars(p.rarity, 24)} \${G.Gacha.RARITY_NAME[p.rarity]}</div>\n'+
  '        <p class="pkm-dex-stamp">\${s.pkmStamps && s.pkmStamps[dex] ? "🏅 Đã nhận Dấu Ấn" : own ? "🔒 Dấu Ấn: sống sót 3 phút với Pokémon này" : "🔒 Mở khóa Pokémon để nhận Dấu Ấn"}</p>');
-// Backup in visible GRAPHICS tab (account tab is hidden in offline build).
-patch('js/ui/settings-ui.js',
- '    wire(box);',
- "    if(tab === 'gfx') G.PKMSVVSaveUI.mount(box);\n    wire(box);");
+// Save and restore are reachable from the 💾 topbar shortcut only.
+// Do not insert a duplicate panel in Settings → Graphics.
 
 fs.appendFileSync(path.join(game,'css','style.css'),String.raw`
 /* PKMSVV stamp, collection challenge, and backup additions */
