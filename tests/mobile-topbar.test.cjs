@@ -52,7 +52,7 @@ test('Backup News settings fullscreen and sound handlers are still wired in comp
  assert.match(setting,/pkmsvv-native-immersive/);
  assert.match(news,/btn-news/);
  assert.match(backup,/btn-backup/);
- assert.match(file('vendor/pokesurvivor/js/app.min.js'),/pkmsvv-top-actions/);
+ assert.match(file('vendor/pokesurvivor/index.html'),/pkmsvv-top-actions/);
 });
 test('Approved v1.1 What’s New text remains unchanged by mobile patch',()=>{
  const s=file('src/pkmsvv-changelog-v11.js');
