@@ -43,3 +43,55 @@ test('buff indicators, nonstack and combat guard are integrated',()=>{
  assert.match(combat,/G\.PKMSVVBalance\.effectiveCooldown\(pl, m\)/);
  assert.match(combat,/G\.PKMSVVBalance\.refreshBuff\(pl, m\)/);
 });
+
+test('survival retune keeps opening attacks responsive and buff downtime short',()=>{
+ const G=load();
+ const sample={tackle:[0.8,1.2],ember:[0.9,1.35],'water-gun':[0.9,1.35],confusion:[0.9,1.4]};
+ for(const [id,[min,max]] of Object.entries(sample)){
+   const d=G.Moves.BY_ID[id];
+   assert.ok(d.cd>=min && d.cd<=max,id+': '+d.cd);
+   assert.ok(G.PKMSVVBalance.effectiveCooldown({cdMul:1},G.Moves.instance(id))<=max,id);
+ }
+ const buffs=Object.values(G.Moves.BY_ID).filter(m=>m.kind==='buff');
+ for(const d of buffs){
+   const m=G.Moves.instance(d.id);
+   const fresh=G.PKMSVVBalance.effectiveCooldown({cdMul:1},m);
+   assert.ok(fresh>=m.dur+0.8-1e-8,d.id);
+   assert.ok(fresh<=10,d.id+' takes too long to recover: '+fresh);
+   const haste=G.PKMSVVBalance.effectiveCooldown({cdMul:0.75},m);
+   assert.ok(haste>=m.dur+0.8-1e-8);
+   assert.ok(haste<=fresh);
+ }
+});
+test('legendary rifts add capped team resonance without requiring manual slot fusion',()=>{
+ const G=load(),p={atkMul:1,cdMul:1,maxMoves:6};
+ for(let i=0;i<5;i++)G.PKMSVVBalance.rewardRift(p);
+ assert.equal(p.maxMoves,8);
+ assert.equal(p.pkmsvvResonance,3);
+ assert.ok(Math.abs(p.atkMul-Math.pow(1.08,3))<1e-9);
+ assert.ok(Math.abs(p.cdMul-Math.pow(.96,5))<1e-9);
+ assert.match(read('js/systems/rift.js'),/PKMSVVBalance.rewardRift\(pl\)/);
+ assert.match(read('js/systems/combat.js'),/for \(const m of pl\.moves\) tickMove/);
+});
+test('Life Orb pays HP at most once in a 2-second window with simultaneous auto skills',()=>{
+ const src=read('js/entities/player.js');
+ const G={Audio:{sfx(){}},Game:{st:{time:0}},Sprites:{animMeta:()=>null}};
+ new Function('G',src)(G);
+ const pl={
+   hp:100,maxHp:100,hasItem:()=>true,remote:false,
+   anim:{busy:()=>true,progress:()=>0,play(){}}
+ };
+ const cast=G.Player.prototype.cast;
+ for(let i=0;i<6;i++)cast.call(pl,{kind:'projectile',cd:1});
+ assert.equal(pl.hp,99,'six simultaneous casts must cost only one fee');
+ G.Game.st.time=1;cast.call(pl,{kind:'projectile',cd:1});
+ assert.equal(pl.hp,99);
+ G.Game.st.time=2;cast.call(pl,{kind:'projectile',cd:1});
+ assert.equal(pl.hp,98);
+ G.Game.st.time=4;cast.call(pl,{kind:'buff',cd:8.5});
+ assert.equal(pl.hp,98,'buff should not drain life');
+ cast.call(pl,{kind:'projectile',cd:1});
+ assert.equal(pl.hp,97);
+ const item=read('js/data/items.js');
+ assert.match(item,/pierde hasta un 1% de PS cada 2 s/);
+});
