@@ -75,7 +75,7 @@ test('legendary rifts add capped team resonance without requiring manual slot fu
 });
 test('Life Orb pays HP at most once in a 2-second window with simultaneous auto skills',()=>{
  const src=read('js/entities/player.js');
- const G={Audio:{sfx(){}},Game:{st:{time:0}},Sprites:{animMeta:()=>null}};
+ const G={Audio:{sfx(){}},Game:{st:{time:0}},Sprites:{animMeta:()=>null},PKMSVVEvo:{onCast(){}}};
  new Function('G',src)(G);
  const pl={
    hp:100,maxHp:100,hasItem:()=>true,remote:false,
