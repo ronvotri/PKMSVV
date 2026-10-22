@@ -65,7 +65,9 @@ test('release text reaches offline compiled game assets with no unapproved extra
  const vendor=path.join(base,'vendor/pokesurvivor');
  if(!fs.existsSync(path.join(vendor,'index.html')))return;
  const payload=src('vendor/pokesurvivor/js/data/changelog.js');
- assert.equal(payload.trim(),src('src/pkmsvv-changelog-v11.js').trim());
+ assert.ok(payload.startsWith(src('src/pkmsvv-changelog-v11.js')));
+ assert.ok(payload.includes(src('src/pkmsvv-changelog-v12.js').trim()));
+ assert.match(payload,/G\.CHANGELOG\.unshift\(/);
  const bundled=src('vendor/pokesurvivor/js/app.min.js');
  assert.match(bundled,/15 Team Powerups/);
  assert.match(bundled,/15 Nâng cấp Toàn Đội/);
