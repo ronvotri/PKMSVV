@@ -1,0 +1,158 @@
+name: Publish verified Pokémon Survivor v1.2.0
+
+on:
+  workflow_run:
+    workflows:
+      - Build Windows Offline (noncommercial)
+      - Build Android APK Offline (noncommercial)
+      - Build Switch Lite Brewser Offline Test
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+# One release only; old commits and partially passing build sets cannot publish.
+concurrency:
+  group: pkmsvv-release-v1.2.0
+  cancel-in-progress: false
+
+jobs:
+  verified-release:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Match current main and approved v1.2.0
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node -p 'require("./package.json").version')" = "1.2.0"
+          sha="$(git rev-parse HEAD)"
+          if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.event.workflow_run.head_sha }}" != "$sha" ]]; then
+            echo "Old build commit; latest main has moved. Not publishing."
+            exit 0
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Locate three passing builds from the same exact commit
+        id: runs
+        if: steps.version.outputs.ready == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha="${{ steps.version.outputs.sha }}"
+          for target in windows android switch; do
+            case "$target" in
+              windows) wf="build-windows.yml";;
+              android) wf="build-android.yml";;
+              switch) wf="build-switch.yml";;
+            esac
+            id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$wf" --branch main --limit 100 --json databaseId,headSha,conclusion |
+              jq -r --arg sha "$sha" '[.[] | select(.headSha == $sha and .conclusion == "success")][0].databaseId // empty')"
+            if [[ -z "$id" ]]; then
+              echo "No successful $target build at $sha yet: skip publication."
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "$target=$id" >> "$GITHUB_OUTPUT"
+          done
+          if gh release view v1.2.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v1.2.0 release already exists; do not overwrite assets."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Windows portable EXE
+        if: steps.runs.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.runs.outputs.windows }}
+          name: PKMSVV-Windows-Offline-x64
+          path: incoming/windows
+
+      - name: Fetch Android universal APK
+        if: steps.runs.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.runs.outputs.android }}
+          name: PKMSVV-Android-APK-debug
+          path: incoming/android
+
+      - name: Fetch Switch Brewser offline package
+        if: steps.runs.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.runs.outputs.switch }}
+          name: PKMSVV-Switch-Brewser-Offline-Test
+          path: incoming/switch
+
+      - name: Validate and name release assets
+        if: steps.runs.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          mapfile -t apks < <(find incoming/android -type f -name '*.apk')
+          mapfile -t exes < <(find incoming/windows -type f -name '*.exe')
+          mapfile -t zips < <(find incoming/switch -type f -name '*.zip')
+          test "${#apks[@]}" -eq 1
+          test "${#exes[@]}" -eq 1
+          test "${#zips[@]}" -eq 1
+          test -s "${apks[0]}" && test -s "${exes[0]}" && test -s "${zips[0]}"
+          unzip -t "${apks[0]}" | tail -1
+          unzip -t "${zips[0]}" | tail -1
+          file "${exes[0]}" | grep -E 'PE32|MS Windows'
+          cp "${apks[0]}" release/Pokemon-Survivor-v1.2.0-Android-universal-debug.apk
+          cp "${exes[0]}" release/Pokemon-Survivor-v1.2.0-Windows-PC-x64.exe
+          cp "${zips[0]}" release/Pokemon-Survivor-v1.2.0-Switch-Lite-Offline.zip
+          sha256sum release/* | tee release/SHA256SUMS.txt
+
+      - name: Generate bilingual notes from the approved in-game changelog
+        if: steps.runs.outputs.ready == 'true'
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          const G={CHANGELOG:[]};
+          vm.runInNewContext(fs.readFileSync('src/pkmsvv-changelog-v12.js','utf8'),{G});
+          const e=G.CHANGELOG[0];
+          let text='# Pokémon Survivor – Votri Valley v1.2.0\n\n';
+          for(const [idx,lang] of [[0,'Tiếng Việt'],[1,'English']]){
+            text+='## '+lang+'\n\n'+e.subtitle[idx]+'\n\n';
+            for(const [key,name] of [['new',idx===0?'TÍNH NĂNG MỚI':'NEW FEATURES'],['chg',idx===0?'THAY ĐỔI GAMEPLAY':'GAMEPLAY CHANGES'],['fix',idx===0?'CẢI TIẾN & SỬA LỖI':'IMPROVEMENTS & FIXES']]){
+              text+='### '+name+'\n\n'+e[key].map(x=>'- '+x[idx]).join('\n')+'\n\n';
+            }
+            text+='*'+e.credit[idx]+'*\n\n';
+          }
+          text+='---\n\n**Platform testing notice:** Windows is packaged as a portable executable, Android as a debug APK, and Switch as an offline Brewser homebrew bundle. All three are tested by GitHub Actions; real-device compatibility and touch/gamepad behavior still require hardware testing. Export your save before reinstalling or updating. Noncommercial fan modification; not an official Pokémon release.\n';
+          fs.writeFileSync('RELEASE_NOTES_v1.2.0.md',text);
+          NODE
+
+      - name: Publish verified three-platform release
+        if: steps.runs.outputs.ready == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create v1.2.0 release/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "${{ steps.version.outputs.sha }}" \
+            --title "Pokémon Survivor – Votri Valley v1.2.0" \
+            --notes-file RELEASE_NOTES_v1.2.0.md
+          gh release view v1.2.0 --repo "$GITHUB_REPOSITORY" --json url,assets
