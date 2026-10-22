@@ -107,3 +107,26 @@ test('Kecleon Pokédex pane escapes apostrophes and refreshes after item changes
  assert.notEqual(host.panel,original);
  assert.match(host.panel.innerHTML,/Chưa có/);
 });
+
+test('Older save merge cannot resurrect consumed Mint, Capsule or TMs',()=>{
+ if(!built())return;
+ const G={DEX_BY:{25:{}},Shop:{ITEMS:{mint:{},cap:{},caph:{}}},Moves:{BY_ID:{surf:{id:'surf'}}},NATURE_BY:{hardy:{}}};
+ const localStorage={getItem:()=>null,setItem(){},removeItem(){},length:0};
+ vm.runInNewContext(read('vendor/pokesurvivor/js/core/db.js'),{G,localStorage,Math,Date,JSON,Number,String,Object,Set,Map,Intl}, {timeout:5000});
+ const snap=(updated,bag,tms)=>({
+  created:100,updated,coins:1000,tickets:{t1:0,t10:0},
+  owned:{25:{at:100,from:'starter'}},shiny:{},partner:25,
+  upgrades:{},pupg:{},dfav:{},pused:{},pstart:{},
+  legends:{},arenas:{},itemsFound:{},evoMoves:{},ach:{},
+  missions:{},stats:{},bag,tms,ptm:{},pnat:{},pabil:{}
+ });
+ const old=snap(100,{mint:2,cap:1},{surf:1});
+ const latest=snap(200,{},{}); // Player spent those items after the old snapshot.
+ const merged=G.DB.merge(latest,old);
+ assert.deepEqual(Object.keys(merged.bag),[]);
+ assert.deepEqual(Object.keys(merged.tms),[]);
+ const latestPurchase=snap(300,{mint:3},{surf:2});
+ const result=G.DB.merge(latestPurchase,old);
+ assert.equal(result.bag.mint,3);
+ assert.equal(result.tms.surf,2);
+});
