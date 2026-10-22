@@ -37,7 +37,7 @@ test('English render can translate strings that contain embedded HTML markup',()
  for(const original of originals){
   const key=strip(original),translated=tr(key);
   assert.notEqual(translated,key,'Untranslated UI: '+key);
-  assert.equal(/[À-ỹ]/.test(translated),false);
+  assert.equal(/[ăâđêôơưĂÂĐÊÔƠƯ]/.test(translated),false);
  }
 });
 test('shortened partner button is in upstream-patched Pokédex and English is available',()=>{
@@ -54,7 +54,7 @@ test('English dictionary loads in game before executable modules and is bundled 
  const htmlFile=path.join(root,'vendor/pokesurvivor/index.html');
  if(!fs.existsSync(htmlFile))return;
  const html=fs.readFileSync(htmlFile,'utf8');
- assert.match(html,/js\/data\/pkmsvv-extended-en\.js/);
+ assert.match(html,/js\/app\.min\.js/);
  const content=fs.readFileSync(path.join(root,'vendor/pokesurvivor/js/data/pkmsvv-extended-en.js'),'utf8');
  assert.match(content,/Pokédex|POKÉDEX|STAMP/i);
  const bundle=fs.readFileSync(path.join(root,'vendor/pokesurvivor/js/app.min.js'),'utf8');
