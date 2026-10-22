@@ -76,7 +76,7 @@ test('release text reaches offline compiled game assets with no unapproved extra
  assert.match(bundled,/Pokémon Survivor – Votri Valley v1\.1/);
 });
 
-test('v1.2 is first in localized What's New; v1.1 is still untouched',()=>{
+test("v1.2 is first in localized What's New; v1.1 is still untouched",()=>{
  assert.equal(baseG.CHANGELOG.length,1);
  assert.equal(releaseG.CHANGELOG.length,2);
  assert.equal(releaseG.CHANGELOG[0].title[0],'Pokémon Survivor – Votri Valley v1.2');
