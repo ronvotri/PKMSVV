@@ -28,7 +28,8 @@
     "test:changelog": "node --test tests/changelog-v11.test.cjs",
     "test:bilingual": "node --test tests/bilingual-addon.test.cjs",
     "test:mobile-topbar": "node --test tests/mobile-topbar.test.cjs",
-    "test:kecleon": "node --test tests/kecleon.test.cjs"
+    "test:kecleon": "node --test tests/kecleon.test.cjs",
+    "test:opening": "node --test tests/opening-spawns.test.cjs"
   },
   "devDependencies": {
     "electron": "^38.0.0",
