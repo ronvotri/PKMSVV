@@ -2,8 +2,8 @@
    The original source localization engine handles DOM, canvas, alert and confirm.
    This dictionary is loaded only for the selected language by G.I18n.add. */
 G.I18n.add({
-  "Đây là Pokémon đồng hành": "This is your partner Pokémon",
-  "Chọn làm Pokémon đồng hành": "Set as partner Pokémon",
+  "Đồng hành": "Partner",
+  "Chọn đồng hành": "Choose Partner",
   "Sao lưu / Khôi phục Save": "Back up / Restore Save",
   "Sao lưu hoặc khôi phục Save": "Back up or restore save",
   "💾 SAO LƯU & KHÔI PHỤC": "💾 BACKUP & RESTORE",
