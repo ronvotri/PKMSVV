@@ -437,6 +437,8 @@ execFileSync(process.execPath,[path.join(project,'scripts','patch-controller.cjs
 execFileSync(process.execPath,[path.join(project,'scripts','patch-music.cjs')],{cwd:project,stdio:'inherit'});
 // v0.9.4: move Pokémon partner action, expose quick Save, repair fullscreen.
 execFileSync(process.execPath,[path.join(project,'scripts','patch-ui094.cjs')],{cwd:project,stdio:'inherit'});
+// v1.1.2: Safe mobile topbar geometry and separate tappable action row.
+execFileSync(process.execPath,[path.join(project,'scripts','patch-mobile-header.cjs')],{cwd:project,stdio:'inherit'});
 /* v0.9.5: English coverage for ALL added Votri Valley gameplay features.
    Use the original I18n engine rather than a second mutation observer. */
 fs.copyFileSync(path.join(project,'src','pkmsvv-extended-en.js'),
