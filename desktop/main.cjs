@@ -1,7 +1,7 @@
 'use strict';
 
 /* Local-only Electron wrapper. This is NOT a browser pointing to pokesurvivor.com. */
-const { app, BrowserWindow, Menu, session } = require('electron');
+const { app, BrowserWindow, Menu, session, ipcMain } = require('electron');
 const path = require('node:path');
 
 app.setAppUserModelId('com.ronvotri.pkmsvv');
@@ -23,6 +23,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
+      preload: path.join(__dirname,'preload.cjs'),
       webSecurity: true,
       spellcheck: false
     }
@@ -53,6 +54,18 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Only the app's own window may request a native full-screen toggle.
+  ipcMain.handle('pkmsvv:toggle-fullscreen',event=>{
+    const win=BrowserWindow.fromWebContents(event.sender);
+    if(!win || win!==mainWindow)throw Error('Invalid full-screen requester');
+    win.setFullScreen(!win.isFullScreen());
+    return {fullscreen:win.isFullScreen()};
+  });
+  ipcMain.handle('pkmsvv:is-fullscreen',event=>{
+    const win=BrowserWindow.fromWebContents(event.sender);
+    if(!win || win!==mainWindow)throw Error('Invalid full-screen requester');
+    return {fullscreen:win.isFullScreen()};
+  });
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
