@@ -8,6 +8,26 @@ G.PKMSVVKecleonScene = (() => {
   const $ = id => document.getElementById(id);
   const local = (vi,en) => G.I18n && G.I18n.lang==='vi' ? vi : en;
   let bubbleTimer = 0;
+  function hueSwap(ctx, cv, [h0, h1, h2]) {
+    const img = ctx.getImageData(0, 0, cv.width, cv.height), d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 8) continue;
+      const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), c = mx - mn;
+      if (c < 0.12) continue;                                   // grises: igual
+      let h = mx === r ? ((g - b) / c) % 6 : mx === g ? (b - r) / c + 2 : (r - g) / c + 4;
+      h = (h * 60 + 360) % 360;
+      if (h < h0 || h > h1) continue;
+      const l = (mx + mn) / 2, sat = c / (1 - Math.abs(2 * l - 1));
+      // HSL -> RGB con el tono nuevo.
+      const C = (1 - Math.abs(2 * l - 1)) * sat, X = C * (1 - Math.abs((h2 / 60) % 2 - 1)), m = l - C / 2;
+      const [R, G2, B] = h2 < 60 ? [C, X, 0] : h2 < 120 ? [X, C, 0] : h2 < 180 ? [0, C, X] : h2 < 240 ? [0, X, C] : h2 < 300 ? [X, 0, C] : [C, 0, X];
+      d[i] = (R + m) * 255; d[i + 1] = (G2 + m) * 255; d[i + 2] = (B + m) * 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+
   function say(str) {
     const b = $('pkmk-bubble');
     if (!b) return;
@@ -403,7 +423,7 @@ const Scene = (() => {
       kcx.clearRect(0, 0, KS, KS);
       kcx.imageSmoothingEnabled = false;
       k.a.draw(kcx, KS / 2, KS - 12);
-      if (k.purple) G.UI.hueSwap(kcx, kc, PURPLE);
+      if (k.purple) hueSwap(kcx, kc, PURPLE);
       const ox = x - KS / 2, oy = y - KS + 12;
       if (k.cam > 0.98) { ctx.drawImage(kc, ox, oy); return; }
       // Camuflado: casi transparente y ondulando, en franjas.
