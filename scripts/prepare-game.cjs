@@ -234,10 +234,28 @@ patch('js/ui/settings-ui.js',
   '             <div><kbd>1</kbd>–<kbd>4</kbd> o clic en el icono</div><span>elegir ataque</span>\n' +
   '             <div><kbd>Q</kbd> / <kbd>E</kbd></div><span>ataque anterior / siguiente</span>',
   '             <div><kbd>F</kbd></div><span>activar movimiento especial (si lo has aprendido)</span>');
-patch('js/data/changelog.js', 'G.CHANGELOG = [',
-  'G.CHANGELOG = ['); // This anchor asserts the upstream format.
-fs.writeFileSync(path.join(game, 'js','data','changelog.js'),
-  '/* PKMSVV change log: intentionally empty; fill in with owner release notes. */\nG.CHANGELOG = [];\n', 'utf8');
+// The owner approved these v1.1 release notes in both languages.
+patch('js/data/changelog.js', 'G.CHANGELOG = [', 'G.CHANGELOG = [');
+fs.copyFileSync(path.join(project, 'src', 'pkmsvv-changelog-v11.js'),
+  path.join(game, 'js', 'data', 'changelog.js'));
+// Upstream news renderer assumes its first language is Spanish. PKMSVV release
+// entries are explicitly [Vietnamese, English]; choose the correct text instead
+// of feeding approved release notes through automatic fragment translation.
+patch('js/ui/news-ui.js',
+  "    const text = pair => G.I18n.lang === 'es' ? pair[0]\n" +
+  "      : G.I18n.lang === 'en' || !G.I18n.has(pair[0]) ? pair[1] : G.T(pair[0]);",
+  "    const text = pair => G.I18n.lang === 'vi' ? pair[0] : pair[1];");
+patch('js/ui/news-ui.js',
+  "    const PARTS = [['new', ['Nuevo', 'New']], ['chg', ['Cambios', 'Changes']], ['fix', ['Arreglos', 'Fixes']]];",
+  "    const PARTS = [['new', ['TÍNH NĂNG MỚI', 'NEW FEATURES']], ['chg', ['THAY ĐỔI GAMEPLAY', 'GAMEPLAY CHANGES']], ['fix', ['CẢI TIẾN & SỬA LỖI', 'IMPROVEMENTS & FIXES']]];");
+patch('js/ui/news-ui.js',
+  "`<div class=\"news-day\" translate=\"no\"><h3>${esc(v.title ? text(v.title) : '')}<small>${fmt(v.d)}</small></h3>` +",
+  "`<div class=\"news-day\" translate=\"no\"><h3>${esc(v.title ? text(v.title) : '')}<small>${fmt(v.d)}</small></h3>` +" +
+  "\n      (v.subtitle ? `<p class=\"pkmsvv-news-subtitle\">${esc(text(v.subtitle))}</p>` : '') +");
+patch('js/ui/news-ui.js',
+  "        `<div class=\"news-part\"><span class=\"news-tag ${k}\">${text(lbl)}</span><ul>${v[k].map(t => `<li>${esc(text(t))}</li>`).join('')}</ul></div>`).join('') +\n      '</div>').join('');",
+  "        `<div class=\"news-part\"><span class=\"news-tag ${k}\">${esc(text(lbl))}</span><ul>${v[k].map(t => `<li>${esc(text(t))}</li>`).join('')}</ul></div>`).join('') +\n      (v.credit ? `<p class=\"pkmsvv-news-credit\">${esc(text(v.credit))}</p>` : '') +\n      '</div>').join('');");
+
 
 // Loginless PC profile: keep a currently restored local save; if none exists,
 // generate a dedicated offline profile (NOT a guest, so G.DB.commit works).
