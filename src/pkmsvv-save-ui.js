@@ -46,18 +46,18 @@ G.PKMSVVSaveUI=(()=>{
    // account passwords or leaking hashes in the backup.
    location.reload();
  }
- function mount(box){
-   if(!box||box.querySelector('#pkmsvv-save-export'))return;
+ function mount(box,prefix='pkmsvv-save'){
+   if(!box||box.querySelector('.pkm-backup'))return;
    const wrap=document.createElement('div');wrap.className='pkm-backup';
    wrap.innerHTML='<h3>💾 DỮ LIỆU TRÒ CHƠI</h3>'+
      '<p>Gỡ ứng dụng Android sẽ xóa save trong bộ nhớ ứng dụng. Hãy <b>xuất file</b> và lưu ngoài app trước khi gỡ/cập nhật.</p>'+
-     '<div class="row wrap" style="gap:8px"><button class="btn gold" id="pkmsvv-save-export">Sao lưu Save (.json)</button>'+
-     '<button class="btn" id="pkmsvv-save-import">Khôi phục Save</button></div>'+
-     '<input id="pkmsvv-save-file" type="file" accept=".json,application/json" style="display:none">'+
-     '<p class="note" id="pkmsvv-save-msg">File sao lưu gồm Pokémon, Shiny, PokéCoins, nâng cấp, nhiệm vụ và Dấu Ấn. Chỉ lưu vào nơi bạn tin cậy.</p>';
+     '<div class="row wrap" style="gap:8px"><button class="btn gold" id="'+prefix+'-export">Sao lưu Save (.json)</button>'+
+     '<button class="btn" id="'+prefix+'-import">Khôi phục Save</button></div>'+
+     '<input id="'+prefix+'-file" type="file" accept=".json,application/json" style="display:none">'+
+     '<p class="note" id="'+prefix+'-msg">File sao lưu gồm Pokémon, Shiny, PokéCoins, nâng cấp, nhiệm vụ và Dấu Ấn. Chỉ lưu vào nơi bạn tin cậy.</p>';
    box.appendChild(wrap);
-   const msg=wrap.querySelector('#pkmsvv-save-msg'),file=wrap.querySelector('#pkmsvv-save-file');
-   wrap.querySelector('#pkmsvv-save-export').onclick=async()=>{
+   const msg=wrap.querySelector('#'+prefix+'-msg'),file=wrap.querySelector('#'+prefix+'-file');
+   wrap.querySelector('#'+prefix+'-export').onclick=async()=>{
      try{
        const data=backup(),filename='PokemonSurvivor-Save-'+new Date().toISOString().slice(0,10)+'.json';
        if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){
@@ -67,7 +67,7 @@ G.PKMSVVSaveUI=(()=>{
        msg.textContent='Đã yêu cầu tải file save. Hãy kiểm tra Downloads; đảm bảo file nằm ngoài thư mục của game.';
      }catch(e){msg.textContent='Không thể sao lưu: '+e.message;}
    };
-   wrap.querySelector('#pkmsvv-save-import').onclick=()=>file.click();
+   wrap.querySelector('#'+prefix+'-import').onclick=()=>file.click();
    file.onchange=async()=>{
      try{
        if(!file.files||!file.files[0])return;
@@ -80,5 +80,31 @@ G.PKMSVVSaveUI=(()=>{
      finally{file.value='';}
    };
  }
- return {mount,backup,validate,restore};
+ let quick=null;
+ function isOpen(){return !!quick && quick.isConnected;}
+ function closeQuick(){ if(!quick)return;quick.remove();quick=null; }
+ function openQuick(){
+   if(isOpen()){closeQuick();return;}
+   if(!G.DB.save||G.DB.guest){G.UI.toast('Hãy mở hồ sơ chơi đã lưu trước khi sao lưu.');return;}
+   const modal=document.createElement('section');
+   modal.id='scr-pkmsvv-save-quick';
+   modal.className='scr dim pkmsvv-quick';
+   modal.innerHTML='<div class="box pkmsvv-quick-box">'+
+     '<div class="row between"><h2>💾 SAO LƯU & KHÔI PHỤC</h2>'+
+     '<button class="btn small ghost" id="pkmsvv-quick-close" type="button">✕ Đóng</button></div>'+
+     '<div class="pkmsvv-quick-content"></div></div>';
+   document.body.appendChild(modal);quick=modal;
+   modal.querySelector('#pkmsvv-quick-close').onclick=closeQuick;
+   modal.onclick=e=>{if(e.target===modal)closeQuick();};
+   mount(modal.querySelector('.pkmsvv-quick-content'),'pkmsvv-quick');
+   if(G.Pad&&G.Pad.focusFirst)G.Pad.focusFirst();
+ }
+ function initQuick(){
+   const button=document.getElementById('btn-backup');if(!button)return;
+   button.innerHTML=G.Icons.html('save',20);
+   button.title='Sao lưu / Khôi phục Save';
+   button.setAttribute('aria-label','Sao lưu hoặc khôi phục Save');
+   button.onclick=openQuick;
+ }
+ return {mount,backup,validate,restore,initQuick,openQuick,closeQuick,isOpen};
 })();
