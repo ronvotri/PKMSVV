@@ -445,6 +445,12 @@ patch('dev.html',
   '<script defer src="js/data/pkmsvv-ux-languages.js"></script>',
   '<script defer src="js/data/pkmsvv-ux-languages.js"></script>\n<script defer src="js/data/pkmsvv-extended-en.js"></script>');
 
+// Minimal styling for the approved What's New subtitle and attribution;
+ // content remains sourced from the bilingual release note data.
+fs.appendFileSync(path.join(game,'css','style.css'),
+  '\n.pkmsvv-news-subtitle{margin:8px 0 14px;color:#e2eaf7;line-height:1.55;font-size:14px}\n' +
+  '.pkmsvv-news-credit{font-size:12px;color:#cad7ef;line-height:1.5;border-top:1px solid #50658d;padding-top:12px;margin-top:15px}\n',
+  'utf8');
 execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo', '--expose'], { cwd: game, stdio: 'inherit' });
 
 const indexPath = path.join(game, 'index.html');
