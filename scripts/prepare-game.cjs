@@ -423,7 +423,7 @@ fs.copyFileSync(path.join(project,'src','pkmsvv-extended-en.js'),
   path.join(game,'js','data','pkmsvv-extended-en.js'));
 patch('dev.html',
   '<script defer src="js/data/pkmsvv-ux-languages.js"></script>',
-  '<script defer src="js/data/pkmsvv-ux-languages.js"></script>\\n<script defer src="js/data/pkmsvv-extended-en.js"></script>');
+  '<script defer src="js/data/pkmsvv-ux-languages.js"></script>\n<script defer src="js/data/pkmsvv-extended-en.js"></script>');
 
 execFileSync(process.execPath, [path.join(game, 'tools', 'build.js'), '--sin-seo', '--expose'], { cwd: game, stdio: 'inherit' });
 
