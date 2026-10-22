@@ -40,6 +40,8 @@ G.PKMSVVBalance = (() => {
     const volume = m.kind === 'nova' || m.kind === 'cone' ? Math.max(0, (m.count || 1) - 5) * 0.018 : 0;
     m.cd = Math.round(Math.max(p.min, Math.min(p.max, initial + volume)) * 100) / 100;
     if (m.kind === 'buff') {
+      // A single non-stacking buff must be worthwhile in a six-move build.
+      m.amount = Math.round(m.amount * 1.4 * 1000) / 1000;
       m.stacks = 1;
       m.ups = [
         { t:'Duy trì lâu hơn 25%',m:{dur:1.25} },
