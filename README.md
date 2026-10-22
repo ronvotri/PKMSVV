@@ -211,3 +211,19 @@ Bản Switch hiện có thể tạo **PKMSVV.nro** (native ARM64 launcher bằng
 - SHA-256 của hai tệp Brewser được kiểm tra tự động với bản phát hành chính thức [v0.1.1.31](https://github.com/natureglass/Brewser/releases/tag/v0.1.1.31); giữ giấy phép MPL-2.0 và liên kết mã nguồn Brewser trong ZIP. Các điều khoản phi thương mại của PokéSurvivor vẫn giữ nguyên.
 - Đọc **HUONG_DAN_SWITCH.txt** mới nằm ở gốc ZIP; nó thay cho hướng dẫn Switch cũ ở những đoạn mô tả rằng gói không chứa Brewser.
 
+
+## v1.2.0 — Kecleon Shop, Nature, Ability, TM và nhịp chơi mới
+
+Bản nâng cấp gameplay phi thương mại của Votri Valley, dựa trên mã PokéSurvivor được cố định tại upstream commit `11fe868`, không dùng dịch vụ online khi chơi.
+
+- **Cửa hàng Kecleon:** mua Mint, Ability Capsule, Hidden Ability Capsule và TM bằng PokéCoin. Có **8 TM luân phiên mỗi ngày**.
+- **Túi đồ:** vật phẩm được lưu trong hồ sơ local. Chọn một Pokémon đã mở khóa, rồi dùng vật phẩm; TM đã học được lưu cho Pokémon đó.
+- **Nature:** 25 tính cách; Mint đổi Nature, ảnh hưởng chỉ số (+10%/−10% với Nature không trung tính).
+- **Ability:** các đặc tính phù hợp từng Pokémon, có hiệu ứng trong trận; thay bằng Capsule hợp lệ.
+- **TM:** dạy chiêu tương thích và lưu dài hạn; mỗi TM đã sử dụng bị trừ khỏi túi.
+- **Nhịp sinh tồn:** từ **00:00 đến trước 03:00**, tốc độ sinh quái thường, đợt dồn quái và quái phát sinh theo sự kiện giảm còn **2/3**; từ **03:00** trở đi về mức cũ. Không thay thời điểm boss, HP, sát thương hoặc kinh nghiệm từng quái.
+- **Có gì mới:** hai ngôn ngữ Việt / Anh, giữ nguyên đầy đủ nội dung v1.1 đã duyệt. Phần v1.2 dùng nội dung từ [src/pkmsvv-changelog-v12.js](src/pkmsvv-changelog-v12.js), không đưa chỉnh sửa credit màn hình chính vào release note.
+
+**Bản dựng:** [Windows portable](.github/workflows/build-windows.yml), [Android universal debug APK](.github/workflows/build-android.yml) và [Switch Brewser offline](.github/workflows/build-switch.yml). Xem [GitHub Actions](https://github.com/ronvotri/PKMSVV/actions), chọn lượt build thành công ở commit phát hành tương ứng. Build/kiểm thử tự động không chứng minh chất lượng cảm ứng, âm thanh hoặc hiệu suất trên điện thoại/Switch thật: các nền tảng này vẫn cần người chơi QA trực tiếp trước khi được coi là tương thích hoàn toàn. Sao lưu Save ra file JSON trước khi đổi bản, đặc biệt khi cài lại APK.
+
+**Giấy phép:** giữ nguyên quyền tác giả gốc JPTER78, SpriteCollab và bên nắm giữ IP Pokémon. Bản chỉnh sửa chỉ dành cho mục đích phi thương mại.
