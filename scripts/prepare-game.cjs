@@ -409,6 +409,8 @@ fs.writeFileSync(path.join(game, 'js/core/firebase-config.js'),
 
 // Persistent account-wide powerups are installed on the pinned source before compilation.
 execFileSync(process.execPath,[path.join(project,'scripts','patch-global-upgrades.cjs')],{cwd:project,stdio:'inherit'});
+// v0.9.6: flying water traversal and two actual move-scaling global upgrades.
+execFileSync(process.execPath,[path.join(project,'scripts','patch-power015.cjs')],{cwd:project,stdio:'inherit'});
 // Gacha ALL GEN, Pokédex milestones, daily/weekly Pokemon missions and manual backup.
 execFileSync(process.execPath,[path.join(project,'scripts','patch-collection.cjs')],{cwd:project,stdio:'inherit'});
 // v0.9.1: Switch/Android/PC controller navigation and one-press play from Pokedex.
