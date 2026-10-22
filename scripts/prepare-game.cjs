@@ -129,6 +129,11 @@ patch('js/data/items.js',
   "      on: p => { p.atkMul *= 1.25; p.spdMul *= 0.85; },\n" +
   "      off: p => { p.atkMul /= 1.25; p.spdMul /= 0.85; }");
 
+// Keep the Life Orb tooltip truthful in Spanish and both supported languages.
+patch('js/data/items.js',
+  "desc: '+30% de daño, pero cada ataque te quita un poco de vida.'",
+  "desc: '+30% de daño; pierde hasta un 1% de PS cada 2 s cuando ataca.'");
+
 // Seven optional licensed songs, otherwise keep the composer's synthesized score.
 const musicNames = ['village','forest','cave','volcano','boss','rift','judgment'];
 const musicFiles = {};
@@ -448,6 +453,9 @@ patch('dev.html',
 // Newly added gamepad hints are bilingual as well. Keep upstream Spanish
 // source keys for i18n's text-node scanning, without introducing mixed UI.
 const freshLabels = [
+  ['+30% de daño; pierde hasta un 1% de PS cada 2 s cuando ataca.',
+   '+30% damage; lose up to 1% max HP once every 2 seconds while attacking.',
+   '+30% sát thương; tối đa mất 1% HP mỗi 2 giây khi tấn công.'],
   ['Habilidad activa','Active skill','Kỹ năng chủ động'],
   ['Habilidad automática','Automatic skill','Kỹ năng tự động'],
   ['Potenciador automático','Automatic buff','Buff tự động'],
