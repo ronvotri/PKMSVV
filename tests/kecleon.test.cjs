@@ -161,3 +161,35 @@ test('Kecleon shop to bag to use to save to reload keeps balances and permanent 
  assert.deepEqual(Array.from(H.Mons.taught(25)),['surf']);
  assert.equal(H.Mons.canLearn(25,'surf'),false);
 });
+
+test('Original Kecleon stall loads authentic scene and bag empties with shop action',()=>{
+ const scene=read('src/kecleon/pkmsvv-kecleon-scene.js');
+ const ui=read('src/kecleon/pkmsvv-kecleon-ui.js');
+ const theme=read('src/kecleon/pkmsvv-kecleon-theme.css');
+ const patcher=read('scripts/patch-kecleon.cjs');
+ const art=read('src/kecleon/pkmsvv-kecleon-icon-defs.txt');
+ assert.match(scene,/G\.Sprites\.Animator\(KECLEON/);
+ assert.match(scene,/const KECLEON = 352/);
+ assert.match(scene,/pkmk-bubble/);
+ assert.match(scene,/hueSwap\(kcx, kc, PURPLE\)/);
+ assert.match(ui,/Scene\(\)\.start/);
+ assert.match(ui,/pkmk-cards/);
+ assert.match(ui,/data-pkmk-goshop/);
+ assert.match(ui,/G\.Shop\.buy\(what\)/);
+ assert.match(theme,/pkmk-stall/);
+ assert.match(theme,/pkmk-empty/);
+ for(const icon of ['mint','capsule','capsuleh','shop','bag'])
+  assert.match(art,new RegExp(icon+':'));
+ assert.match(patcher,/pkmk-scene/);
+ assert.match(patcher,/pkmk-kecleon-scene\.js/);
+ if(!built())return;
+ const base='vendor/pokesurvivor/';
+ const html=read(base+'index.html');
+ for(const sel of ['pkmk-scene','pkmk-stall','pkmk-sign','pkmk-bubble'])
+  assert.match(html,new RegExp('id="'+sel+'"'));
+ const compiled=read(base+'js/ui/pkmsvv-kecleon-scene.js');
+ assert.match(compiled,/G\.PKMSVVKecleonScene/);
+ assert.match(read(base+'css/style.css'),/pkmk-cards/);
+ const icons=read(base+'js/ui/icons.js');
+ assert.match(icons,/capsuleh:/);
+});
