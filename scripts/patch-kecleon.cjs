@@ -248,7 +248,7 @@ patch('js/systems/combat.js',
 // Shiny/partner UI works independently. Keep approved v1.1 What's New file unchanged.
 fs.appendFileSync(path.join(base,'css/style.css'),
   fs.readFileSync(path.join(project,'src/kecleon/pkmsvv-kecleon-theme.css'),'utf8')+'\n');
-fs.appendFileSync(path.join(base,'css/style.css'),String.raw
+fs.appendFileSync(path.join(base,'css/style.css'),String.raw`
 .pkmk-box{max-width:min(850px,96vw);max-height:91vh;overflow-y:auto;padding:18px}
 .pkmk-tabs{gap:9px;align-items:center;margin:12px 0}
 #pkmk-balance{margin-left:auto;color:#ffdb69}
