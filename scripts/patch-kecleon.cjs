@@ -74,8 +74,8 @@ if(bagBtn)bagBtn.innerHTML=G.Icons.html('book',18)+' '+(G.I18n.lang==='vi'?'Túi
  '<small>'+(G.I18n.lang==='vi'?'Vật phẩm & TM':'Items & TMs')+'</small>';
 `;
 patch('js/ui/menu.js',
- "    const owned = Object.keys(s.owned).filter(d => G.DEX_BY[d]).length;",
-badge+"\n    const owned = Object.keys(s.owned).filter(d => G.DEX_BY[d]).length;");
+ "    const shinies = Object.keys(s.shiny || {}).length;",
+badge+"\n    const shinies = Object.keys(s.shiny || {}).length;");
 patch('js/ui/menu.js',
  "G.UI.sprite($('dex-big'), dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny });",
  "G.UI.sprite($('dex-big'), dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny });\n    G.KecleonUI.attachDex(dex,box);");
