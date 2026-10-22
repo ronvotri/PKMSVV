@@ -51,6 +51,8 @@ test('TM taught to compatible Pokémon is consumed once, permanent and never dup
 });
 test('Ability Capsule stores chosen Ability and rejects unowned hidden slots',()=>{
  const G=game();
+ // Synthetic two-standard-slot fixture: the upstream Pokédex ability catalog overwrites mocks.
+ G.DEX_ABIL[25]=['static','lightning-rod','surge-surfer'];
  const options=G.Mons.abilityChoices(25,false);
  assert.ok(options.length);
  G.Mons.setAbility(25,options[0]);
