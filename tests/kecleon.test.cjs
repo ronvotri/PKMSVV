@@ -181,7 +181,7 @@ test('Original Kecleon stall loads authentic scene and bag empties with shop act
  for(const icon of ['mint','capsule','capsuleh','shop','bag'])
   assert.match(art,new RegExp(icon+':'));
  assert.match(patcher,/pkmk-scene/);
- assert.match(patcher,/pkmk-kecleon-scene\.js/);
+ assert.match(patcher,/pkmsvv-kecleon-scene\.js/);
  if(!built())return;
  const base='vendor/pokesurvivor/';
  const html=read(base+'index.html');
