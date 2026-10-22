@@ -81,6 +81,10 @@ test("v1.2 is first in localized What's New; v1.1 is still untouched",()=>{
  assert.equal(releaseG.CHANGELOG.length,2);
  assert.equal(releaseG.CHANGELOG[0].title[0],'Pokémon Survivor – Votri Valley v1.2');
  assert.equal(releaseG.CHANGELOG[1].title[0],entry.title[0]);
+ assert.equal(releaseG.CHANGELOG[0].new.length,5);
+ assert.equal(releaseG.CHANGELOG[0].chg.length,3);
+ assert.equal(releaseG.CHANGELOG[0].fix.length,3);
+ assert.doesNotMatch(JSON.stringify(releaseG.CHANGELOG[0]),/Tinh gọn màn hình chính|Thay câu chữ vàng|Simplified the main menu|Replace the decorative title splash/);
  assert.ok(releaseG.CHANGELOG[0].chg[0][0].includes('2/3'));
  assert.ok(releaseG.CHANGELOG[0].chg[0][1].includes('two-thirds'));
  const compiled=path.join(base,'vendor/pokesurvivor/js/ui/news-ui.js');
