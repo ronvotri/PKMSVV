@@ -15,7 +15,7 @@ test('every learned ability independently advances its cooldown',()=>{
 test('skill bar shows AUTO and slot cap expands after rifts',()=>{
  assert.match(read('js/entities/player.js'),/this\.maxMoves = 6;/);
  assert.match(read('js/ui/hud.js'),/ctx\.fillText\('AUTO'/);
- assert.match(read('js/systems/rift.js'),/pl\.maxMoves = Math\.min\(8, pl\.maxMoves \+ 1\)/);
+ assert.match(read('js/systems/rift.js'),/G\.PKMSVVBalance\.rewardRift\(pl\)/);
  assert.doesNotMatch(read('js/game.js'),/G\.Input\.tap\('keyq'\)\) pl\.cycle/);
 });
 test('seven music slots have original synthesis fallback',()=>{
