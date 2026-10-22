@@ -153,6 +153,8 @@ G.PKMSVVEvo = (() => {
     const max = Math.max(1, def.maxLvl || 1);
     const level = Math.max(1,Math.min(max,old.lvl||1));
     const upgraded = G.Moves.instance(choice.to,level);
+    // After Eevee transforms a move, keep its account-wide area/duration buffs.
+    if(G.GlobalPower && G.GlobalPower.applyMove) G.GlobalPower.applyMove(upgraded,pl);
     upgraded.since = old.since;
     upgraded.t = old.cd > 0 && upgraded.cd > 0
       ? Math.max(0,Math.min(upgraded.cd,(old.t||0)/old.cd*upgraded.cd)) : 0;
