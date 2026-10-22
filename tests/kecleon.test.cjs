@@ -81,3 +81,29 @@ test('Owner-approved changelog is not modified by this integration',()=>{
  assert.doesNotMatch(doc,/Kecleon Shop|Túi đồ|Cửa hàng Kecleon/);
  if(built())assert.equal(read('vendor/pokesurvivor/js/data/changelog.js').trim(),doc.trim());
 });
+
+test('Kecleon Pokédex pane escapes apostrophes and refreshes after item changes',()=>{
+ const G=game(),s=G.DB.save;
+ G.AbilityFX={of:()=>({})};G.T=v=>v;
+ G.Moves.BY_ID.surf.name="Trainer's Wave";
+ s.ptm={25:['surf']};
+ const host={
+  panel:null,
+  querySelector(sel){return sel==='#pkmk-dex-stats'?this.panel:null;},
+  appendChild(el){this.panel=el;}
+ };
+ const document={createElement(){return {
+  id:'',className:'',innerHTML:'',
+  remove(){if(host.panel===this)host.panel=null;},
+  querySelector(){return {onclick:null};}
+ };}};
+ vm.runInNewContext(read('src/kecleon/pkmsvv-kecleon-ui.js'),{G,document,Date,Number,String,Intl,Math});
+ G.KecleonUI.attachDex(25,host);
+ const original=host.panel;
+ assert.match(original.innerHTML,/Trainer&#39;s Wave/);
+ assert.doesNotMatch(original.innerHTML,/Trainerundefineds/);
+ s.ptm[25]=[];
+ G.KecleonUI.attachDex(25,host);
+ assert.notEqual(host.panel,original);
+ assert.match(host.panel.innerHTML,/Chưa có/);
+});
