@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/PKMSVV-0.9.5-Android-universal-debug.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/PKMSVV-0.9.6-Android-universal-debug.apk
           ls -lh dist/*.apk
           unzip -t dist/*.apk | tail -1
           "${ANDROID_HOME}/build-tools/36.0.0/aapt" dump badging dist/*.apk | grep -E "^(package:|sdkVersion:|targetSdkVersion:)" | head -4
