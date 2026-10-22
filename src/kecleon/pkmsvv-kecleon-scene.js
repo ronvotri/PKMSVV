@@ -5,6 +5,7 @@
  * Offline Votri Valley edition: single local store, VI / EN bubbles.
  */
 G.PKMSVVKecleonScene = (() => {
+  const KECLEON = 352;
   const $ = id => document.getElementById(id);
   const local = (vi,en) => G.I18n && G.I18n.lang==='vi' ? vi : en;
   let bubbleTimer = 0;
