@@ -5,7 +5,7 @@
 G.KecleonUI=(()=>{
  const $=id=>document.getElementById(id);
  const L=(vi,en)=>G.I18n&&G.I18n.lang==='vi'?vi:en;
- const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;'}[c]));
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const money=n=>Math.floor(n||0).toLocaleString(G.I18n&&G.I18n.locale||'vi-VN');
  const NATURE_VI={
    hardy:'Chăm chỉ',bold:'Táo bạo',modest:'Khiêm tốn',calm:'Điềm tĩnh',timid:'Nhút nhát',
@@ -153,7 +153,8 @@ G.KecleonUI=(()=>{
  }
  function attachDex(dex,host){
   if(!G.DB.save?.owned?.[dex]||!host||!G.Mons)return;
-  if(host.querySelector('#pkmk-dex-stats'))return;
+  const previous=host.querySelector('#pkmk-dex-stats');
+  if(previous)previous.remove(); // Always refresh selected Pokémon details and TM list.
   const n=G.Mons.natureOf(dex),a=G.Mons.abilityOf(dex);
   const pane=document.createElement('div');pane.id='pkmk-dex-stats';pane.className='pkmk-dex';
   const fx=G.AbilityFX.of(a.id,G.DEX_BY[dex]);
